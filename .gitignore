@@ -1,0 +1,8 @@
+__pycache__
+.vscode
+*.out
+*.so
+anygrad.egg-info
+build
+ignore
+.DS_Store
