@@ -6,8 +6,8 @@ from .Tensor import tensor_c as C
 from .Tensor import ThHelper as Th
 from .Tensor import ThError as errors
 
+import anygrad
 import anygrad.AutoGrad as Ag
-
 
 class Tensor():
     def __init__(self, data: Union[List[float], List[float]], requires_grad:Optional[bool] = False, dtype: Optional[Th.float32 | Th.float64] = Th.float32):
@@ -82,6 +82,14 @@ class Tensor():
             ans = reshape(data, shape)
             del(data); del(shape)
             ans = Tensor(ans, dtype=Th.float64)
+            ans.requires_grad = self.requires_grad or other.requires_grad
+            
+            if ans.requires_grad:
+                ans._prev = {self, other}
+                ans.name_backward = "<AddBackward1>"
+                ans._backward = Ag.GradientCal.add_grad(self, other, ans)
+                ans.is_leaf = False
+                
             return ans
         
     def __hash__(self): return id(Tensor)
@@ -122,21 +130,39 @@ class Tensor():
             data, shape = C.SumFloat64(self.base, axis, keepdims)
             ans = reshape(data, shape)
             del(data); del(shape)
-            ans = Tensor(ans, dtype=Th.float64)
+            ans = Tensor(ans, dtype=Th.float64, requires_grad=self.requires_grad)
+            
+            if ans.requires_grad:
+                ans._prev = {self}
+                ans.name_backward = "<SumBackward1>"
+                ans._backward = Ag.GradientCal.sum_grad(self, ans)
+                ans.is_leaf = False
+                
             return ans
 
-    def backward(self):
-        if self.shape != (1,):
-            raise ValueError("Only scaler outputs can compute backward pass")
+    def backward(self, custom_grad=None):
         
-        topo = Ag.BuildGrad.construct_graph(self)
+        if self.requires_grad == False:
+            raise ValueError("The Backward pass is work only if the requires_grad is True")
         
-        for v in topo:
-            if v is not self and v._prev:
-                v.grad = None
-                if v.grad is not None:
-                    warnings.warn(f"Grad is for only leaf node not for {v}")
+        if self.shape == (1,):
+            if custom_grad is not None:
+                raise ValueError("Custom gradient should not be provided for scalar outputs or use the scaler value to compute the grad")
+            self.grad = anygrad.ones_like(self, requires_grad=False)
+        else:
+            if custom_grad is None:
+                raise ValueError("Custom gradient must be provided for non-scalar outputs")
+            if custom_grad.shape != self.shape:
+                raise ValueError(f"Custom grad shape {custom_grad.shape} doesn't match output shape {self.shape}")
+            self.grad = custom_grad
+        
+        topo = Ag.BuildGraph.construct_graph(self)
         
         for v in reversed(topo):
+            if v is not self and v._prev:
+                if v.grad is not None:
+                    warnings.warn(f"Gradient should be None for non-leaf node: {v}")
+                v.grad = None
+        
+        for v in topo:
             v._backward()
-            
