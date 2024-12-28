@@ -9,6 +9,8 @@ try:
 except Exception as e:
     print(f"Not find the pybind11 so installing due to {e}")
     subprocess.call(["pip", "install", "pybind11"])
+    from pybind11.setup_helpers import Pybind11Extension, build_ext
+    from setuptools import setup, find_packages
     
 __version__ = "0.0.1"
 
