@@ -1,6 +1,5 @@
-from typing import Union, List, Optional
+from typing import Optional
 import pprint
-import warnings
 
 from .Tensor import tensor_c as C
 from .Tensor import ThHelper as Th
@@ -11,9 +10,9 @@ import anygrad.AutoGrad as Ag
 
 class Tensor():
     def __init__(self, 
-                 data: Union[List[float], List[float]], 
-                 requires_grad:Optional[bool] = False, 
-                 dtype: Optional[Th.float32 | Th.float64] = Th.float32):
+                 data, 
+                 requires_grad=False, 
+                 dtype=Th.float32):
         
         #Convert the Nd list to 1D list for Backend
         list_data = Th.ToList()

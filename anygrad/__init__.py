@@ -29,4 +29,4 @@ def ones_like(tensor, dtype=None, requires_grad = None):
     requires_grad = requires_grad if requires_grad is not None else tensor.requires_grad
     return ones(tensor.shape, requires_grad = requires_grad, dtype = dtype)
 
-__all__ = ["Tensor", "float32", "float64"]
+__all__ = ["float32", "float64"]

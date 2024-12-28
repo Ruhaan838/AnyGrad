@@ -41,13 +41,18 @@ ext_modules = [
 setup(
     name="anygrad",
     version=__version__,
+    description="A module that allow user to do the Tensor opration.",
+    long_description=open('README.md', encoding='utf-8').read(),
     author="Ruhaan",
+    author_email="ruhaan123dalal@gmail.com",
+    license="Apache License",
     ext_modules=ext_modules,
     cmdclass={"build_ext":build_ext},
     zip_safe=False,
     packages=find_packages(),
     package_dir={"": "."}, 
     package_data={
-        "anygrad": ["Tensor/*.py", "__init__.py", "anygrad/*.py"], 
-    } 
+        "anygrad.Tensor":['anygrad_files/tensor.pyi']
+    },
+    include_package_data=True
 )
