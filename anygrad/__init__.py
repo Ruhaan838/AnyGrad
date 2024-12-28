@@ -1,6 +1,6 @@
 from .tensor import Tensor 
 from .Tensor.ThHelper import float32, float64, Reshape
-
+from .AutoGrad import no_grad
 from .Tensor import tensor_c as C
 
 def zeros(shape, requires_grad = False, dtype = float32):

@@ -14,10 +14,11 @@ class GradientCal:
                    tensor1.grad = anygrad.zeros_like(tensor1, requires_grad=False) 
                 GradientCal.accumulate_grad(tensor1, ans_tensor)
                 
-            if tensor2.requires_grad:
-                if tensor2.grad is None:
-                    tensor2.grad = anygrad.zeros_like(tensor2, requires_grad=False)
-                GradientCal.accumulate_grad(tensor2, ans_tensor)
+            if not isinstance(tensor2, (int, float)):
+                if tensor2.requires_grad:
+                    if tensor2.grad is None:
+                        tensor2.grad = anygrad.zeros_like(tensor2, requires_grad=False)
+                    GradientCal.accumulate_grad(tensor2, ans_tensor)
         return _backward
 
 

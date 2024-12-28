@@ -62,15 +62,29 @@ class Tensor():
     
     def __add__(self, other):
         reshape = Th.Reshape()
+        
+        if isinstance(other, (int, float)):
+            data = [i + other for i in self.base.data]
+            ans = reshape(data, self.shape)
+            del(data)
+            dtype = Th.float32 if self.base.dtype == 'float32' else Th.float64
+            ans = Tensor(ans, dtype=dtype, requires_grad=self.requires_grad)
+            if ans.requires_grad:
+                ans._prev = {self}
+                ans._backward = Ag.GradientCal.add_grad(self, other, ans)
+                ans.is_leaf = False
+                
+            return ans
+        
         allow = C.isbroadcast(self.shape, other.shape, self.base.ndim, other.base.ndim)
         errors.broadcast_error(allow, f" add(+) we found {self.base.shape} and {other.base.shape}")
-        
+
         if self.base.dtype == "float32":
             data, shape = C.AddFloat32(self.base, other.base)
             ans = reshape(data, shape)
             del(data); del(shape)
-            ans = Tensor(ans, dtype=Th.float32)
-            ans.requires_grad = self.requires_grad or other.requires_grad
+            req = self.requires_grad or other.requires_grad
+            ans = Tensor(ans, dtype=Th.float32, requires_grad=req)
             
             if ans.requires_grad:
                 ans._prev = {self, other}
@@ -84,12 +98,12 @@ class Tensor():
             data, shape = C.AddFloat64(self.base, other.base)
             ans = reshape(data, shape)
             del(data); del(shape)
-            ans = Tensor(ans, dtype=Th.float64)
-            ans.requires_grad = self.requires_grad or other.requires_grad
+            req = self.requires_grad or other.requires_grad
+            ans = Tensor(ans, dtype=Th.float64, requires_grad=req)
             
             if ans.requires_grad:
                 ans._prev = {self, other}
-                ans.name_backward = "<AddBackward1>"
+                ans.name_backward = "<AddBackward0>"
                 ans._backward = Ag.GradientCal.add_grad(self, other, ans)
                 ans.is_leaf = False
                 
@@ -163,8 +177,8 @@ class Tensor():
         
         for v in reversed(topo):
             if v is not self and v._prev:
-                if v.grad is not None:
-                    warnings.warn(f"Gradient should be None for non-leaf node: {v}")
+                # if v.grad is not None:
+                #     warnings.warn(f"Gradient should be None for non-leaf node: {v}")
                 v.grad = None
         
         for v in topo:
