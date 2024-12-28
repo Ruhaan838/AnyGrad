@@ -10,7 +10,10 @@ import anygrad
 import anygrad.AutoGrad as Ag
 
 class Tensor():
-    def __init__(self, data: Union[List[float], List[float]], requires_grad:Optional[bool] = False, dtype: Optional[Th.float32 | Th.float64] = Th.float32):
+    def __init__(self, 
+                 data: Union[List[float], List[float]], 
+                 requires_grad:Optional[bool] = False, 
+                 dtype: Optional[Th.float32 | Th.float64] = Th.float32):
         
         #Convert the Nd list to 1D list for Backend
         list_data = Th.ToList()
