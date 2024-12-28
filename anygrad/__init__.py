@@ -17,10 +17,16 @@ def ones(shape, requires_grad = False, dtype = float32):
     ans = Tensor(result, dtype=dtype, requires_grad=requires_grad)
     return ans
 
-# def zeros_like(tensor):
-#     return zeros(tensor.shape, requires_grad = tensor.requires_grad, dtype = tensor.base.dtype)
+def zeros_like(tensor, dtype = None, requires_grad = None):
+    if dtype is None:
+        dtype = float32 if tensor.base.dtype == 'float32' else float64
+    requires_grad = requires_grad if requires_grad is not None else tensor.requires_grad
+    return zeros(tensor.shape, requires_grad = requires_grad , dtype = dtype)
 
-# def ones_like(tensor):
-#     return ones(tensor.shape, requires_grad = tensor.requires_grad, dtype = tensor.base.dtype)
+def ones_like(tensor, dtype=None, requires_grad = None):
+    if dtype is None:
+        dtype = float32 if tensor.base.dtype == 'float32' else float64
+    requires_grad = requires_grad if requires_grad is not None else tensor.requires_grad
+    return ones(tensor.shape, requires_grad = requires_grad, dtype = dtype)
 
 __all__ = ["Tensor", "float32", "float64"]
