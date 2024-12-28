@@ -9,8 +9,8 @@
 #define vector_f64 std::vector<double_t>
 #define vector_i32 std::vector<int32_t>
 
-template <typename T, typename U>
-std::pair<U, vector_i32> AddConfig(T tensor1, T tensor2){
+template <typename T, typename U, typename Op>
+std::pair<U, vector_i32> BaseConfigOp(T tensor1, T tensor2, Op op){
 
     U result_data;
     vector_i32 result_shape;
@@ -36,7 +36,7 @@ std::pair<U, vector_i32> AddConfig(T tensor1, T tensor2){
         int n_idx = idx;
 
         update_offset(&offset1, &offset2, &n_idx, max_dim, result_stride, result_stride1, result_stride2);
-        result_data[idx] = tensor1.data[offset1] + tensor2.data[offset2];
+        result_data[idx] = op(tensor1.data[offset1],tensor2.data[offset2]);
     }
 
     //I think this is the best way to delete the vector
@@ -106,11 +106,15 @@ std::pair<U, vector_i32> SumConfig(T tensor, int32_t dim_to_sum = -1, bool keepd
 }
 
 std::pair<vector_f32, vector_i32> AddFloat32(FloatTensorBase tensor1, FloatTensorBase tensor2){
-    return AddConfig<FloatTensorBase, vector_f32>(tensor1, tensor2);
+    return BaseConfigOp<FloatTensorBase, vector_f32, std::function<float_t(float_t, float_t)>>(tensor1, 
+                                                                                               tensor2, 
+                                                                                               [](float_t num1, float_t num2) {return num1 + num2;});
 }
 
 std::pair<vector_f64, vector_i32> AddFloat64(DoubleTensorBase tensor1, DoubleTensorBase tensor2){
-    return AddConfig<DoubleTensorBase, vector_f64>(tensor1, tensor2);   
+    return BaseConfigOp<DoubleTensorBase, vector_f64, std::function<double_t(double_t, double_t)>>(tensor1, 
+                                                                                                   tensor2, 
+                                                                                                   [](double_t num1, double_t num2) {return num1 + num2;});   
 }
 
 std::pair<vector_f32, vector_i32> SumFloat32(FloatTensorBase tensor, int32_t dim_to_sum, bool keepdims) {
@@ -119,4 +123,52 @@ std::pair<vector_f32, vector_i32> SumFloat32(FloatTensorBase tensor, int32_t dim
 
 std::pair<vector_f64, vector_i32> SumFloat64(DoubleTensorBase tensor, int32_t dim_to_sum, bool keepdims) {
     return SumConfig<DoubleTensorBase, vector_f64>(tensor, dim_to_sum, keepdims);
+}
+
+std::pair<vector_f32, vector_i32> MulFloat32(FloatTensorBase tensor1, FloatTensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, vector_f32, std::function<float_t(float_t, float_t)>>(tensor1, 
+                                                                                               tensor2, 
+                                                                                               [](float_t num1, float_t num2) {return num1 * num2;});
+}
+
+std::pair<vector_f64, vector_i32> MulFloat64(DoubleTensorBase tensor1, DoubleTensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, vector_f64, std::function<double_t(double_t, double_t)>>(tensor1, 
+                                                                                                   tensor2, 
+                                                                                                   [](double_t num1, double_t num2) {return num1 * num2;});   
+}
+
+std::pair<vector_f32, vector_i32> SubFloat32(FloatTensorBase tensor1, FloatTensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, vector_f32, std::function<float_t(float_t, float_t)>>(tensor1, 
+                                                                                               tensor2, 
+                                                                                               [](float_t num1, float_t num2) {return num1 - num2;});
+}
+
+std::pair<vector_f64, vector_i32> SubFloat64(DoubleTensorBase tensor1, DoubleTensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, vector_f64, std::function<double_t(double_t, double_t)>>(tensor1, 
+                                                                                                   tensor2, 
+                                                                                                   [](double_t num1, double_t num2) {return num1 - num2;});   
+}
+
+std::pair<vector_f32, vector_i32> DivFloat32(FloatTensorBase tensor1, FloatTensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, vector_f32, std::function<float_t(float_t, float_t)>>(tensor1, 
+                                                                                               tensor2, 
+                                                                                               [](float_t num1, float_t num2) {return num1 / num2;});
+}
+
+std::pair<vector_f64, vector_i32> DivFloat64(DoubleTensorBase tensor1, DoubleTensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, vector_f64, std::function<double_t(double_t, double_t)>>(tensor1, 
+                                                                                                   tensor2, 
+                                                                                                   [](double_t num1, double_t num2) {return num1 / num2;});   
+}
+
+std::pair<vector_f32, vector_i32> PowFloat32(FloatTensorBase tensor1, FloatTensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, vector_f32, std::function<float_t(float_t, float_t)>>(tensor1, 
+                                                                                               tensor2, 
+                                                                                               [](float_t num1, float_t num2) {return std::pow(num1, num2);});
+}
+
+std::pair<vector_f64, vector_i32> PowFloat64(DoubleTensorBase tensor1, DoubleTensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, vector_f64, std::function<double_t(double_t, double_t)>>(tensor1, 
+                                                                                                   tensor2, 
+                                                                                                   [](double_t num1, double_t num2) {return std::pow(num1, num2);});   
 }

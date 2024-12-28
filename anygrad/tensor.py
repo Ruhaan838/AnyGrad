@@ -1,5 +1,6 @@
 from typing import Optional
 import pprint
+import math
 
 from .Tensor import tensor_c as C
 from .Tensor import ThHelper as Th
@@ -59,55 +60,101 @@ class Tensor():
             return base_str + f" dtype= {self.dtype})"
         return base_str + ")"
     
-    def __add__(self, other):
+    def _apply_opration(self, other, opration:callable, opration_name, dtype_mapping):
         reshape = Th.Reshape()
-        
         if isinstance(other, (int, float)):
-            data = [i + other for i in self.base.data]
+            data = [opration(i, other) for i in self.base.data]
             ans = reshape(data, self.shape)
-            del(data)
-            dtype = Th.float32 if self.base.dtype == 'float32' else Th.float64
+            del data
+            dtype = dtype_mapping[self.base.dtype]
             ans = Tensor(ans, dtype=dtype, requires_grad=self.requires_grad)
+            
             if ans.requires_grad:
                 ans._prev = {self}
-                ans._backward = Ag.GradientCal.add_grad(self, other, ans)
+                ans._backward = getattr(Ag.GradientCal, f"{opration_name.capitalize()}_grad")
+                ans.name_backward = f"<{opration_name}Backward1>"
                 ans.is_leaf = False
                 
             return ans
-        
+    
         allow = C.isbroadcast(self.shape, other.shape, self.base.ndim, other.base.ndim)
-        errors.broadcast_error(allow, f" add(+) we found {self.base.shape} and {other.base.shape}")
-
-        if self.base.dtype == "float32":
-            data, shape = C.AddFloat32(self.base, other.base)
-            ans = reshape(data, shape)
-            del(data); del(shape)
-            req = self.requires_grad or other.requires_grad
-            ans = Tensor(ans, dtype=Th.float32, requires_grad=req)
-            
-            if ans.requires_grad:
-                ans._prev = {self, other}
-                ans.name_backward = "<AddBackward0>"
-                ans._backward = Ag.GradientCal.add_grad(self, other, ans)
-                ans.is_leaf = False
-            
-            return ans
+        errors.broadcast_error(allow, f"{opration_name} we found {self.shape} and {other.shape}")
         
-        elif self.base.dtype == "float64":
-            data, shape = C.AddFloat64(self.base, other.base)
-            ans = reshape(data, shape)
-            del(data); del(shape)
-            req = self.requires_grad or other.requires_grad
-            ans = Tensor(ans, dtype=Th.float64, requires_grad=req)
-            
-            if ans.requires_grad:
-                ans._prev = {self, other}
-                ans.name_backward = "<AddBackward0>"
-                ans._backward = Ag.GradientCal.add_grad(self, other, ans)
-                ans.is_leaf = False
-                
-            return ans
+        opration_func = {
+            "float32":getattr(C, f"{opration_name.capitalize()}Float32"),
+            "float64":getattr(C, f"{opration_name.capitalize()}Float64")
+        }
+        data, shape = opration_func[self.base.dtype](self.base, other.base)
+        ans = reshape(data, shape)
+        del data, shape
+        req = self.requires_grad or other.requires_grad
+        ans = Tensor(ans, dtype=dtype_mapping[self.base.dtype], requires_grad=req)
+        del req
         
+        if ans.requires_grad:
+            ans._prev = {self, other}
+            ans.name_backward = f"<{opration_name}Backward0>"
+            ans._backward = getattr(Ag.GradientCal, f"{opration_name.capitalize()}_grad")(self, other, ans)
+            
+            ans.is_leaf = False
+            
+        return ans
+    
+    def __add__(self, other):
+        return self._apply_opration(
+            other,
+            opration=lambda x, y: x + y,
+            opration_name="Add",
+            dtype_mapping={"float32":Th.float32, "float64":Th.float64},
+        )
+    
+    def __radd__(self, other):
+        return self + other
+        
+    def __sub__(self, other):
+        return self._apply_opration(
+            other,
+            opration=lambda x, y: x - y,
+            opration_name="Sub",
+            dtype_mapping={"float32":Th.float32, "float64":Th.float64},
+        )
+    
+    def __rsub__(self, other):
+        return self - other
+        
+    def __mul__(self, other):
+        return self._apply_opration(
+            other,
+            opration=lambda x, y: x * y,
+            opration_name="Mul",
+            dtype_mapping={"float32":Th.float32, "float64":Th.float64},
+        )
+    
+    def __rmul__(self, other):
+        return self * other
+    
+    def __truediv__(self, other):
+        return self._apply_opration(
+            other,
+            opration=lambda x, y: x / y,
+            opration_name="Div",
+            dtype_mapping={"float32":Th.float32, "float64":Th.float64},
+        )
+        
+    def __rtruediv__(self, other):
+        return self / other
+    
+    def __pow__(self, other):
+        return self._apply_opration(
+            other,
+            opration=lambda x, y: math.pow(x, y),
+            opration_name="Div",
+            dtype_mapping={"float32":Th.float32, "float64":Th.float64},
+        )
+    
+    def __neg__(self):
+        return -1 * self
+    
     def __hash__(self): return id(Tensor)
     
     @property
@@ -171,7 +218,7 @@ class Tensor():
             if custom_grad.shape != self.shape:
                 raise ValueError(f"Custom grad shape {custom_grad.shape} doesn't match output shape {self.shape}")
             self.grad = custom_grad
-        
+
         topo = Ag.BuildGraph.construct_graph(self)
         
         for v in reversed(topo):

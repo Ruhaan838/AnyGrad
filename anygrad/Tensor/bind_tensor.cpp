@@ -29,6 +29,16 @@ PYBIND11_MODULE(tensor_c, msg) {
     
     msg.def("AddFloat32", &AddFloat32, py::return_value_policy::reference);
     msg.def("AddFloat64", &AddFloat64, py::return_value_policy::reference);
+
+    msg.def("SubFloat32", &SubFloat32, py::return_value_policy::reference);
+    msg.def("SubFloat64", &SubFloat64, py::return_value_policy::reference);
+    
+    msg.def("MulFloat32", &MulFloat32, py::return_value_policy::reference);
+    msg.def("MulFloat64", &MulFloat64, py::return_value_policy::reference);
+
+    msg.def("DivFloat32", &DivFloat32, py::return_value_policy::reference);
+    msg.def("DivFloat64", &DivFloat64, py::return_value_policy::reference);
+
     msg.def("SumFloat32", &SumFloat32, py::return_value_policy::reference);
     msg.def("SumFloat64", &SumFloat64, py::return_value_policy::reference);
 
