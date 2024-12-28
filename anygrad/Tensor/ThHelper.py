@@ -14,13 +14,16 @@ class TensorConvert:
 
 class TensorType:
     def __init__(self, dtype):
-        self.dtype = dtype
-        
-    def __call__(self, data):
-        floattypes = [type(i) for i in data if isinstance(i, float)]
-        if len(floattypes) == 0 and (self.dtype != float32 and self.dtype != float64 and self != "float32" and self != "float64"):
-            raise TypeError("Tensor must have in float or in double")
+        self.dtype = str(dtype) if isinstance(dtype, str) else dtype
 
+    def __call__(self, data):
+        has_valid_types = all(isinstance(x, (int, float)) for x in data)
+        valid_types = {"float32", "float64", float32, float64}  
+
+        if not has_valid_types:
+            raise TypeError("Data must be a list of integers or floats.")
+        if self.dtype not in valid_types:
+            raise TypeError("Tensor must have a valid dtype: 'float32', 'float64', float32, or float64.")
 class ToList:
     def __call__(self, data):
         def flatten(lst):
