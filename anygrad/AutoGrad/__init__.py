@@ -1,3 +1,5 @@
-from .autograd import GradMode, GradientCal, BuildGrad
+from .autograd import GradMode
+from .clib import BuildGraph
+from .clib import GradientCal
 
-__all__ = ['GradMode', 'GradientCal', 'BuildGrad']
+__all__ = ['GradMode', 'GradientCal', 'BuildGraph']
