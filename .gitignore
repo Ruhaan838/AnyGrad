@@ -6,3 +6,4 @@ anygrad.egg-info
 build
 ignore
 .DS_Store
+*.pyd
