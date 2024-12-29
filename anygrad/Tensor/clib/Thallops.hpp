@@ -44,4 +44,20 @@ std::pair<vector_f64, vector_i32> zerosFloat64(vector_i32 shape);
 std::pair<vector_f32, vector_i32> onesFloat32(vector_i32 shape);
 std::pair<vector_f64, vector_i32> onesFloat64(vector_i32 shape);
 
+std::pair<vector_f32, vector_i32> LogFloat32(FloatTensorBase tensor1);
+std::pair<vector_f64, vector_i32> LogFloat64(DoubleTensorBase tensor1);
+
+std::pair<vector_f32, vector_i32> Log10Float32(FloatTensorBase tensor1);
+std::pair<vector_f64, vector_i32> Log10Float64(DoubleTensorBase tensor1);
+
+std::pair<vector_f32, vector_i32> Log2Float32(FloatTensorBase tensor1);
+std::pair<vector_f64, vector_i32> Log2Float64(DoubleTensorBase tensor1);
+
+std::pair<vector_f32, vector_i32> ExpFloat32(FloatTensorBase tensor1);
+std::pair<vector_f64, vector_i32> ExpFloat64(DoubleTensorBase tensor1);
+
+std::pair<vector_f32, vector_i32> Exp2Float32(FloatTensorBase tensor1);
+std::pair<vector_f64, vector_i32> Exp2Float64(DoubleTensorBase tensor1);
+
+
 #endif

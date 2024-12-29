@@ -17,11 +17,7 @@ class TensorType:
         self.dtype = str(dtype) if isinstance(dtype, str) else dtype
 
     def __call__(self, data):
-        has_valid_types = all(isinstance(x, (int, float)) for x in data)
-        valid_types = {"float32", "float64", float32, float64}  
-
-        if not has_valid_types:
-            raise TypeError("Data must be a list of integers or floats.")
+        valid_types = {float32, float64}  
         if self.dtype not in valid_types:
             raise TypeError("Tensor must have a valid dtype: 'float32', 'float64', float32, or float64.")
 class ToList:

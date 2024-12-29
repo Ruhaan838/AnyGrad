@@ -19,9 +19,12 @@ class Tensor():
         list_data = Th.ToList()
         list_data = list_data(data)
         
-        #check the Type for the data
+        #check the Type for the data and other stuff
         check = Th.TensorType(dtype)
         check(data)
+        
+        if not isinstance(requires_grad, (bool, type(None))):
+            raise ValueError(f"requires_grad is must be bool: eg. True or False not {type(requires_grad)}")
         
         #convert the data to float
         convert_data = Th.TensorConvert()
@@ -148,7 +151,7 @@ class Tensor():
         return self._apply_opration(
             other,
             opration=lambda x, y: math.pow(x, y),
-            opration_name="Div",
+            opration_name="Pow",
             dtype_mapping={"float32":Th.float32, "float64":Th.float64},
         )
     

@@ -27,6 +27,7 @@ PYBIND11_MODULE(tensor_c, msg) {
         .def_readonly("size", &DoubleTensorBase::size)
         ;
     
+    //arithmetic
     msg.def("AddFloat32", &AddFloat32, py::return_value_policy::reference);
     msg.def("AddFloat64", &AddFloat64, py::return_value_policy::reference);
 
@@ -39,17 +40,39 @@ PYBIND11_MODULE(tensor_c, msg) {
     msg.def("DivFloat32", &DivFloat32, py::return_value_policy::reference);
     msg.def("DivFloat64", &DivFloat64, py::return_value_policy::reference);
 
+    msg.def("PowFloat32", &PowFloat32, py::return_value_policy::reference);
+    msg.def("PowFloat64", &PowFloat64, py::return_value_policy::reference);
+
+    //sums, means
     msg.def("SumFloat32", &SumFloat32, py::return_value_policy::reference);
     msg.def("SumFloat64", &SumFloat64, py::return_value_policy::reference);
 
+    //rules
     msg.def("isbroadcast", &isbroadcast, py::return_value_policy::reference);
     msg.def("is_sum_allow", &is_sum_allow, py::return_value_policy::reference);
 
-    msg.def("zerosfloat32", &zerosFloat32, py::return_value_policy::reference);
-    msg.def("zerosfloat64", &zerosFloat64, py::return_value_policy::reference);
+    //initalizer
+    msg.def("ZerosFloat32", &zerosFloat32, py::return_value_policy::reference);
+    msg.def("ZerosFloat64", &zerosFloat64, py::return_value_policy::reference);
 
-    msg.def("onesfloat32", &onesFloat32, py::return_value_policy::reference);
-    msg.def("onesfloat64", &onesFloat64, py::return_value_policy::reference);
+    msg.def("OnesFloat32", &onesFloat32, py::return_value_policy::reference);
+    msg.def("OnesFloat64", &onesFloat64, py::return_value_policy::reference);
+
+    //log arithmetic
+    msg.def("LogFloat32", &LogFloat32, py::return_value_policy::reference);
+    msg.def("LogFloat64", &LogFloat64, py::return_value_policy::reference);
+
+    msg.def("Log10Float32", &Log10Float32, py::return_value_policy::reference);
+    msg.def("Log10Float64", &Log10Float64, py::return_value_policy::reference);
+
+    msg.def("Log2Float32", &Log2Float32, py::return_value_policy::reference);
+    msg.def("Log2Float64", &Log2Float64, py::return_value_policy::reference);
+
+    msg.def("ExpFloat32", &ExpFloat32, py::return_value_policy::reference);
+    msg.def("ExpFloat64", &ExpFloat64, py::return_value_policy::reference);
+
+    msg.def("Exp2Float32", &Exp2Float32, py::return_value_policy::reference);
+    msg.def("Exp2Float64", &Exp2Float64, py::return_value_policy::reference);
 
     // msg.def("DEBUG_64", &DEBUG_64, py::return_value_policy::reference);
 }
