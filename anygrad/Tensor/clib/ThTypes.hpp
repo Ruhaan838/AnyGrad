@@ -5,6 +5,7 @@
 #include <utility>
 #include <functional>
 #include <set>
+#include <string>
 
 #define vector_i32 std::vector<int32_t>
 #define vector_f32 std::vector<float_t>
