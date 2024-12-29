@@ -22,7 +22,9 @@ ext_modules = [
             "anygrad/Tensor/clib/ThAllocate.cpp",
             "anygrad/Tensor/clib/ThBaseops.cpp",
             "anygrad/Tensor/clib/Thhelpers.cpp",
-            "anygrad/Tensor/utils/anygrad_utils.cpp"
+            "anygrad/Tensor/utils/init_ops.cpp",
+            "anygrad/Tensor/utils/log_arithmetic.cpp",
+            
         ],
         language="c++",
         extra_compile_args=["-O2", "-std=c++20"]
