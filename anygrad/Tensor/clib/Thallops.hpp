@@ -60,4 +60,9 @@ std::pair<vector_f32, vector_i32> Exp2Float32(FloatTensorBase tensor1);
 std::pair<vector_f64, vector_i32> Exp2Float64(DoubleTensorBase tensor1);
 
 
+//gemm.cpp
+vector_i32 matmul_broadcast_shape(vector_i32 shape1, vector_i32 shape2, int32_t dim1, int32_t dim2);
+bool is_matmul_broadcase(vector_i32 shape1, vector_i32 shape2, int32_t dim1, int32_t dim2);
+
+
 #endif
