@@ -1,5 +1,8 @@
 import subprocess
 
+import sys
+
+compile_args = ["-O2", "-std=c++20"] if sys.platform != "win32" else ["/O2", "/std:c++20"]
 # path = os.getcwd()
 # subprocess.call(["gcc", "-c", f"{path}/anygrad/clib/ThAllocate.c", "-o", "ThAllocate.o"], cwd=f"{path}/anygrad/clib")
 
@@ -27,7 +30,7 @@ ext_modules = [
             
         ],
         language="c++",
-        extra_compile_args=["-O2", "-std=c++20"]
+        extra_compile_args=compile_args
     ),
     # Pybind11Extension(
     #     "anygrad.AutoGrad.autograd_c",
