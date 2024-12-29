@@ -16,6 +16,7 @@ class GradientCal:
     @staticmethod
     def accumulate_grad(tensor1, tensor2):
         """Accumulate gradients for tensor1 using tensor2."""
+        tensor2.requires_grad = False
         if tensor1.grad.shape != tensor2.shape:
             tensor2.grad = tensor2.sum(axis=0, keepdims=True)
         tensor1.grad += tensor2
