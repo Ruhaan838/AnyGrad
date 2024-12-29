@@ -74,7 +74,7 @@ class Tensor():
             
             if ans.requires_grad:
                 ans._prev = {self}
-                ans._backward = getattr(Ag.GradientCal, f"{opration_name.capitalize()}_grad")
+                ans._backward = getattr(Ag.GradientCal, f"{opration_name.capitalize()}_grad")(self, other, ans)
                 ans.name_backward = f"<{opration_name}Backward1>"
                 ans.is_leaf = False
                 
