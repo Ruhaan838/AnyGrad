@@ -63,9 +63,9 @@ class Tensor():
             return base_str + f" dtype= {self.dtype})"
         return base_str + ")"
     
-    def _apply_opration(self, other, opration:callable, opration_name, dtype_mapping):
+    def _apply_opration(self, other, have_scaler, opration:callable, opration_name, dtype_mapping, allow_func):
         reshape = Th.Reshape()
-        if isinstance(other, (int, float)):
+        if isinstance(other, (int, float)) and have_scaler:
             data = [opration(i, other) for i in self.base.data]
             ans = reshape(data, self.shape)
             del data
@@ -80,8 +80,8 @@ class Tensor():
                 
             return ans
     
-        allow = C.isbroadcast(self.shape, other.shape, self.base.ndim, other.base.ndim)
-        errors.broadcast_error(allow, f"{opration_name} we found {self.shape} and {other.shape}")
+        allow = allow_func(self.shape, other.shape, self.base.ndim, other.base.ndim)
+        errors.broadcast_error(allow, f" {opration_name} we found {self.shape} and {other.shape}")
         
         opration_func = {
             "float32":getattr(C, f"{opration_name.capitalize()}Float32"),
@@ -106,9 +106,11 @@ class Tensor():
     def __add__(self, other):
         return self._apply_opration(
             other,
+            have_scaler=True,
             opration=lambda x, y: x + y,
             opration_name="Add",
             dtype_mapping={"float32":Th.float32, "float64":Th.float64},
+            allow_func=C.isbroadcast
         )
     
     def __radd__(self, other):
@@ -117,9 +119,11 @@ class Tensor():
     def __sub__(self, other):
         return self._apply_opration(
             other,
+            have_scaler=True,
             opration=lambda x, y: x - y,
             opration_name="Sub",
             dtype_mapping={"float32":Th.float32, "float64":Th.float64},
+            allow_func=C.isbroadcast
         )
     
     def __rsub__(self, other):
@@ -128,9 +132,11 @@ class Tensor():
     def __mul__(self, other):
         return self._apply_opration(
             other,
+            have_scaler=True,
             opration=lambda x, y: x * y,
             opration_name="Mul",
             dtype_mapping={"float32":Th.float32, "float64":Th.float64},
+            allow_func=C.isbroadcast
         )
     
     def __rmul__(self, other):
@@ -139,9 +145,11 @@ class Tensor():
     def __truediv__(self, other):
         return self._apply_opration(
             other,
+            have_scaler=True,
             opration=lambda x, y: x / y,
             opration_name="Div",
             dtype_mapping={"float32":Th.float32, "float64":Th.float64},
+            allow_func=C.isbroadcast
         )
         
     def __rtruediv__(self, other):
@@ -150,9 +158,21 @@ class Tensor():
     def __pow__(self, other):
         return self._apply_opration(
             other,
+            have_scaler=True,
             opration=lambda x, y: math.pow(x, y),
             opration_name="Pow",
             dtype_mapping={"float32":Th.float32, "float64":Th.float64},
+            allow_func=C.isbroadcast
+        )
+        
+    def __matmul__(self, other):
+        return self._apply_opration(
+            other,
+            have_scaler=False,
+            opration=lambda : None,
+            opration_name="MatMul",
+            dtype_mapping={"float32":Th.float32, "float64":Th.float64},
+            allow_func=C.is_matmul_broadcast
         )
     
     def __neg__(self):
@@ -205,6 +225,29 @@ class Tensor():
                 ans.is_leaf = False
                 
             return ans
+        
+    def transpose(self):
+        reshape = Th.Reshape()
+        allow = False if self.ndim < 2 else True
+        errors.dim_error(allow, f" Transpose we found {self.ndim}")
+        opration_func = {
+            "float32":getattr(C, "TransFloat32"),
+            "float64":getattr(C, "TransFloat64")
+        }
+        dtype_mapping={"float32":Th.float32, "float64":Th.float64}
+        data, shape = opration_func[self.base.dtype](self.base)
+        ans = reshape(data, shape)
+        del data, shape
+        ans = Tensor(ans, dtype=dtype_mapping[self.base.dtype], requires_grad=self.requires_grad)
+        
+        if ans.requires_grad:
+            ans._prev = {self}
+            ans.name_backward = "<TransBackward0>"
+            ans._backward = getattr(Ag.GradientCal, "Trans_grad")(self, ans)
+            
+            ans.is_leaf = False
+        
+        return ans
 
     def backward(self, custom_grad=None):
         

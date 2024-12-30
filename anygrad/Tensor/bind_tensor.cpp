@@ -74,5 +74,12 @@ PYBIND11_MODULE(tensor_c, msg) {
     msg.def("Exp2Float32", &Exp2Float32, py::return_value_policy::reference);
     msg.def("Exp2Float64", &Exp2Float64, py::return_value_policy::reference);
 
+    //gemm
+    msg.def("MatmulFloat32", &MatmulFloat32, py::return_value_policy::reference);
+    msg.def("MatmulFloat64", &MatmulFloat64, py::return_value_policy::reference);
+    msg.def("TransFloat32", &TransFloat32, py::return_value_policy::reference);
+    msg.def("TransFloat64", &TransFloat64, py::return_value_policy::reference);
+    msg.def("is_matmul_broadcast", &is_matmul_broadcast, py::return_value_policy::reference);
+    
     // msg.def("DEBUG_64", &DEBUG_64, py::return_value_policy::reference);
 }

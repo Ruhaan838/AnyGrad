@@ -27,6 +27,7 @@ ext_modules = [
             "anygrad/Tensor/clib/Thhelpers.cpp",
             "anygrad/Tensor/utils/init_ops.cpp",
             "anygrad/Tensor/utils/log_arithmetic.cpp",
+            "anygrad/Tensor/clib/Thgemm.cpp"
             
         ],
         language="c++",
