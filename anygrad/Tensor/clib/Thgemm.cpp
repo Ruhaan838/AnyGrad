@@ -104,16 +104,18 @@ std::pair<U, vector_i32> matmulNd(T tensor1, T tensor2) {
 }
 
 template <typename T>
-void transpose2d(const T& src_mat, T& tgt_mat, int32_t rows, int32_t cols) {
-    for(int i = 0; i < rows; i++) {
+T transpose2d(const T& src_mat, int32_t rows, int32_t cols) {
+    T tgt_mat(rows * cols); 
+    for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
-            tgt_mat[j * cols + i] = src_mat[i * cols + j];
+            tgt_mat[j * rows + i] = src_mat[i * cols + j];
         }
     }
+    return tgt_mat;
 }
     
 template <typename T, typename U>
-std::pair<U, vector_i32> transposeNd(T tensor1){
+std::pair<U, vector_i32> transposeNd(T tensor1) {
     int32_t ndim = tensor1.ndim;
     vector_i32 shape(ndim);
 
@@ -127,18 +129,22 @@ std::pair<U, vector_i32> transposeNd(T tensor1){
     U result_data(size);
 
     int batch_size = 1;
-    for (int i = 0; i < ndim - 2; i++){
+    for (int i = 0; i < ndim - 2; i++) {
         batch_size *= shape[i];
     }
-    int32_t rows = shape[ndim - 2];
-    int32_t cols = shape[ndim - 1];
+    int32_t rows = tensor1.shape[ndim - 2];  
+    int32_t cols = tensor1.shape[ndim - 1];
 
-    for (int i = 0; i < batch_size; i++){
-        U src_mat(tensor1.data.begin() + i * rows * cols, tensor1.data.begin() + (i + 1) * rows * cols);
-        U tgt_mat(result_data.begin() + i * rows * cols, result_data.begin() + (i + 1) * rows * cols);
+    for (int i = 0; i < batch_size; i++) {
 
-        transpose2d(src_mat, tgt_mat, rows, cols);
-
+        U src_mat(tensor1.data.begin() + i * rows * cols, 
+                 tensor1.data.begin() + (i + 1) * rows * cols);
+        
+        U tgt_mat = transpose2d(src_mat, rows, cols);
+        
+        std::copy(tgt_mat.begin(), 
+                 tgt_mat.end(), 
+                 result_data.begin() + i * rows * cols);
     }
 
     return {result_data, shape};
