@@ -100,5 +100,8 @@ def exp2(tensor, requires_grad=None):
         dtype_mapping={"float32":float32, "float64":float64},
         opration_name="Exp2"
     )
+    
+def matmul(tensor1, tensor2):
+    return tensor1 @ tensor2
 
 __all__ = ["float32", "float64", "no_grad"]

@@ -65,7 +65,7 @@ vector_i32 matmul_broadcast_shape(vector_i32 shape1, vector_i32 shape2, int32_t 
 bool is_matmul_broadcast(vector_i32 shape1, vector_i32 shape2, int32_t dim1, int32_t dim2);
 std::pair<vector_f32, vector_i32> MatmulFloat32(FloatTensorBase tensor1, FloatTensorBase tensor2);
 std::pair<vector_f64, vector_i32> MatmulFloat64(DoubleTensorBase tensor1, DoubleTensorBase tensor2);
-std::pair<vector_f32, vector_i32> TransFloat32(FloatTensorBase tensor);
-std::pair<vector_f64, vector_i32> TransFloat64(DoubleTensorBase tenosr);
+std::pair<vector_f32, vector_i32> TransFloat32(FloatTensorBase tensor, int32_t dim0, int32_t dim1);
+std::pair<vector_f64, vector_i32> TransFloat64(DoubleTensorBase tenosr, int32_t dim0, int32_t dim1);
 
 #endif

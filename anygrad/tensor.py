@@ -63,8 +63,9 @@ class Tensor():
             return base_str + f" dtype= {self.dtype})"
         return base_str + ")"
     
-    def _apply_opration(self, other, have_scaler, opration:callable, opration_name, dtype_mapping, allow_func):
+    def _apply_opration(self, other, have_scaler, opration:callable, opration_name, allow_func):
         reshape = Th.Reshape()
+        dtype_mapping={"float32":Th.float32, "float64":Th.float64}
         if isinstance(other, (int, float)) and have_scaler:
             data = [opration(i, other) for i in self.base.data]
             ans = reshape(data, self.shape)
@@ -109,7 +110,6 @@ class Tensor():
             have_scaler=True,
             opration=lambda x, y: x + y,
             opration_name="Add",
-            dtype_mapping={"float32":Th.float32, "float64":Th.float64},
             allow_func=C.isbroadcast
         )
     
@@ -122,7 +122,6 @@ class Tensor():
             have_scaler=True,
             opration=lambda x, y: x - y,
             opration_name="Sub",
-            dtype_mapping={"float32":Th.float32, "float64":Th.float64},
             allow_func=C.isbroadcast
         )
     
@@ -135,7 +134,6 @@ class Tensor():
             have_scaler=True,
             opration=lambda x, y: x * y,
             opration_name="Mul",
-            dtype_mapping={"float32":Th.float32, "float64":Th.float64},
             allow_func=C.isbroadcast
         )
     
@@ -148,7 +146,6 @@ class Tensor():
             have_scaler=True,
             opration=lambda x, y: x / y,
             opration_name="Div",
-            dtype_mapping={"float32":Th.float32, "float64":Th.float64},
             allow_func=C.isbroadcast
         )
         
@@ -161,7 +158,6 @@ class Tensor():
             have_scaler=True,
             opration=lambda x, y: math.pow(x, y),
             opration_name="Pow",
-            dtype_mapping={"float32":Th.float32, "float64":Th.float64},
             allow_func=C.isbroadcast
         )
         
@@ -171,7 +167,6 @@ class Tensor():
             have_scaler=False,
             opration=lambda : None,
             opration_name="MatMul",
-            dtype_mapping={"float32":Th.float32, "float64":Th.float64},
             allow_func=C.is_matmul_broadcast
         )
     
@@ -226,8 +221,12 @@ class Tensor():
                 
             return ans
         
-    def transpose(self):
+    def transpose(self, dim0, dim1):
         reshape = Th.Reshape()
+        if dim0 < 0 and dim1 < 0:
+            dim0 = self.ndim + dim0
+            dim1 = self.ndim + dim1
+            
         allow = False if self.ndim < 2 else True
         errors.dim_error(allow, f" Transpose we found {self.ndim}")
         opration_func = {
@@ -235,7 +234,7 @@ class Tensor():
             "float64":getattr(C, "TransFloat64")
         }
         dtype_mapping={"float32":Th.float32, "float64":Th.float64}
-        data, shape = opration_func[self.base.dtype](self.base)
+        data, shape = opration_func[self.base.dtype](self.base, dim0, dim1)
         ans = reshape(data, shape)
         del data, shape
         ans = Tensor(ans, dtype=dtype_mapping[self.base.dtype], requires_grad=self.requires_grad)

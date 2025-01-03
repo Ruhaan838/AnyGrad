@@ -102,51 +102,50 @@ std::pair<U, vector_i32> matmulNd(T tensor1, T tensor2) {
 
     return {result_data, ans_shape};
 }
-
 template <typename T>
 T transpose2d(const T& src_mat, int32_t rows, int32_t cols) {
-    T tgt_mat(rows * cols); 
+    T tgt_mat(rows * cols);
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
-            tgt_mat[j * rows + i] = src_mat[i * cols + j];
+            tgt_mat[i + j * rows] = src_mat[i * cols + j];
         }
     }
     return tgt_mat;
 }
-    
+
 template <typename T, typename U>
-std::pair<U, vector_i32> transposeNd(T tensor1) {
-    int32_t ndim = tensor1.ndim;
-    vector_i32 shape(ndim);
-
-    for (int i = 0; i < ndim - 2; i++) {
-        shape[i] = tensor1.shape[i];
+std::pair<U, vector_i32> transposeNd(const T& tensor1, int32_t dim0, int32_t dim1) {
+    vector_i32 shape = tensor1.shape;
+    std::swap(shape[dim0], shape[dim1]);
+    
+    int32_t total_size = calculate_size(shape, shape.size());
+    U result_data(total_size);
+    
+    int32_t dim0_size = tensor1.shape[dim0];
+    int32_t dim1_size = tensor1.shape[dim1];
+    int32_t block_size = dim0_size * dim1_size;
+    
+    int32_t outer_size = 1;
+    for (int i = 0; i < std::min(dim0, dim1); i++) {
+        outer_size *= tensor1.shape[i];
     }
-    shape[ndim - 2] = tensor1.shape[ndim - 1];
-    shape[ndim - 1] = tensor1.shape[ndim - 2];
-
-    int32_t size = calculate_size(shape, shape.size());
-    U result_data(size);
-
-    int batch_size = 1;
-    for (int i = 0; i < ndim - 2; i++) {
-        batch_size *= shape[i];
+    
+    int32_t inner_size = 1;
+    for (int i = std::max(dim0, dim1) + 1; i < tensor1.ndim; i++) {
+        inner_size *= tensor1.shape[i];
     }
-    int32_t rows = tensor1.shape[ndim - 2];  
-    int32_t cols = tensor1.shape[ndim - 1];
-
-    for (int i = 0; i < batch_size; i++) {
-
-        U src_mat(tensor1.data.begin() + i * rows * cols, 
-                 tensor1.data.begin() + (i + 1) * rows * cols);
-        
-        U tgt_mat = transpose2d(src_mat, rows, cols);
-        
-        std::copy(tgt_mat.begin(), 
-                 tgt_mat.end(), 
-                 result_data.begin() + i * rows * cols);
+    
+    for (int outer = 0; outer < outer_size; outer++) {
+        for (int inner = 0; inner < inner_size; inner++) {
+            int32_t offset = outer * block_size * inner_size + inner * block_size;
+            U block(tensor1.data.begin() + offset, 
+                   tensor1.data.begin() + offset + block_size);
+            U transposed = transpose2d(block, dim0_size, dim1_size);
+            std::copy(transposed.begin(), transposed.end(), 
+                     result_data.begin() + offset);
+        }
     }
-
+    
     return {result_data, shape};
 }
 
@@ -158,10 +157,10 @@ std::pair<vector_f64, vector_i32> MatmulFloat64(DoubleTensorBase tensor1, Double
     return matmulNd<DoubleTensorBase, vector_f64>(tensor1, tensor2);
 }
 
-std::pair<vector_f32, vector_i32> TransFloat32(FloatTensorBase tensor){
-    return transposeNd<FloatTensorBase, vector_f32>(tensor);
+std::pair<vector_f32, vector_i32> TransFloat32(FloatTensorBase tensor, int32_t dim0, int32_t dim1){
+    return transposeNd<FloatTensorBase, vector_f32>(tensor, dim0, dim1);
 }
 
-std::pair<vector_f64, vector_i32> TransFloat64(DoubleTensorBase tenosr){
-    return transposeNd<DoubleTensorBase, vector_f64>(tenosr);
+std::pair<vector_f64, vector_i32> TransFloat64(DoubleTensorBase tenosr, int32_t dim0, int32_t dim1){
+    return transposeNd<DoubleTensorBase, vector_f64>(tenosr, dim0, dim1);
 }
