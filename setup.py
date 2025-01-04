@@ -25,8 +25,6 @@ ext_modules = [
             "anygrad/Tensor/clib/ThAllocate.cpp",
             "anygrad/Tensor/clib/ThBaseops.cpp",
             "anygrad/Tensor/clib/Thhelpers.cpp",
-            "anygrad/Tensor/utils/init_ops.cpp",
-            "anygrad/Tensor/utils/log_arithmetic.cpp",
             "anygrad/Tensor/clib/Thgemm.cpp"
             
         ],
@@ -38,7 +36,9 @@ ext_modules = [
         [
             "anygrad/Tensor/utils/utils_bind.cpp",
             "anygrad/Tensor/utils/random_num.cpp",
-            "anygrad/Tensor/clib/Thhelpers.cpp"
+            "anygrad/Tensor/clib/Thhelpers.cpp",
+            "anygrad/Tensor/utils/init_ops.cpp",
+            "anygrad/Tensor/utils/log_arithmetic.cpp",
         ],
         language="c++",
         extra_compile_args=["-O2", "-std=c++20"]
