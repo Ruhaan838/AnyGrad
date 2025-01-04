@@ -2,7 +2,7 @@
 #include <utility>
 
 #include "../clib/ThTypes.hpp"
-#include "../clib/Thallops.hpp"
+#include "../OpsCenter.hpp"
 
 #define vector_f32 std::vector<float_t>
 #define vector_f64 std::vector<double_t>

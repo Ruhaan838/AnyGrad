@@ -33,15 +33,16 @@ ext_modules = [
         language="c++",
         extra_compile_args=compile_args
     ),
-    # Pybind11Extension(
-    #     "anygrad.AutoGrad.autograd_c",
-    #     [
-    #         "anygrad/AutoGrad/bind_autograd.cpp",
-    #         "anygrad/AutoGrad/clib/grad_helper.cpp",
-    #     ],
-    #     language="c++",
-    #     extra_compile_args=["-O2", "-std=c++20"]
-    # )
+    Pybind11Extension(
+        "anygrad.Tensor.utils.utils_c",
+        [
+            "anygrad/Tensor/utils/utils_bind.cpp",
+            "anygrad/Tensor/utils/random_num.cpp",
+            "anygrad/Tensor/clib/Thhelpers.cpp"
+        ],
+        language="c++",
+        extra_compile_args=["-O2", "-std=c++20"]
+    )
 ]
 
 setup(
@@ -58,8 +59,7 @@ setup(
     packages=find_packages(),
     package_dir={"": "."}, 
     package_data={
-        "anygrad":["Tensor/*.py", "__init__.py", "anygrad/*.py"],
-        "anygrad.Tensor":['anygrad_files/tensor.pyi']
+        "anygrad":["Tensor/*.py", "__init__.py", "anygrad/*.py", "Tensor/utils/*.py"],
     },
     include_package_data=True
 )

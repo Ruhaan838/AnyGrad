@@ -72,5 +72,9 @@ class Reshape:
             return sublist
         return create_reshape(data, shape)
 
-
-            
+def round_list(data):
+    def process(item):
+        if isinstance(item, list):
+            return [process(sub) for sub in item]
+        return round(item, 3)
+    return process(data)

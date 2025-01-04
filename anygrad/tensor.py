@@ -50,7 +50,8 @@ class Tensor():
         self.is_leaf = True
         
     def __repr__(self):
-        formate_data = pprint.pformat(self.data, width=30, underscore_numbers=True, depth=40)
+        data = Th.round_list(self.data)
+        formate_data = pprint.pformat(data, width=25, depth=35)
         base_str = f"Tensor({formate_data}"
         
         if self.name_backward:

@@ -2,6 +2,7 @@ from .tensor import Tensor
 from .Tensor.ThHelper import float32, float64, Reshape
 from .AutoGrad import no_grad
 from .Tensor import tensor_c as C
+from .Tensor.utils import Generator, rand
 
 def __use_ops_zeros_ones(shape:tuple, requires_grad:bool, dtype:str, dtype_mapping:dict, opration_name:str):
     reshape = Reshape()
@@ -104,4 +105,4 @@ def exp2(tensor, requires_grad=None):
 def matmul(tensor1, tensor2):
     return tensor1 @ tensor2
 
-__all__ = ["float32", "float64", "no_grad"]
+__all__ = ["float32", "float64", "no_grad", "Generator", "rand"]
