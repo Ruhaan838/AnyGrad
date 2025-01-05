@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List, Tuple, AnyStr
 import pprint
 import math
 
@@ -7,13 +7,72 @@ from .Tensor import ThHelper as Th
 from .Tensor import ThError as errors
 
 import anygrad
+from anygrad.tensor import Tensor
 import anygrad.AutoGrad as Ag
 
 class Tensor():
-    def __init__(self, 
-                 data, 
-                 requires_grad=False, 
-                 dtype=Th.float32):
+    """
+        Class to repesent a Tensor.
+
+        Attributes
+        ----------
+        data : List | Tuple
+            Any Iterable 
+        
+        requires_grad: Optional[bool] = False
+            if `True` the gradient caculation is happend
+            
+        dtype: Optional[anygrad.float32 | anygrad.float64] = anygrad.float32
+            float32 -> anygrad.float32
+            float64 -> anygrad.float64
+
+        Methods
+        ----------
+        data:
+            return the item of the tensor in list form.
+        shape:
+            return the shape of the tensor in tuple form.
+        ndim:
+            return the dim of the tensor in int form.
+        requires_grad:
+            return the bool value if the requires_grad.
+        grad:
+            a tensor value that allow you to see the gredient of the tensor.
+
+        add(other):
+            other: Tensor | int | float
+            add the Tensor or number.
+
+        sub(other):
+            other: Tensor | int | float
+            sub the Tensor or number.
+
+        mul(other):
+            other: Tensor | int | float
+            mul the Tensor or number.
+
+        div(other):
+            other: Tensor | int | float
+            div the Tensor or number.
+
+        pow(other):
+            other: Tensor | int | float
+            pow the Tensor or number.
+            
+        matmul(other):
+            other: Tensor
+            matrix multiplication of the Two valid shape tensor.
+        
+        sum(self, axis: Optional[int] = -1, keepdims: Optional[bool] = False) -> Tensor:
+            sum the tensor with axis and keepdims.
+            
+        backward(self, custom_grad:Optional[Tensor] = None) -> None:
+            Do the backward pass if the requires-grad is true for given tensor.
+        
+    """
+    def __init__(self, data:List[int | float] | Tuple[int | float], 
+                 requires_grad: Optional[bool] = False, 
+                 dtype:Optional[anygrad.float32 | anygrad.float64] = anygrad.float32) -> None:
         
         #Convert the Nd list to 1D list for Backend
         list_data = Th.ToList()
@@ -105,7 +164,7 @@ class Tensor():
             
         return ans
     
-    def __add__(self, other):
+    def __add__(self, other:Tensor | (int|float)) -> Tensor:
         return self._apply_opration(
             other,
             have_scaler=True,
@@ -114,10 +173,10 @@ class Tensor():
             allow_func=C.isbroadcast
         )
     
-    def __radd__(self, other):
+    def __radd__(self, other:Tensor | (int|float)) -> Tensor:
         return self + other
         
-    def __sub__(self, other):
+    def __sub__(self, other:Tensor | (int|float)) -> Tensor:
         return self._apply_opration(
             other,
             have_scaler=True,
@@ -126,10 +185,10 @@ class Tensor():
             allow_func=C.isbroadcast
         )
     
-    def __rsub__(self, other):
+    def __rsub__(self, other:Tensor | (int|float)) -> Tensor:
         return self - other
         
-    def __mul__(self, other):
+    def __mul__(self, other:Tensor | (int|float)) -> Tensor:
         return self._apply_opration(
             other,
             have_scaler=True,
@@ -138,10 +197,10 @@ class Tensor():
             allow_func=C.isbroadcast
         )
     
-    def __rmul__(self, other):
+    def __rmul__(self, other:Tensor | (int|float)) -> Tensor:
         return self * other
     
-    def __truediv__(self, other):
+    def __truediv__(self, other:Tensor | (int|float)) -> Tensor:
         return self._apply_opration(
             other,
             have_scaler=True,
@@ -150,10 +209,10 @@ class Tensor():
             allow_func=C.isbroadcast
         )
         
-    def __rtruediv__(self, other):
+    def __rtruediv__(self, other:Tensor | (int|float)) -> Tensor:
         return self / other
     
-    def __pow__(self, other):
+    def __pow__(self, other:Tensor | (int|float)) -> Tensor:
         return self._apply_opration(
             other,
             have_scaler=True,
@@ -162,7 +221,7 @@ class Tensor():
             allow_func=C.isbroadcast
         )
         
-    def __matmul__(self, other):
+    def __matmul__(self, other:Tensor) -> Tensor:
         return self._apply_opration(
             other,
             have_scaler=False,
@@ -171,24 +230,24 @@ class Tensor():
             allow_func=C.is_matmul_broadcast
         )
     
-    def __neg__(self):
-        return -1 * self
+    def __neg__(self) -> Tensor:
+        return 0.0 - self
     
     def __hash__(self): return id(Tensor)
     
     @property
-    def shape(self): return tuple(self.base.shape)
+    def shape(self) -> Tuple[int]: return tuple(self.base.shape)
 
     @property
-    def ndim(self): return self.base.ndim
+    def ndim(self) -> int: return self.base.ndim
 
     @property
-    def size(self): return self.base.size
+    def size(self) -> int: return self.base.size
             
     @property
-    def dtype(self): return self.base.dtype
+    def dtype(self) -> AnyStr: return self.base.dtype
     
-    def sum(self, axis: Optional[int] = -1, keepdims: Optional[bool] = False):
+    def sum(self, axis: Optional[int] = -1, keepdims: Optional[bool] = False) -> Tensor:
         reshape = Th.Reshape()
         allow = C.is_sum_allow(axis, self.base.ndim)
         errors.sum_error(allow, f" sum() we found {axis} and {self.base.ndim}")
@@ -222,7 +281,7 @@ class Tensor():
                 
             return ans
         
-    def transpose(self, dim0, dim1):
+    def transpose(self, dim0:int, dim1:int) -> Tensor:
         reshape = Th.Reshape()
         if dim0 < 0 and dim1 < 0:
             dim0 = self.ndim + dim0
@@ -249,7 +308,7 @@ class Tensor():
         
         return ans
 
-    def backward(self, custom_grad=None):
+    def backward(self, custom_grad:Optional[Tensor] = None) -> None:
         
         if self.requires_grad == False:
             raise ValueError("The Backward pass is work only if the requires_grad is True")

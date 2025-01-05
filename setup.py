@@ -59,7 +59,8 @@ setup(
     packages=find_packages(),
     package_dir={"": "."}, 
     package_data={
-        "anygrad":["Tensor/*.py", "__init__.py", "anygrad/*.py", "Tensor/utils/*.py"],
+        "anygrad":["Tensor/*.py", "__init__.py", 
+                   "anygrad/*.py", "Tensor/utils/*.py"],
     },
     include_package_data=True
 )
