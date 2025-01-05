@@ -7,7 +7,6 @@ from .Tensor import ThHelper as Th
 from .Tensor import ThError as errors
 
 import anygrad
-from anygrad.tensor import Tensor
 import anygrad.AutoGrad as Ag
 
 class Tensor():
@@ -72,7 +71,7 @@ class Tensor():
     """
     def __init__(self, data:List[int | float] | Tuple[int | float], 
                  requires_grad: Optional[bool] = False, 
-                 dtype:Optional[anygrad.float32 | anygrad.float64] = anygrad.float32) -> None:
+                 dtype:Optional[Th.float32 | Th.float32] = Th.float32) -> None:
         
         #Convert the Nd list to 1D list for Backend
         list_data = Th.ToList()
@@ -164,7 +163,7 @@ class Tensor():
             
         return ans
     
-    def __add__(self, other:Tensor | (int|float)) -> Tensor:
+    def __add__(self, other):
         return self._apply_opration(
             other,
             have_scaler=True,
@@ -173,10 +172,10 @@ class Tensor():
             allow_func=C.isbroadcast
         )
     
-    def __radd__(self, other:Tensor | (int|float)) -> Tensor:
+    def __radd__(self, other):
         return self + other
         
-    def __sub__(self, other:Tensor | (int|float)) -> Tensor:
+    def __sub__(self, other):
         return self._apply_opration(
             other,
             have_scaler=True,
@@ -185,10 +184,10 @@ class Tensor():
             allow_func=C.isbroadcast
         )
     
-    def __rsub__(self, other:Tensor | (int|float)) -> Tensor:
+    def __rsub__(self, other):
         return self - other
         
-    def __mul__(self, other:Tensor | (int|float)) -> Tensor:
+    def __mul__(self, other):
         return self._apply_opration(
             other,
             have_scaler=True,
@@ -197,10 +196,10 @@ class Tensor():
             allow_func=C.isbroadcast
         )
     
-    def __rmul__(self, other:Tensor | (int|float)) -> Tensor:
+    def __rmul__(self, other):
         return self * other
     
-    def __truediv__(self, other:Tensor | (int|float)) -> Tensor:
+    def __truediv__(self, other):
         return self._apply_opration(
             other,
             have_scaler=True,
@@ -209,10 +208,10 @@ class Tensor():
             allow_func=C.isbroadcast
         )
         
-    def __rtruediv__(self, other:Tensor | (int|float)) -> Tensor:
+    def __rtruediv__(self, other):
         return self / other
     
-    def __pow__(self, other:Tensor | (int|float)) -> Tensor:
+    def __pow__(self, other):
         return self._apply_opration(
             other,
             have_scaler=True,
@@ -221,7 +220,7 @@ class Tensor():
             allow_func=C.isbroadcast
         )
         
-    def __matmul__(self, other:Tensor) -> Tensor:
+    def __matmul__(self, other):
         return self._apply_opration(
             other,
             have_scaler=False,
@@ -230,7 +229,7 @@ class Tensor():
             allow_func=C.is_matmul_broadcast
         )
     
-    def __neg__(self) -> Tensor:
+    def __neg__(self):
         return 0.0 - self
     
     def __hash__(self): return id(Tensor)
@@ -247,7 +246,7 @@ class Tensor():
     @property
     def dtype(self) -> AnyStr: return self.base.dtype
     
-    def sum(self, axis: Optional[int] = -1, keepdims: Optional[bool] = False) -> Tensor:
+    def sum(self, axis: Optional[int] = -1, keepdims: Optional[bool] = False):
         reshape = Th.Reshape()
         allow = C.is_sum_allow(axis, self.base.ndim)
         errors.sum_error(allow, f" sum() we found {axis} and {self.base.ndim}")
@@ -281,7 +280,7 @@ class Tensor():
                 
             return ans
         
-    def transpose(self, dim0:int, dim1:int) -> Tensor:
+    def transpose(self, dim0:int, dim1:int):
         reshape = Th.Reshape()
         if dim0 < 0 and dim1 < 0:
             dim0 = self.ndim + dim0
@@ -298,7 +297,7 @@ class Tensor():
         ans = reshape(data, shape)
         del data, shape
         ans = Tensor(ans, dtype=dtype_mapping[self.base.dtype], requires_grad=self.requires_grad)
-        
+         
         if ans.requires_grad:
             ans._prev = {self}
             ans.name_backward = "<TransBackward0>"
@@ -308,7 +307,7 @@ class Tensor():
         
         return ans
 
-    def backward(self, custom_grad:Optional[Tensor] = None) -> None:
+    def backward(self, custom_grad = None) -> None:
         
         if self.requires_grad == False:
             raise ValueError("The Backward pass is work only if the requires_grad is True")
