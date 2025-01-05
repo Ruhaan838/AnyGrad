@@ -41,7 +41,7 @@ ext_modules = [
             "anygrad/Tensor/utils/log_arithmetic.cpp",
         ],
         language="c++",
-        extra_compile_args=["-O2", "-std=c++20"]
+        extra_compile_args=compile_args
     )
 ]
 
