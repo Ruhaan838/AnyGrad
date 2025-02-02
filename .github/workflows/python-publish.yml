@@ -28,7 +28,9 @@ jobs:
           pip install build twine
 
       - name: Build anygrad package
-        run: python -m build
+        run: |
+          pip install pybind11
+          python -m build
 
       - name: Publish anygrad to PyPI
         if: github.event_name == 'release'
