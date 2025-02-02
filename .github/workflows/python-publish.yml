@@ -27,6 +27,10 @@ jobs:
           python -m pip install pybind11
           python -m pip install build twine
 
+      - name: Verify pybind11 installation
+        run: |
+          python -m pip show pybind11
+
       - name: Build anygrad package
         run: |
           python -m build
