@@ -29,7 +29,6 @@ jobs:
 
       - name: Build anygrad package
         run: |
-          python -m pip install pybind11
           python -m build
 
       - name: Publish anygrad to PyPI
