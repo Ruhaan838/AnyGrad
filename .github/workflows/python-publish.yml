@@ -1,0 +1,36 @@
+name: Publish anygrad to PyPI
+
+on:
+  release:
+    types: [created]  # Runs when a new GitHub Release is created
+  workflow_dispatch:  # Allows manual triggering from GitHub Actions UI
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # Needed for trusted publishing
+      contents: read
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"  # Change to required Python version if needed
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: Build anygrad package
+        run: python -m build
+
+      - name: Publish anygrad to PyPI
+        if: github.event_name == 'release'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
