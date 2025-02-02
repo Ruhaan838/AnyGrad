@@ -1,20 +1,10 @@
+from setuptools import setup, find_packages
+from pybind11.setup_helpers import Pybind11Extension, build_ext
 import subprocess
-
 import sys
 
 compile_args = ["-O2", "-std=c++20"] if sys.platform != "win32" else ["/O2", "/std:c++20"]
-# path = os.getcwd()
-# subprocess.call(["gcc", "-c", f"{path}/anygrad/clib/ThAllocate.c", "-o", "ThAllocate.o"], cwd=f"{path}/anygrad/clib")
 
-try:
-    from pybind11.setup_helpers import Pybind11Extension, build_ext
-    from setuptools import setup, find_packages
-except Exception as e:
-    print(f"Not find the pybind11 so installing due to {e}")
-    subprocess.call(["pip", "install", "pybind11"])
-    from pybind11.setup_helpers import Pybind11Extension, build_ext
-    from setuptools import setup, find_packages
-    
 __version__ = "0.0.1"
 
 ext_modules = [
@@ -26,7 +16,6 @@ ext_modules = [
             "anygrad/Tensor/clib/ThBaseops.cpp",
             "anygrad/Tensor/clib/Thhelpers.cpp",
             "anygrad/Tensor/clib/Thgemm.cpp"
-            
         ],
         language="c++",
         extra_compile_args=compile_args
@@ -48,19 +37,21 @@ ext_modules = [
 setup(
     name="anygrad",
     version=__version__,
-    description="A module that allow user to do the Tensor opration.",
+    description="A module that allow user to do the Tensor operation.",
     long_description=open('README.md', encoding='utf-8').read(),
     author="Ruhaan",
     author_email="ruhaan123dalal@gmail.com",
     license="Apache License",
     ext_modules=ext_modules,
-    cmdclass={"build_ext":build_ext},
+    cmdclass={"build_ext": build_ext},
     zip_safe=False,
     packages=find_packages(),
-    package_dir={"": "."}, 
+    package_dir={"": "."},
     package_data={
-        "anygrad":["Tensor/*.py", "__init__.py", 
-                   "anygrad/*.py", "Tensor/utils/*.py"],
+        "anygrad": ["Tensor/*.py", "__init__.py", "anygrad/*.py", "Tensor/utils/*.py"],
     },
-    include_package_data=True
+    include_package_data=True,
+    install_requires=[
+        "pybind11"
+    ]
 )
