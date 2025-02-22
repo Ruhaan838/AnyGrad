@@ -8,6 +8,9 @@
 The AnyGrad is a Tensor Library that allow you to do the forward and backward pass very easy.
 It's use the C++ as backend and the Python for frontend and do the tensor opration in C++. To combine the both things I use the pybind11.
 ## Installation
+```bash
+pip install anygrad
+```
 clone the repo:
 ```bash
 git clone https://github.com/Ruhaan838/AnyGrad.git
