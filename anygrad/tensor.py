@@ -92,14 +92,6 @@ class Tensor():
         else:
             raise TypeError(f"Given Datatype {type_list} is not support in current version {__version__}")
         
-        self.data = self._tensor.data
-        self.base = self._tensor.base
-        self.requires_grad = self._tensor.requires_grad
-        self.grad = self._tensor.grad
-        self._backward = self._tensor._backward
-        self._prev = self._tensor._prev
-        self.is_leaf = self._tensor.is_leaf
-        
     @property
     def shape(self) -> Tuple[int, ...]: return self._tensor.shape
     @property
@@ -108,6 +100,55 @@ class Tensor():
     def size(self) -> int: return self._tensor.size
     @property
     def dtype(self) -> str: return self._tensor.dtype
+    
+    @property
+    def data(self): return self._tensor.data
+    
+    @data.setter
+    def data(self, value):
+        self._tensor.data = value
+    
+    @property
+    def base(self): return self._tensor.base
+    
+    @base.setter
+    def base(self, value):
+        self._tensor.base = value
+    
+    @property
+    def requires_grad(self):return self._tensor.requires_grad
+    
+    @requires_grad.setter
+    def requires_grad(self, value):
+        self._tensor.requires_grad = value
+    
+    @property
+    def grad(self):return self._tensor.grad
+    
+    @grad.setter
+    def grad(self, value):
+        self._tensor.grad = value
+    
+    @property
+    def _backward(self):return self._tensor._backward
+    
+    @_backward.setter
+    def _backward(self, value):
+        self._tensor._backward = value
+    
+    @property
+    def _prev(self):return self._tensor._prev
+    
+    @_prev.setter
+    def _prev(self, value):
+        self._tensor._prev = value
+    
+    @property
+    def is_leaf(self):return self._tensor.is_leaf
+    
+    @is_leaf.setter
+    def is_leaf(self, value):
+        self._tensor.is_leaf = value
     
     def __repr__(self) -> str: return repr(self._tensor)
    

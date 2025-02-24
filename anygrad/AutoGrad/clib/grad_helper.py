@@ -4,7 +4,6 @@ class GradientCal:
     def initialize_grad(tensor):
         """Ensure tensor.grad is initialized."""
         if tensor.grad is None:
-            print(tensor, "Initialized!")
             tensor.grad = anygrad.zeros_like(tensor, requires_grad=False)
     
     @staticmethod
