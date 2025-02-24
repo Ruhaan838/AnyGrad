@@ -104,16 +104,8 @@ class Tensor():
     @property
     def data(self): return self._tensor.data
     
-    @data.setter
-    def data(self, value):
-        self._tensor.data = value
-    
     @property
     def base(self): return self._tensor.base
-    
-    @base.setter
-    def base(self, value):
-        self._tensor.base = value
     
     @property
     def requires_grad(self):return self._tensor.requires_grad
