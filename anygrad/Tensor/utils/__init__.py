@@ -7,11 +7,11 @@ from ...tensor import Tensor
 from typing import Tuple, Optional
 import anygrad
 
-def __use_ops_zeros_ones(shape:tuple, requires_grad:bool, dtype:str, dtype_mapping:dict, opration_name:str):
+def __use_ops_zeros_ones(shape:tuple, requires_grad:bool, dtype:str, dtype_mapping:dict, operation_name:str):
     reshape = Reshape()
     opration_func = {
-        "float32":getattr(C, f"{opration_name.capitalize()}Float32"),
-        "float64":getattr(C, f"{opration_name.capitalize()}Float64")
+        "float32":getattr(C, f"{operation_name.capitalize()}Float32"),
+        "float64":getattr(C, f"{operation_name.capitalize()}Float64")
     }
     
     data, shape = opration_func[dtype](shape)
@@ -20,11 +20,11 @@ def __use_ops_zeros_ones(shape:tuple, requires_grad:bool, dtype:str, dtype_mappi
     ans = Tensor(ans, dtype = dtype_mapping[dtype], requires_grad=requires_grad)
     return ans
 
-def __use_ops_log(tensor1, requires_grad:bool, dtype_mapping:dict, opration_name:str):
+def __use_ops_log(tensor1, requires_grad:bool, dtype_mapping:dict, operation_name:str):
     reshape = Reshape()
     opration_func = {
-        "float32":getattr(C, f"{opration_name.capitalize()}Float32"),
-        "float64":getattr(C, f"{opration_name.capitalize()}Float64")
+        "float32":getattr(C, f"{operation_name.capitalize()}Float32"),
+        "float64":getattr(C, f"{operation_name.capitalize()}Float64")
     }
     
     data, shape = opration_func[tensor1.base.dtype](tensor1.base)
@@ -40,7 +40,7 @@ def zeros(shape:Tuple[int], requires_grad:Optional[bool] = False, dtype:Optional
         requires_grad=requires_grad,
         dtype="float32" if dtype == float32 else "float64",
         dtype_mapping=dtype_mapping,
-        opration_name="Zeros"
+        operation_name="Zeros"
     )
 
 def ones(shape:Tuple[int], requires_grad:Optional[bool] = False, dtype:Optional[anygrad.float32|anygrad.float64] = anygrad.float32) -> Tensor:
@@ -50,7 +50,7 @@ def ones(shape:Tuple[int], requires_grad:Optional[bool] = False, dtype:Optional[
         requires_grad=requires_grad,
         dtype="float32" if dtype == float32 else "float64",
         dtype_mapping=dtype_mapping,
-        opration_name="Ones"
+        operation_name="Ones"
     )
 
 def zeros_like(tensor:Tensor, requires_grad:Optional[bool] = None, dtype:Optional[anygrad.float32|anygrad.float64] = anygrad.float32) -> Tensor:
@@ -70,7 +70,7 @@ def log(tensor:Tensor, requires_grad:Optional[bool]=None) -> Tensor:
         tensor,
         requires_grad=requires_grad,
         dtype_mapping={"float32":float32, "float64":float64},
-        opration_name="Log"
+        operation_name="Log"
     )
     
 def log10(tensor:Tensor, requires_grad:Optional[bool]=None) -> Tensor:
@@ -78,7 +78,7 @@ def log10(tensor:Tensor, requires_grad:Optional[bool]=None) -> Tensor:
         tensor,
         requires_grad=requires_grad,
         dtype_mapping={"float32":float32, "float64":float64},
-        opration_name="Log10"
+        operation_name="Log10"
     )
 
 def log2(tensor:Tensor, requires_grad:Optional[bool]=None) -> Tensor:
@@ -86,7 +86,7 @@ def log2(tensor:Tensor, requires_grad:Optional[bool]=None) -> Tensor:
         tensor,
         requires_grad=requires_grad,
         dtype_mapping={"float32":float32, "float64":float64},
-        opration_name="Log2"
+        operation_name="Log2"
     )
 
 def exp(tensor:Tensor, requires_grad:Optional[bool]=None) -> Tensor:
@@ -94,7 +94,7 @@ def exp(tensor:Tensor, requires_grad:Optional[bool]=None) -> Tensor:
         tensor,
         requires_grad=requires_grad,
         dtype_mapping={"float32":float32, "float64":float64},
-        opration_name="Exp"
+        operation_name="Exp"
     )
 
 def exp2(tensor:Tensor, requires_grad:Optional[bool]=None) -> Tensor:
@@ -102,7 +102,7 @@ def exp2(tensor:Tensor, requires_grad:Optional[bool]=None) -> Tensor:
         tensor,
         requires_grad=requires_grad,
         dtype_mapping={"float32":float32, "float64":float64},
-        opration_name="Exp2"
+        operation_name="Exp2"
     )
 
 __all__ = ["Generator", "rand"]

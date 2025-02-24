@@ -6,7 +6,7 @@
 
 ## Overview
 The AnyGrad is a Tensor Library that allow you to do the forward and backward pass very easy.
-It's use the C++ as backend and the Python for frontend and do the tensor opration in C++. To combine the both things I use the pybind11.
+It's use the C++ as backend and the Python for frontend and do the tensor operation in C++. To combine the both things I use the pybind11.
 ## Installation
 ```bash
 pip install anygrad
@@ -30,7 +30,7 @@ c = anygrad.Tensor([2,3,4], dtype=anygrad.float64) #create the float64 tensor
 ### Arithmetic
 #### Element wise Operations
 ```python
-# do the ele wise opration
+# do the ele wise operation
 d = a + b
 d = a * d
 d = d / 10

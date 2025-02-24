@@ -1,13 +1,11 @@
-from typing import Optional, List, Tuple, AnyStr
-import pprint
-import math
+from typing import Optional, List, Tuple, Union
 
-from .Tensor import tensor_c as C
 from .Tensor import ThHelper as Th
-from .Tensor import ThError as errors
+from .booltensor import BoolTensor
+from .inttensor import IntTensor
+from .floattensor import FloatTensor
 
-import anygrad
-import anygrad.AutoGrad as Ag
+from .version import __version__
 
 class Tensor():
     """
@@ -21,9 +19,7 @@ class Tensor():
         requires_grad: Optional[bool] = False
             if `True` the gradient caculation is happend
             
-        dtype: Optional[anygrad.float32 | anygrad.float64] = anygrad.float32
-            float32 -> anygrad.float32
-            float64 -> anygrad.float64
+        dtype: Optional[anygrad.float32 | anygrad.float64 | anygrad.int32 | anygrad.int64 | anygrad.bool] = anygrad.float32
 
         Methods
         ----------
@@ -69,267 +65,68 @@ class Tensor():
             Do the backward pass if the requires-grad is true for given tensor.
         
     """
-    def __init__(self, data:List[int | float] | Tuple[int | float], 
+    def __init__(self, data:List[int|float] | Tuple[int|float], 
                  requires_grad: Optional[bool] = False, 
-                 dtype:Optional[Th.float32 | Th.float32] = Th.float32) -> None:
+                 dtype: Optional[Th.float32 | Th.float64 | Th.int32 | Th.int64 | Th.bool] = Th.float32) -> None:
         
-        #Convert the Nd list to 1D list for Backend
-        list_data = Th.ToList()
-        list_data = list_data(data)
+        #requires_grad type checking
+        if not isinstance(requires_grad, bool):
+            raise TypeError(f"requires_grad is must be in bool not in {type(requires_grad)}")
         
-        #check the Type for the data and other stuff
-        check = Th.TensorType(dtype)
-        check(data)
+        #dtype type checking
+        valid_types = {Th.float32, Th.float64, Th.int32, Th.int64, Th.bool}  
+        if dtype not in valid_types:
+            raise TypeError("Tensor must have a valid dtype: 'float32', 'float64', 'int32', 'int64' or 'bool'.")
         
-        if not isinstance(requires_grad, (bool, type(None))):
-            raise ValueError(f"requires_grad is must be bool: eg. True or False not {type(requires_grad)}")
+        #int and bool tensor don't have requires_grad or grad caculation
+        if dtype not in {Th.float32, Th.float64} and requires_grad == True:
+            raise RuntimeError(f"The requires_grad is only support for 'float32' and 'float64' for version {__version__}")
         
-        #convert the data to float
-        convert_data = Th.TensorConvert()
-        self.data = convert_data(data)
-        
-        #caculate the shape of the Data for backend
-        shape = Th.CalShape()
-        shape = shape(data)
-
-        #call the backend to init the Tensor
-        if dtype == Th.float32:
-            self.base = C.float32(list_data, shape)
-        elif dtype == Th.float64:
-            self.base = C.float64(list_data, shape)
+        type_list = Th.ValidDataType()(data) # getting types of data
+        if type_list == bool or dtype == Th.bool:
+            self._tensor = BoolTensor(data, dtype=Th.bool)
+        elif dtype in {Th.float32, Th.float64}:
+            self._tensor = FloatTensor(data, requires_grad=requires_grad, dtype=dtype)
+        elif dtype in {Th.int32, Th.int64}:
+            self._tensor = IntTensor(data, dtype=dtype)
         else:
-            raise TypeError("Unsupported dtype. Use float32 or float64.")
+            raise TypeError(f"Given Datatype {type_list} is not support in current version {__version__}")
         
-        self.requires_grad = requires_grad and Ag.GradMode.is_enabled()
-        self.grad = None
-        self.name_backward = ""
-        self._backward = lambda : None
-        self._prev = set()
-        self.is_leaf = True
+        self.data = self._tensor.data
+        self.base = self._tensor.base
+        self.requires_grad = self._tensor.requires_grad
+        self.grad = self._tensor.grad
+        self._backward = self._tensor._backward
+        self._prev = self._tensor._prev
+        self.is_leaf = self._tensor.is_leaf
         
-    def __repr__(self):
-        data = Th.round_list(self.data)
-        formate_data = pprint.pformat(data, width=25, depth=35)
-        base_str = f"Tensor({formate_data}"
-        
-        if self.name_backward:
-            return base_str + f" name_backward = {self.name_backward})"
-        
-        if self.requires_grad:
-            return base_str + f" requires_grad = {self.requires_grad})"
-        
-        if self.base.dtype != "float32":
-            return base_str + f" dtype= {self.dtype})"
-        return base_str + ")"
-    
-    def _apply_opration(self, other, have_scaler, opration:callable, opration_name, allow_func):
-        reshape = Th.Reshape()
-        dtype_mapping={"float32":Th.float32, "float64":Th.float64}
-        if isinstance(other, (int, float)) and have_scaler:
-            data = [opration(i, other) for i in self.base.data]
-            ans = reshape(data, self.shape)
-            del data
-            dtype = dtype_mapping[self.base.dtype]
-            ans = Tensor(ans, dtype=dtype, requires_grad=self.requires_grad)
-            
-            if ans.requires_grad:
-                ans._prev = {self}
-                ans._backward = getattr(Ag.GradientCal, f"{opration_name.capitalize()}_grad")(self, other, ans)
-                ans.name_backward = f"<{opration_name}Backward1>"
-                ans.is_leaf = False
-                
-            return ans
-    
-        allow = allow_func(self.shape, other.shape, self.base.ndim, other.base.ndim)
-        errors.broadcast_error(allow, f" {opration_name} we found {self.shape} and {other.shape}")
-        
-        opration_func = {
-            "float32":getattr(C, f"{opration_name.capitalize()}Float32"),
-            "float64":getattr(C, f"{opration_name.capitalize()}Float64")
-        }
-        data, shape = opration_func[self.base.dtype](self.base, other.base)
-        ans = reshape(data, shape)
-        del data, shape
-        req = self.requires_grad or other.requires_grad
-        ans = Tensor(ans, dtype=dtype_mapping[self.base.dtype], requires_grad=req)
-        del req
-        
-        if ans.requires_grad:
-            ans._prev = {self, other}
-            ans.name_backward = f"<{opration_name}Backward0>"
-            ans._backward = getattr(Ag.GradientCal, f"{opration_name.capitalize()}_grad")(self, other, ans)
-            
-            ans.is_leaf = False
-            
-        return ans
-    
-    def __add__(self, other):
-        return self._apply_opration(
-            other,
-            have_scaler=True,
-            opration=lambda x, y: x + y,
-            opration_name="Add",
-            allow_func=C.isbroadcast
-        )
-    
-    def __radd__(self, other):
-        return self + other
-        
-    def __sub__(self, other):
-        return self._apply_opration(
-            other,
-            have_scaler=True,
-            opration=lambda x, y: x - y,
-            opration_name="Sub",
-            allow_func=C.isbroadcast
-        )
-    
-    def __rsub__(self, other):
-        return self - other
-        
-    def __mul__(self, other):
-        return self._apply_opration(
-            other,
-            have_scaler=True,
-            opration=lambda x, y: x * y,
-            opration_name="Mul",
-            allow_func=C.isbroadcast
-        )
-    
-    def __rmul__(self, other):
-        return self * other
-    
-    def __truediv__(self, other):
-        return self._apply_opration(
-            other,
-            have_scaler=True,
-            opration=lambda x, y: x / y,
-            opration_name="Div",
-            allow_func=C.isbroadcast
-        )
-        
-    def __rtruediv__(self, other):
-        return self / other
-    
-    def __pow__(self, other):
-        return self._apply_opration(
-            other,
-            have_scaler=True,
-            opration=lambda x, y: math.pow(x, y),
-            opration_name="Pow",
-            allow_func=C.isbroadcast
-        )
-        
-    def __matmul__(self, other):
-        return self._apply_opration(
-            other,
-            have_scaler=False,
-            opration=lambda : None,
-            opration_name="MatMul",
-            allow_func=C.is_matmul_broadcast
-        )
-    
-    def __neg__(self):
-        return 0.0 - self
-    
-    def __hash__(self): return id(Tensor)
-    
     @property
-    def shape(self) -> Tuple[int]: return tuple(self.base.shape)
-
+    def shape(self) -> Tuple[int, ...]: return self._tensor.shape
     @property
-    def ndim(self) -> int: return self.base.ndim
-
+    def ndim(self) -> int: return self._tensor.ndim
     @property
-    def size(self) -> int: return self.base.size
-            
+    def size(self) -> int: return self._tensor.size
     @property
-    def dtype(self) -> AnyStr: return self.base.dtype
+    def dtype(self) -> str: return self._tensor.dtype
     
-    def sum(self, axis: Optional[int] = -1, keepdims: Optional[bool] = False):
-        reshape = Th.Reshape()
-        allow = C.is_sum_allow(axis, self.base.ndim)
-        errors.sum_error(allow, f" sum() we found {axis} and {self.base.ndim}")
-        
-        if self.base.dtype == "float32":
-            
-            data, shape = C.SumFloat32(self.base, axis, keepdims)
-            ans = reshape(data, shape)
-            del(data); del(shape)  
-            ans = Tensor(ans, dtype=Th.float32, requires_grad=self.requires_grad)
-            
-            if ans.requires_grad:
-                ans._prev = {self}
-                ans.name_backward = "<SumBackward0>"
-                ans._backward = Ag.GradientCal.sum_grad(self, ans)
-                ans.is_leaf = False
-            
-            return ans
-        
-        elif self.base.dtype == "float64":
-            data, shape = C.SumFloat64(self.base, axis, keepdims)
-            ans = reshape(data, shape)
-            del(data); del(shape)
-            ans = Tensor(ans, dtype=Th.float64, requires_grad=self.requires_grad)
-            
-            if ans.requires_grad:
-                ans._prev = {self}
-                ans.name_backward = "<SumBackward1>"
-                ans._backward = Ag.GradientCal.sum_grad(self, ans)
-                ans.is_leaf = False
-                
-            return ans
-        
-    def transpose(self, dim0:int, dim1:int):
-        reshape = Th.Reshape()
-        if dim0 < 0 and dim1 < 0:
-            dim0 = self.ndim + dim0
-            dim1 = self.ndim + dim1
-            
-        allow = False if self.ndim < 2 else True
-        errors.dim_error(allow, f" Transpose we found {self.ndim}")
-        opration_func = {
-            "float32":getattr(C, "TransFloat32"),
-            "float64":getattr(C, "TransFloat64")
-        }
-        dtype_mapping={"float32":Th.float32, "float64":Th.float64}
-        data, shape = opration_func[self.base.dtype](self.base, dim0, dim1)
-        ans = reshape(data, shape)
-        del data, shape
-        ans = Tensor(ans, dtype=dtype_mapping[self.base.dtype], requires_grad=self.requires_grad)
-         
-        if ans.requires_grad:
-            ans._prev = {self}
-            ans.name_backward = "<TransBackward0>"
-            ans._backward = getattr(Ag.GradientCal, "Trans_grad")(self, ans)
-            
-            ans.is_leaf = False
-        
-        return ans
-
-    def backward(self, custom_grad = None) -> None:
-        
-        if self.requires_grad == False:
-            raise ValueError("The Backward pass is work only if the requires_grad is True")
-        
-        if self.shape == (1,):
-            if custom_grad is not None:
-                raise ValueError("Custom gradient should not be provided for scalar outputs or use the scaler value to compute the grad")
-            self.grad = anygrad.ones_like(self, requires_grad=False)
-        else:
-            if custom_grad is None:
-                raise ValueError("Custom gradient must be provided for non-scalar outputs")
-            if custom_grad.shape != self.shape:
-                raise ValueError(f"Custom grad shape {custom_grad.shape} doesn't match output shape {self.shape}")
-            self.grad = custom_grad
-
-        topo = Ag.BuildGraph.construct_graph(self)
-        
-        for v in reversed(topo):
-            if v is not self and v._prev:
-                # if v.grad is not None:
-                #     warnings.warn(f"Gradient should be None for non-leaf node: {v}")
-                v.grad = None
-        
-        for v in topo:
-            v._backward()
+    def __repr__(self) -> str: return repr(self._tensor)
+   
+    def __add__(self, other:Union['Tensor',int,float]) -> 'Tensor': return self._tensor.__add__(other)
+    def __sub__(self, other:Union['Tensor',int,float]) -> 'Tensor': return self._tensor.__sub__(other)
+    def __mul__(self, other:Union['Tensor',int,float]) -> 'Tensor': return self._tensor.__mul__(other)
+    def __truediv__(self, other:Union['Tensor',int,float]) -> 'Tensor': return self._tensor.__truediv__(other)
+    def __matmul__(self, other:Union['Tensor',int,float]) -> 'Tensor': return self._tensor.__matmul__(other)
+    def __neg__(self, other:Union['Tensor',int,float]) -> 'Tensor': return self._tensor.__neg__(other)
+    def __pow__(self, other:Union['Tensor',int,float]) -> 'Tensor': return self._tensor.__pow__(other)
+    
+    def __radd__(self, other:Union['Tensor',int,float]) -> 'Tensor': return self._tensor.__radd__(other)
+    def __rsub__(self, other:Union['Tensor',int,float]) -> 'Tensor': return self._tensor.__rsub__(other)
+    def __rmul__(self, other:Union['Tensor',int,float]) -> 'Tensor': return self._tensor.__rmul__(other)
+    def __rtruediv__(self, other:Union['Tensor',int,float]) -> 'Tensor': return self._tensor.__rtruediv__(other)
+    
+    def sum(self, axis:Optional[int] = -1, keepdims: Optional[bool] = False) -> 'Tensor': return self._tensor.sum(axis=axis, keepdims=keepdims)
+    def mean(self, axis:Optional[int] = -1, keepdims: Optional[bool] = False) -> 'Tensor': return self._tensor.mean(axis=axis, keepdims=keepdims)
+    def min(self, axis:Optional[int] = -1, keepdims: Optional[bool] = False) -> 'Tensor': return self._tensor.min(axis=axis, keepdims=keepdims)
+    def max(self, axis:Optional[int] = -1, keepdims: Optional[bool] = False) -> 'Tensor': return self._tensor.max(axis=axis, keepdims=keepdims)
+    def median(self, axis:Optional[int] = -1, keepdims: Optional[bool] = False) -> 'Tensor': return self._tensor.median(axis=axis, keepdims=keepdims)
+    def backward(self, custom_grad:Optional['Tensor']=None) -> None: return self._tensor.backward(custom_grad)

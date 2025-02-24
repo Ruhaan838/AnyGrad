@@ -97,7 +97,39 @@ class GradientCal:
         return _backward
 
     @staticmethod
-    def sum_grad(tensor, ans_tensor):
+    def Sum_grad(tensor, ans_tensor):
+        def _backward():
+            if tensor.requires_grad:
+                GradientCal.accumulate_grad_with_factor(tensor, ans_tensor.grad)
+        return _backward
+
+    @staticmethod
+    def Mean_grad(tensor, ans_tensor):
+        def _backward():
+            if tensor.requires_grad:
+                GradientCal.accumulate_grad_with_factor(tensor, ans_tensor.grad / tensor.size)
+        return _backward
+
+    @staticmethod
+    def Median_grad(tensor, ans_tensor):
+        def _backward():
+            if tensor.requires_grad:
+                median_val = ans_tensor.data[0] if isinstance(ans_tensor.data, list) and len(ans_tensor.data) == 1 else ans_tensor.data
+                mask = anygrad.Tensor([1 if x == median_val else 0 for x in tensor.data])
+                count = sum(mask) or 1
+                grad_factor_tensor = ans_tensor.grad * (mask / count)
+                GradientCal.accumulate_grad_with_factor(tensor, grad_factor_tensor)
+        return _backward
+
+    @staticmethod
+    def Max_grad(tensor, ans_tensor):
+        def _backward():
+            if tensor.requires_grad:
+                GradientCal.accumulate_grad_with_factor(tensor, ans_tensor.grad)
+        return _backward
+
+    @staticmethod
+    def Min_grad(tensor, ans_tensor):
         def _backward():
             if tensor.requires_grad:
                 GradientCal.accumulate_grad_with_factor(tensor, ans_tensor.grad)

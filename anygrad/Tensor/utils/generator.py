@@ -9,12 +9,12 @@ class Generator(C_.GeneratorBase):
     def manual_seed(self, seed):
         return super().manual_seed(seed)
     
-def _use_utils_ops(shape, requires_grad, generator, opration_name, dtype):
+def _use_utils_ops(shape, requires_grad, generator, operation_name, dtype):
     reshape = Reshape()
     dtype_mapping = {"float32":float32, "float64":float64}
     opration_func = {
-        "float32":getattr(C_, f"{opration_name}Float32"),
-        "float64":getattr(C_, f"{opration_name}Float64")
+        "float32":getattr(C_, f"{operation_name}Float32"),
+        "float64":getattr(C_, f"{operation_name}Float64")
     }
     
     data, shape = opration_func[dtype](shape, generator)
@@ -30,6 +30,6 @@ def rand(shape, generator=None, requires_grad=False, dtype=float32):
         shape,
         generator=generator,
         requires_grad=requires_grad,
-        opration_name="rand",
+        operation_name="rand",
         dtype="float32" if dtype == float32 else "float64",
     )

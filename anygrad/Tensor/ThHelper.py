@@ -4,22 +4,48 @@ from collections.abc import Iterable, Sequence
 
 float32 = NewType('float32', float32)
 float64 = NewType('float64', float64)
+int32 = NewType('int32', int)
+int64 = NewType('int64', int)
+bool = NewType('bool', bool)
 
-class TensorConvert:
+class TensorConvertInt:
+    def __call__(self, data):
+        if isinstance(data, list):
+            return [self.__call__(ele) for ele in data]
+        else:
+            return int(data)
+class TensorConvertFloat:
     def __call__(self, data):
             if isinstance(data, list):
                 return [self.__call__(ele) for ele in data]
             else:
                 return float(data)
 
-class TensorType:
-    def __init__(self, dtype):
-        self.dtype = str(dtype) if isinstance(dtype, str) else dtype
+class TensorConvertBool:
+    def __call__(self, data):
+        if isinstance(data, list):
+            return [self.__call__(ele) for ele in data]
+        else:
+            return bool(data)
+        
+class ValidDataType:
+    def __init__(self):
+        self._list = {
+            float: 0,
+            int: 0,
+            bool: 0
+        }
 
     def __call__(self, data):
-        valid_types = {float32, float64}  
-        if self.dtype not in valid_types:
-            raise TypeError("Tensor must have a valid dtype: 'float32', 'float64', float32, or float64.")
+        if not isinstance(data, list):
+            if type(data) in self._list:
+                self._list[type(data)] += 1
+            else:
+                self._list[type(data)] = 1
+        else:
+            for ele in data:
+                self.__call__(ele)
+        return max(self._list, key=lambda x:str(x))
 class ToList:
     def __call__(self, data):
         def flatten(lst):
