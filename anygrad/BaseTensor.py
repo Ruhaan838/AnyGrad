@@ -33,13 +33,15 @@ class BaseTensor:
     @property
     def dtype(self) -> str:
         return self.base.dtype
-
+    
+    @staticmethod
     def _create_tensor(self, data, shape, TensorClass, requires_grad: bool, sel_dtype):
         reshaped = Th.Reshape()(data, shape)
         if sel_dtype in {Th.int32, Th.int64, Th.bool}:
             return TensorClass(reshaped, dtype=sel_dtype)
         else:
             return TensorClass(reshaped, requires_grad=requires_grad, dtype=sel_dtype)
+        
     @staticmethod    
     def _apply_operation(
         tensor1,
@@ -61,7 +63,7 @@ class BaseTensor:
         if isinstance(tensor2, (int, float)) and has_scalar:
             data = [operation(i, tensor2) for i in tensor1.base.data]
             dtype = dtype_map[tensor1.base.dtype]
-            ans = tensor1._create_tensor(data, tensor1.shape, TensorClass, tensor1.requires_grad, dtype)
+            ans = BaseTensor._create_tensor(tensor1, data, tensor1.shape, TensorClass, tensor1.requires_grad, dtype)
             
             if ans.requires_grad:
                 ans._prev = {tensor1}
@@ -81,13 +83,17 @@ class BaseTensor:
         
         data, shape = operation_func[tensor1.base.dtype](tensor1.base, tensor2.base)
         req = tensor1.requires_grad or tensor2.requires_grad
-        ans = tensor1._create_tensor(data, shape, TensorClass, req, dtype_map[tensor1.base.dtype])
+        reshaped = Th.Reshape()(data, shape)
+        
+        if dtype_map[tensor1.base.dtype] in {Th.int32, Th.int64, Th.bool}:
+            ans = TensorClass(reshaped, dtype=dtype_map[tensor1.base.dtype])
+        else:
+            ans = TensorClass(reshaped, requires_grad=req, dtype= dtype_map[tensor1.base.dtype])
         
         if ans.requires_grad:
             ans._prev = {tensor1, tensor2}
             ans.name_backward = f"<{operation_name}Backward0>"
             ans._backward = getattr(Ag.GradientCal, f"{operation_name.capitalize()}_grad")(tensor1, tensor2, ans)
-            
             ans.is_leaf = False
         
         del data, shape, req
@@ -116,8 +122,12 @@ class BaseTensor:
         }
         
         data, shape = operation_func[tensor1.base.dtype](tensor1.base, axis, keepdims)
-        ans = tensor1._create_tensor(data, shape, TensorClass, tensor1.requires_grad, dtype_map[tensor1.base.dtype])
-        del data, shape
+        reshaped = Th.Reshape()(data, shape)
+        
+        if dtype_map[tensor1.base.dtype] in {Th.int32, Th.int64, Th.bool}:
+            ans = TensorClass(reshaped, dtype=dtype_map[tensor1.base.dtype])
+        else:
+            ans = TensorClass(reshaped, requires_grad=tensor1.requires_grad, dtype= dtype_map[tensor1.base.dtype])
         
         if ans.requires_grad:
             ans._prev = {tensor1}
@@ -125,6 +135,7 @@ class BaseTensor:
             ans._backward = getattr(Ag.GradientCal, f"{operation_name}_grad")(tensor1, ans)
             ans.is_leaf = False
             
+        del data, shape
         return ans
 
     def __iter__(self):
@@ -150,9 +161,9 @@ class BaseTensor:
 
         topo = Ag.BuildGraph.construct_graph(self)
         
-        for v in reversed(topo):
-            if v is not self and v._prev:
-                v.grad = None
+        # for v in reversed(topo):
+        #     if v is not self and v._prev:
+        #         v.grad = None
             
         for v in topo:
             v._backward()
