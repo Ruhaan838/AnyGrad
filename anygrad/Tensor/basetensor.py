@@ -52,7 +52,7 @@ class BaseTensor:
         return BaseTensor._DTYPE_MAP[self.base.dtype]
     
     @staticmethod
-    def _create_tensor(self, data, shape, TensorClass, requires_grad: bool, sel_dtype):
+    def _create_tensor(data, shape, TensorClass, requires_grad: bool, sel_dtype):
         reshaped = Th.Reshape()(data, shape)
         if sel_dtype in {Th.int32, Th.int64, Th.bool}:
             return TensorClass(reshaped, dtype=sel_dtype)
@@ -72,7 +72,7 @@ class BaseTensor:
         
         if isinstance(tensor2, (int, float)) and has_scalar:
             data = [operation(i, tensor2) for i in tensor1.base.data]
-            ans = BaseTensor._create_tensor(tensor1, data, tensor1.shape, TensorClass, tensor1.requires_grad, tensor1.dtype)
+            ans = BaseTensor._create_tensor(data, tensor1.shape, TensorClass, tensor1.requires_grad, tensor1.dtype)
             
             if ans.requires_grad:
                 ans._prev = {tensor1}
@@ -106,10 +106,7 @@ class BaseTensor:
         req = tensor1.requires_grad or tensor2.requires_grad
         reshaped = Th.Reshape()(data, shape)
         
-        if tensor1.base.dtype in ("int32", "int64", "bool"):
-            ans = TensorClass(reshaped, dtype=tensor1.base.dtype)
-        else:
-            ans = TensorClass(reshaped, requires_grad=req, dtype=tensor1.base.dtype)
+        ans = BaseTensor._create_tensor(data, shape, TensorClass, req, tensor1.dtype)
         
         if ans.requires_grad:
             ans._prev = {tensor1, tensor2}
@@ -153,6 +150,30 @@ class BaseTensor:
             ans.is_leaf = False
             
         del data, shape
+        return ans
+    
+    @staticmethod
+    def _trans_ops(tensor1, dim0:int, dim1:int, TensorClass:Any):
+
+        if dim0 < 0 and dim1 < 0:
+            dim0 = tensor1.ndim + dim0
+            dim1 = tensor1.ndim + dim1
+        
+        allow = False if tensor1.ndim < 2 else True
+        errors.dim_error(allow, f" Transpose we found {tensor1.ndim}")
+        try:
+            opration_func = getattr(C, f"Trans{tensor1.base.dtype.capitalize()}")
+        except:
+            pass
+        data, shape = opration_func(tensor1.base, dim0, dim1)
+        ans = BaseTensor._create_tensor(data, shape, TensorClass, tensor1.requires_grad, tensor1.dtype)
+        
+        if ans.requires_grad:
+            ans._prev = {tensor1}
+            ans.name_backward = "<TransBackward0>"
+            ans._backward = getattr(Ag.GradientCal, "Trans_grad")(tensor1, ans)
+            ans.is_leaf = False
+        
         return ans
 
     def __iter__(self):

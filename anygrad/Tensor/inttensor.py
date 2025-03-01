@@ -179,4 +179,7 @@ class IntTensor(BaseTensor):
     def median(self, axis:Optional[int] = -1, keepdims: Optional[bool] = False):
         return BaseTensor._reduce_ops(self, IntTensor, axis, keepdims, "Median")
     
+    def transpose(self, dim0:int, dim1:int) -> 'IntTensor':
+        return BaseTensor._trans_ops(self, dim0, dim1, IntTensor)
+    
     __module__ = "anygrad"

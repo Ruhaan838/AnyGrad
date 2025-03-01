@@ -16,5 +16,5 @@
 //     //     .def("add_grad", &GradFunctions_f64::add_grad)
 //     //     .def("sum_grad", &GradFunctions_f64::sum_grad)
 //     //     ;
-//     // m.def("add_grad", &add_grad, py::return_value_policy::reference);
+//     // m.def("add_grad", &add_grad);
 // }

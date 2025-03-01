@@ -192,4 +192,7 @@ class FloatTensor(BaseTensor):
     def median(self, axis:Optional[int] = -1, keepdims: Optional[bool] = False):
         return BaseTensor._reduce_ops(self, FloatTensor, axis, keepdims, "Median")
     
+    def transpose(self, dim0:int, dim1:int) -> 'FloatTensor':
+        return BaseTensor._trans_ops(self, dim0, dim1, FloatTensor)
+    
     __module__ = "anygrad"

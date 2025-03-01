@@ -54,75 +54,76 @@ PYBIND11_MODULE(tensor_c, msg) {
         ;
     
     //arithmetic
-    msg.def("AddFloat32", &AddFloat32, py::return_value_policy::reference);
-    msg.def("AddFloat64", &AddFloat64, py::return_value_policy::reference);
-    msg.def("AddInt32", &AddInt32, py::return_value_policy::reference);
-    msg.def("AddInt64", &AddInt64, py::return_value_policy::reference);
-    msg.def("AddBool", &AddBool, py::return_value_policy::reference);
+    msg.def("AddFloat32", &AddFloat32);
+    msg.def("AddFloat64", &AddFloat64);
+    msg.def("AddInt32", &AddInt32);
+    msg.def("AddInt64", &AddInt64);
+    msg.def("AddBool", &AddBool);
 
-    msg.def("SubFloat32", &SubFloat32, py::return_value_policy::reference);
-    msg.def("SubFloat64", &SubFloat64, py::return_value_policy::reference);
-    msg.def("SubInt32", &SubInt32, py::return_value_policy::reference);
-    msg.def("SubInt64", &SubInt64, py::return_value_policy::reference);
-    msg.def("SubBool", &SubBool, py::return_value_policy::reference);
+    msg.def("SubFloat32", &SubFloat32);
+    msg.def("SubFloat64", &SubFloat64);
+    msg.def("SubInt32", &SubInt32);
+    msg.def("SubInt64", &SubInt64);
+    msg.def("SubBool", &SubBool);
     
-    msg.def("MulFloat32", &MulFloat32, py::return_value_policy::reference);
-    msg.def("MulFloat64", &MulFloat64, py::return_value_policy::reference);
-    msg.def("MulInt32", &MulInt32, py::return_value_policy::reference);
-    msg.def("MulInt64", &MulInt64, py::return_value_policy::reference);
-    msg.def("MulBool", &MulBool, py::return_value_policy::reference);
+    msg.def("MulFloat32", &MulFloat32);
+    msg.def("MulFloat64", &MulFloat64);
+    msg.def("MulInt32", &MulInt32);
+    msg.def("MulInt64", &MulInt64);
+    msg.def("MulBool", &MulBool);
 
-    msg.def("DivFloat32", &DivFloat32, py::return_value_policy::reference);
-    msg.def("DivFloat64", &DivFloat64, py::return_value_policy::reference);
-    msg.def("DivInt32", &DivInt32, py::return_value_policy::reference);
-    msg.def("DivInt64", &DivInt64, py::return_value_policy::reference);
-    msg.def("DivBool", &DivBool, py::return_value_policy::reference);
+    msg.def("DivFloat32", &DivFloat32);
+    msg.def("DivFloat64", &DivFloat64);
+    msg.def("DivInt32", &DivInt32);
+    msg.def("DivInt64", &DivInt64);
+    msg.def("DivBool", &DivBool);
 
-    msg.def("PowFloat32", &PowFloat32, py::return_value_policy::reference);
-    msg.def("PowFloat64", &PowFloat64, py::return_value_policy::reference);
-    msg.def("PowInt32", &PowInt32, py::return_value_policy::reference);
-    msg.def("PowInt64", &PowInt64, py::return_value_policy::reference);
+    msg.def("PowFloat32", &PowFloat32);
+    msg.def("PowFloat64", &PowFloat64);
+    msg.def("PowInt32", &PowInt32);
+    msg.def("PowInt64", &PowInt64);
 
     //sums, means
-    msg.def("SumFloat32", &SumFloat32, py::return_value_policy::reference);
-    msg.def("SumFloat64", &SumFloat64, py::return_value_policy::reference);
-    msg.def("SumInt32", &SumInt32, py::return_value_policy::reference);
-    msg.def("SumInt64", &SumInt64, py::return_value_policy::reference);
+    msg.def("SumFloat32", &SumFloat32);
+    msg.def("SumFloat64", &SumFloat64);
+    msg.def("SumInt32", &SumInt32);
+    msg.def("SumInt64", &SumInt64);
 
-    msg.def("MeanFloat32", &MeanFloat32, py::return_value_policy::reference);
-    msg.def("MeanFloat64", &MeanFloat64, py::return_value_policy::reference);
-    msg.def("MeanInt32", &MeanInt32, py::return_value_policy::reference);
-    msg.def("MeanInt64", &MeanInt64, py::return_value_policy::reference);
+    msg.def("MeanFloat32", &MeanFloat32);
+    msg.def("MeanFloat64", &MeanFloat64);
+    msg.def("MeanInt32", &MeanInt32);
+    msg.def("MeanInt64", &MeanInt64);
 
-    msg.def("MaxFloat32", &MaxFloat32, py::return_value_policy::reference);
-    msg.def("MaxFloat64", &MaxFloat64, py::return_value_policy::reference);
-    msg.def("MaxInt32", &MaxInt32, py::return_value_policy::reference);
-    msg.def("MaxInt64", &MaxInt64, py::return_value_policy::reference);
+    msg.def("MaxFloat32", &MaxFloat32);
+    msg.def("MaxFloat64", &MaxFloat64);
+    msg.def("MaxInt32", &MaxInt32);
+    msg.def("MaxInt64", &MaxInt64);
 
-    msg.def("MinFloat32", &MinFloat32, py::return_value_policy::reference);
-    msg.def("MinFloat64", &MinFloat64, py::return_value_policy::reference);
-    msg.def("MinInt32", &MinInt32, py::return_value_policy::reference);
-    msg.def("MinInt64", &MinInt64, py::return_value_policy::reference);
+    msg.def("MinFloat32", &MinFloat32);
+    msg.def("MinFloat64", &MinFloat64);
+    msg.def("MinInt32", &MinInt32);
+    msg.def("MinInt64", &MinInt64);
 
-    msg.def("MedianFloat32", &MedianFloat32, py::return_value_policy::reference);
-    msg.def("MedianFloat64", &MedianFloat64, py::return_value_policy::reference);
-    msg.def("MedianInt32", &MedianInt32, py::return_value_policy::reference);
-    msg.def("MedianInt64", &MedianInt64, py::return_value_policy::reference);
+    msg.def("MedianFloat32", &MedianFloat32);
+    msg.def("MedianFloat64", &MedianFloat64);
+    msg.def("MedianInt32", &MedianInt32);
+    msg.def("MedianInt64", &MedianInt64);
 
     //rules
-    msg.def("isbroadcast", &isbroadcast, py::return_value_policy::reference);
-    msg.def("is_sum_allow", &is_sum_allow, py::return_value_policy::reference);
+    msg.def("isbroadcast", &isbroadcast);
+    msg.def("is_sum_allow", &is_sum_allow);
 
     //gemm
-    msg.def("MatmulFloat32", &MatmulFloat32, py::return_value_policy::reference);
-    msg.def("MatmulFloat64", &MatmulFloat64, py::return_value_policy::reference);
-    msg.def("MatmulInt32", &MatmulInt32, py::return_value_policy::reference);
-    msg.def("MatmulInt64", &MatmulInt64, py::return_value_policy::reference);
-    msg.def("TransFloat32", &TransFloat32, py::return_value_policy::reference);
-    msg.def("TransFloat64", &TransFloat64, py::return_value_policy::reference);
-    msg.def("TransInt32", &TransInt32, py::return_value_policy::reference);
-    msg.def("TransInt64", &TransInt64, py::return_value_policy::reference);
-    msg.def("is_matmul_broadcast", &is_matmul_broadcast, py::return_value_policy::reference);
+    msg.def("MatmulFloat32", &MatmulFloat32);
+    msg.def("MatmulFloat64", &MatmulFloat64);
+    msg.def("MatmulInt32", &MatmulInt32);
+    msg.def("MatmulInt64", &MatmulInt64);
+    msg.def("TransFloat32", &TransFloat32);
+    msg.def("TransFloat64", &TransFloat64);
+    msg.def("TransInt32", &TransInt32);
+    msg.def("TransInt64", &TransInt64);
+    msg.def("TransBool", &TransBool);
+    msg.def("is_matmul_broadcast", &is_matmul_broadcast);
     
-    // msg.def("DEBUG_64", &DEBUG_64, py::return_value_policy::reference);
+    // msg.def("DEBUG_64", &DEBUG_64);
 }

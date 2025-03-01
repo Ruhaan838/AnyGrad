@@ -203,3 +203,7 @@ std::pair<vector_i32, vector_i32> TransInt32(Int32TensorBase tensor, int32_t dim
 std::pair<vector_i64, vector_i32> TransInt64(Int64TensorBase tensor, int32_t dim0, int32_t dim1){
     return transposeNd<Int64TensorBase, vector_i64>(tensor, dim0, dim1);
 }
+
+std::pair<vector_bool, vector_i32> TransBool(BoolTensorBase tensor, int32_t dim0, int32_t dim1){
+    return transposeNd<BoolTensorBase, vector_bool>(tensor, dim0, dim1);
+}

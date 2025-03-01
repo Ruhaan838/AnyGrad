@@ -90,5 +90,6 @@ std::pair<vector_f32, vector_i32> TransFloat32(FloatTensorBase tensor, int32_t d
 std::pair<vector_f64, vector_i32> TransFloat64(DoubleTensorBase tenosr, int32_t dim0, int32_t dim1);
 std::pair<vector_i32, vector_i32> TransInt32(Int32TensorBase tensor, int32_t dim0, int32_t dim1);
 std::pair<vector_i64, vector_i32> TransInt64(Int64TensorBase tenosr, int32_t dim0, int32_t dim1);
+std::pair<vector_bool, vector_i32> TransBool(BoolTensorBase tensor, int32_t dim0, int32_t dim1);
 
 #endif

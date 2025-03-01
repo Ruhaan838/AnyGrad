@@ -150,5 +150,7 @@ class BoolTensor(BaseTensor):
     def min(self, axis:Optional[int] = -1, keepdims: Optional[bool] = False):raise NotImplementedError("min is not implemented for BoolTensor")
     def max(self, axis:Optional[int] = -1, keepdims: Optional[bool] = False):raise NotImplementedError("max is not implemented for BoolTensor")
     def median(self, axis:Optional[int] = -1, keepdims: Optional[bool] = False):raise NotImplementedError("median is not implemented for BoolTensor")
+    def transpose(self, dim0:int, dim1:int) -> 'BoolTensor':
+        return BaseTensor._trans_ops(self, dim0, dim1, BoolTensor)
     
     __module__ = "anygrad"

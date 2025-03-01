@@ -168,5 +168,6 @@ class Tensor:
     def max(self, axis:Optional[int] = -1, keepdims: Optional[bool] = False) -> 'Tensor': return self._tensor.max(axis=axis, keepdims=keepdims)
     def median(self, axis:Optional[int] = -1, keepdims: Optional[bool] = False) -> 'Tensor': return self._tensor.median(axis=axis, keepdims=keepdims)
     def backward(self, custom_grad:Optional['Tensor']=None) -> None: return self._tensor.backward(custom_grad)
+    def transpose(self, dim0:int, dim1:int) -> 'Tensor': return self._tensor.transpose(dim0, dim1)
     
     __module__ = "anygrad"
