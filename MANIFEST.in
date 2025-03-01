@@ -1,1 +1,2 @@
 recursive-include anygrad *.py *.cpp *.hpp
+recursive-include csrc *.py *.cpp *.hpp
