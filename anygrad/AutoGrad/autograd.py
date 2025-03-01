@@ -16,3 +16,5 @@ def no_grad():
         yield
     finally:
         GradMode.set_enable(True)
+        
+no_grad.__module__ = "anygrad.AutoGrad"

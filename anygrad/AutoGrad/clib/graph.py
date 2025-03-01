@@ -14,3 +14,5 @@ class BuildGraph:
                 for child in ele._prev:
                     queue.append(child)
         return topo
+    
+    __module__ = "anygrad.AutoGrad"
