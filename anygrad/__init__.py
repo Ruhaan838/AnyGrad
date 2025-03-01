@@ -16,9 +16,6 @@ def matmul(tensor1, tensor2):
     return tensor1 @ tensor2
 
 def cast(tensor:Tensor, target_dtype):
-    """
-    Casts the given tensor to the target_dtype.
-    """
     return Tensor(tensor.data, requires_grad=tensor.requires_grad, dtype=target_dtype)
 
 __all__ = ["Tensor", "FloatTensor", "IntTensor", "BoolTensor",
