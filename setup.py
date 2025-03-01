@@ -1,33 +1,31 @@
 from setuptools import setup, find_packages
 from pybind11.setup_helpers import Pybind11Extension, build_ext
-import subprocess
 import sys
 
 compile_args = ["-O2", "-std=c++20"] if sys.platform != "win32" else ["/O2", "/std:c++20"]
-
-__version__ = "0.0.1"
+version = "0.0.2"
 
 ext_modules = [
     Pybind11Extension(
         "anygrad.Tensor.tensor_c",
         [
             "anygrad/Tensor/bind_tensor.cpp",
-            "anygrad/Tensor/clib/ThAllocate.cpp",
-            "anygrad/Tensor/clib/ThBaseops.cpp",
-            "anygrad/Tensor/clib/Thhelpers.cpp",
-            "anygrad/Tensor/clib/Thgemm.cpp"
+            "csrc/Tensor/ThAllocate.cpp",
+            "csrc/Tensor/ThBaseops.cpp",
+            "csrc/Tensor/Thhelpers.cpp",
+            "csrc/Tensor/Thgemm.cpp"
         ],
         language="c++",
         extra_compile_args=compile_args
     ),
     Pybind11Extension(
-        "anygrad.Tensor.utils.utils_c",
+        "anygrad.utils.utils_c",
         [
-            "anygrad/Tensor/utils/utils_bind.cpp",
-            "anygrad/Tensor/utils/random_num.cpp",
-            "anygrad/Tensor/clib/Thhelpers.cpp",
-            "anygrad/Tensor/utils/init_ops.cpp",
-            "anygrad/Tensor/utils/log_arithmetic.cpp",
+            "anygrad/utils/utils_bind.cpp",
+            "csrc/utils/random_num.cpp",
+            "csrc/Tensor/Thhelpers.cpp",
+            "csrc/utils/init_ops.cpp",
+            "csrc/utils/log_arithmetic.cpp",
         ],
         language="c++",
         extra_compile_args=compile_args
@@ -36,9 +34,10 @@ ext_modules = [
 
 setup(
     name="anygrad",
-    version=__version__,
+    version=version,
     description="A module that allow user to do the Tensor operation.",
     long_description=open('README.md', encoding='utf-8').read(),
+    long_description_content_type='text/markdown',
     author="Ruhaan",
     author_email="ruhaan123dalal@gmail.com",
     license="Apache License",
