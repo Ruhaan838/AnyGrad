@@ -6,12 +6,8 @@
 #include <string>
 #include <random>
 
-#include "../clib/ThTypes.hpp"
-#include "../OpsCenter.hpp"
-
-#define vector_f32 std::vector<float_t>
-#define vector_f64 std::vector<double_t>
-#define vector_i32 std::vector<int32_t>
+#include "../Tensor/ThTypes.hpp"
+#include "../Tensor/Th.hpp"
 
 class Generator{
     public:

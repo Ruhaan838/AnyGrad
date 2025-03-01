@@ -1,8 +1,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "clib/ThTypes.hpp"
-#include "OpsCenter.hpp"
+#include "../../csrc/Tensor/Th.hpp"
 
 #include <vector>
 
@@ -117,8 +116,12 @@ PYBIND11_MODULE(tensor_c, msg) {
     //gemm
     msg.def("MatmulFloat32", &MatmulFloat32, py::return_value_policy::reference);
     msg.def("MatmulFloat64", &MatmulFloat64, py::return_value_policy::reference);
+    msg.def("MatmulInt32", &MatmulInt32, py::return_value_policy::reference);
+    msg.def("MatmulInt64", &MatmulInt64, py::return_value_policy::reference);
     msg.def("TransFloat32", &TransFloat32, py::return_value_policy::reference);
     msg.def("TransFloat64", &TransFloat64, py::return_value_policy::reference);
+    msg.def("TransInt32", &TransInt32, py::return_value_policy::reference);
+    msg.def("TransInt64", &TransInt64, py::return_value_policy::reference);
     msg.def("is_matmul_broadcast", &is_matmul_broadcast, py::return_value_policy::reference);
     
     // msg.def("DEBUG_64", &DEBUG_64, py::return_value_policy::reference);

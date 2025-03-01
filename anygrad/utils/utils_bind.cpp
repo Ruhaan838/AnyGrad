@@ -1,9 +1,9 @@
-#include "../OpsCenter.hpp"
-#include "../clib/ThTypes.hpp"
-#include "generator.hpp"
-
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+
+#include "../../csrc/Tensor/Th.hpp"
+#include "../../csrc/utils/generator.hpp"
+#include "../../csrc/utils/utils.hpp"
 
 namespace py = pybind11;
 
@@ -14,15 +14,23 @@ PYBIND11_MODULE(utils_c, msg){
         ;
 
     //rand
-    msg.def("randFloat32", &randFloat32, py::return_value_policy::reference);
-    msg.def("randFloat64", &randFloat64, py::return_value_policy::reference);
+    msg.def("RandFloat32", &randFloat32, py::return_value_policy::reference);
+    msg.def("RandFloat64", &randFloat64, py::return_value_policy::reference);
 
-    //initalizer
+    //randint
+    msg.def("RandintInt32", &randintInt32, py::return_value_policy::reference);
+    msg.def("RandintInt64", &randintInt64, py::return_value_policy::reference);
+
+    //initializer
     msg.def("ZerosFloat32", &zerosFloat32, py::return_value_policy::reference);
     msg.def("ZerosFloat64", &zerosFloat64, py::return_value_policy::reference);
+    msg.def("ZerosInt32", &zerosInt32, py::return_value_policy::reference);
+    msg.def("ZerosInt64", &zerosInt64, py::return_value_policy::reference);
 
     msg.def("OnesFloat32", &onesFloat32, py::return_value_policy::reference);
     msg.def("OnesFloat64", &onesFloat64, py::return_value_policy::reference);
+    msg.def("OnesInt32", &onesInt32, py::return_value_policy::reference);
+    msg.def("OnesInt64", &onesInt64, py::return_value_policy::reference);
 
     //log arithmetic
     msg.def("LogFloat32", &LogFloat32, py::return_value_policy::reference);

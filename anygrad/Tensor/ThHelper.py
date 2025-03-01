@@ -1,12 +1,17 @@
 from typing import NewType
-from .tensor_c import float32, float64
+from . import tensor_c as C
 from collections.abc import Iterable, Sequence
 
-float32 = NewType('float32', float32)
-float64 = NewType('float64', float64)
-int32 = NewType('int32', int)
-int64 = NewType('int64', int)
-bool = NewType('bool', bool)
+float32 = NewType('float32', C.float32)
+float32.__module__ = "anygrad"
+float64 = NewType('float64', C.float64)
+float64.__module__ = "anygrad"
+int32 = NewType('int32', C.int32)
+int32.__module__ = "anygrad"
+int64 = NewType('int64', C.int64)
+int64.__module__ = "anygrad"
+bool = NewType('bool', C.bool)
+bool.__module__ = "anygrad"
 
 class TensorConvertInt:
     def __call__(self, data):
@@ -98,9 +103,9 @@ class Reshape:
             return sublist
         return create_reshape(data, shape)
 
-def round_list(data):
+def round_list(data, round_factor=3):
     def process(item):
         if isinstance(item, list):
             return [process(sub) for sub in item]
-        return round(item, 3)
+        return round(item, round_factor)
     return process(data)

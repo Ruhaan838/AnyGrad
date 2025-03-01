@@ -1,7 +1,8 @@
 #include <vector>
 #include <utility>
+#include <algorithm>
 
-#include "../OpsCenter.hpp"
+#include "Th.hpp"
 #include "ThTypes.hpp"
 
 #define vector_f32 std::vector<float_t>
@@ -34,7 +35,9 @@ vector_i32 matmul_broadcast_shape(vector_i32 shape1, vector_i32 shape2, int32_t 
     for (int i = 0; i < max_dim - 2; i++) {
         int new_dim1 = (i >= dim1 - 2) ? 1 : shape1[dim1 - 3 - i];
         int new_dim2 = (i >= dim2 - 2) ? 1 : shape2[dim2 - 3 - i];
-        shape3[max_dim - 3 - i] = std::max(new_dim1, new_dim2);
+        if (max_dim - 3 - i >= 0) {  
+            shape3[max_dim - 3 - i] = std::max(new_dim1, new_dim2);
+        }
     }
 
     shape3[max_dim - 2] = shape1[dim1 - 2];
@@ -43,25 +46,22 @@ vector_i32 matmul_broadcast_shape(vector_i32 shape1, vector_i32 shape2, int32_t 
 }
 
 template <typename U>
-U matmul2d(U data1, U data2, int32_t I_shape, int32_t J_shape, int32_t K_shape) {
-    int32_t block_size = 256;
-    U ans_data(I_shape * J_shape, 0);  
+U matmul2d(const U& data1, const U& data2, int32_t I_shape, int32_t K_shape, int32_t J_shape) {
+    const int32_t block_size = 256;
+    U ans_data(I_shape * J_shape, 0);
 
     for (int ii = 0; ii < I_shape; ii += block_size) {
         for (int jj = 0; jj < J_shape; jj += block_size) {
             for (int kk = 0; kk < K_shape; kk += block_size) {
-
-                for (int i = ii; i < std::min(ii + block_size, I_shape); i++) {
-                    for (int k = kk; k < std::min(kk + block_size, K_shape); k++) {
-
-                        auto temp = data1[i * K_shape + k];
-                        for (int j = jj; j < std::min(jj + block_size, J_shape); j++) {
-                            ans_data[i * J_shape + j] += temp * data2[k * J_shape + j];
+                for (int i = ii; i < std::min(ii + block_size, I_shape); ++i) {
+                    for (int j = jj; j < std::min(jj + block_size, J_shape); ++j) {
+                        float sum = 0.0f;
+                        for (int k = kk; k < std::min(kk + block_size, K_shape); ++k) {
+                            sum += data1[i * K_shape + k] * data2[k * J_shape + j];
                         }
-
+                        ans_data[i * J_shape + j] += sum;
                     }
                 }
-
             }
         }
     }
@@ -69,7 +69,7 @@ U matmul2d(U data1, U data2, int32_t I_shape, int32_t J_shape, int32_t K_shape) 
 }
 
 template <typename T, typename U>
-std::pair<U, vector_i32> matmulNd(T tensor1, T tensor2) {
+std::pair<U, vector_i32> matmulNd(const T& tensor1, const T& tensor2) {
     vector_i32 ans_shape = matmul_broadcast_shape(tensor1.shape, tensor2.shape, tensor1.ndim, tensor2.ndim);
     int32_t ans_dim = ans_shape.size();
     int32_t size = calculate_size(ans_shape, ans_dim);
@@ -84,20 +84,43 @@ std::pair<U, vector_i32> matmulNd(T tensor1, T tensor2) {
     }
 
     U result_data(size);
-    for (int i = 0; i < batch_size; i++) {
-        auto st_indx1 = tensor1.data.begin() + i * result_stride1[0];
-        U batch_data1(st_indx1, st_indx1 + tensor1.shape[tensor1.ndim - 1] * ans_shape[ans_dim - 2]);
+    
+    int32_t I = ans_shape[ans_dim - 2];                 
+    int32_t J = ans_shape[ans_dim - 1];                 
+    int32_t K = tensor1.shape[tensor1.ndim - 1];        
+    
+    for (int b = 0; b < batch_size; b++) {
+        U batch_data1(I * K);
+        U batch_data2(K * J);
         
-        auto st_indx2 = tensor2.data.begin() + i * result_stride2[0];
-        U batch_data2(st_indx2, st_indx2 + tensor2.shape[tensor2.ndim - 1] * ans_shape[ans_dim - 2]);
+        for (int i = 0; i < I; i++) {
+            for (int k = 0; k < K; k++) {
+                size_t offset1 = 0;
+                for (int d = 0; d < max_dim - 2; d++) {
+                    int batch_idx = (b / (ans_shape[d+1] * ans_shape[d+2])) % ans_shape[d];
+                    offset1 += batch_idx * result_stride1[d];
+                }
+                offset1 += i * tensor1.stride[tensor1.ndim - 2] + k * tensor1.stride[tensor1.ndim - 1];
+                batch_data1[i * K + k] = tensor1.data[offset1];
+            }
+        }
         
-        U batch_result = matmul2d(batch_data1, batch_data2, 
-                                 ans_shape[ans_dim - 2], 
-                                 ans_shape[ans_dim - 1], 
-                                 tensor1.shape[tensor1.ndim - 1]);
-
+        for (int k = 0; k < K; k++) {
+            for (int j = 0; j < J; j++) {
+                size_t offset2 = 0;
+                for (int d = 0; d < max_dim - 2; d++) {
+                    int batch_idx = (b / (ans_shape[d+1] * ans_shape[d+2])) % ans_shape[d];
+                    offset2 += batch_idx * result_stride2[d];
+                }
+                offset2 += k * tensor2.stride[tensor2.ndim - 2] + j * tensor2.stride[tensor2.ndim - 1];
+                batch_data2[k * J + j] = tensor2.data[offset2];
+            }
+        }
+        
+        U batch_result = matmul2d(batch_data1, batch_data2, I, K, J);
+        
         std::copy(batch_result.begin(), batch_result.end(), 
-                 result_data.begin() + i * ans_shape[ans_dim - 2] * ans_shape[ans_dim - 1]);
+                 result_data.begin() + b * I * J);
     }
 
     return {result_data, ans_shape};

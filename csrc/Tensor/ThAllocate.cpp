@@ -1,7 +1,7 @@
 #include <vector>
 
 #include "ThTypes.hpp"
-#include "../OpsCenter.hpp"
+#include "Th.hpp"
 
 #define vector_f32 std::vector<float_t>
 #define vector_f64 std::vector<double_t>

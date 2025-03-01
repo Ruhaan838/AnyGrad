@@ -4,8 +4,7 @@
 #include <vector>
 #include <utility>
 
-#include "clib/ThTypes.hpp"
-#include "utils/generator.hpp"
+#include "ThTypes.hpp"
 
 #define vector_f32 std::vector<float_t> 
 #define vector_f64 std::vector<double_t>
@@ -80,39 +79,16 @@ void update_offset(int32_t *offset1, int32_t *offset2, int32_t *n_idx, int32_t m
 bool isbroadcast(vector_i32 shape1, vector_i32 shape2, int dim1, int dim2);
 bool is_sum_allow(int32_t dim_to_sum, int32_t tensor_dim);
 
-//utils/anygrad_utils.cpp
-std::pair<vector_f32, vector_i32> zerosFloat32(vector_i32 shape);
-std::pair<vector_f64, vector_i32> zerosFloat64(vector_i32 shape);
-
-std::pair<vector_f32, vector_i32> onesFloat32(vector_i32 shape);
-std::pair<vector_f64, vector_i32> onesFloat64(vector_i32 shape);
-
-std::pair<vector_f32, vector_i32> LogFloat32(FloatTensorBase tensor1);
-std::pair<vector_f64, vector_i32> LogFloat64(DoubleTensorBase tensor1);
-
-std::pair<vector_f32, vector_i32> Log10Float32(FloatTensorBase tensor1);
-std::pair<vector_f64, vector_i32> Log10Float64(DoubleTensorBase tensor1);
-
-std::pair<vector_f32, vector_i32> Log2Float32(FloatTensorBase tensor1);
-std::pair<vector_f64, vector_i32> Log2Float64(DoubleTensorBase tensor1);
-
-std::pair<vector_f32, vector_i32> ExpFloat32(FloatTensorBase tensor1);
-std::pair<vector_f64, vector_i32> ExpFloat64(DoubleTensorBase tensor1);
-
-std::pair<vector_f32, vector_i32> Exp2Float32(FloatTensorBase tensor1);
-std::pair<vector_f64, vector_i32> Exp2Float64(DoubleTensorBase tensor1);
-
 //gemm.cpp
 vector_i32 matmul_broadcast_shape(vector_i32 shape1, vector_i32 shape2, int32_t dim1, int32_t dim2);
 bool is_matmul_broadcast(vector_i32 shape1, vector_i32 shape2, int32_t dim1, int32_t dim2);
 std::pair<vector_f32, vector_i32> MatmulFloat32(FloatTensorBase tensor1, FloatTensorBase tensor2);
 std::pair<vector_f64, vector_i32> MatmulFloat64(DoubleTensorBase tensor1, DoubleTensorBase tensor2);
+std::pair<vector_i32, vector_i32> MatmulInt32(Int32TensorBase tensor1, Int32TensorBase tensor2);
+std::pair<vector_i64, vector_i32> MatmulInt64(Int64TensorBase tensor1, Int64TensorBase tensor2);
 std::pair<vector_f32, vector_i32> TransFloat32(FloatTensorBase tensor, int32_t dim0, int32_t dim1);
 std::pair<vector_f64, vector_i32> TransFloat64(DoubleTensorBase tenosr, int32_t dim0, int32_t dim1);
-
-//random_num.cpp
-std::pair<vector_f32, vector_i32> randFloat32(vector_i32 shape, Generator generator);
-std::pair<vector_f64, vector_i32> randFloat64(vector_i32 shape, Generator generator);
-
+std::pair<vector_i32, vector_i32> TransInt32(Int32TensorBase tensor, int32_t dim0, int32_t dim1);
+std::pair<vector_i64, vector_i32> TransInt64(Int64TensorBase tenosr, int32_t dim0, int32_t dim1);
 
 #endif
