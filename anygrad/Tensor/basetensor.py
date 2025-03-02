@@ -83,6 +83,15 @@ class BaseTensor:
             del data
             return ans
 
+        if not isinstance(tensor2, (int, float)):
+            if tensor1.dtype != tensor2.dtype:
+                if tensor1.dtype == Th.float64 or tensor2.dtype == Th.float64:
+                    target_dtype = Th.float64
+                    if tensor1.dtype != Th.float64:
+                        tensor1 = TensorClass(tensor1.data, requires_grad=tensor1.requires_grad, dtype=Th.float64)
+                    if tensor2.dtype != Th.float64:
+                        tensor2 = TensorClass(tensor2.data, requires_grad=tensor2.requires_grad, dtype=Th.float64)
+
         allow = broadcast_checker(tensor1.shape, tensor2.shape, tensor1.base.ndim, tensor2.base.ndim)
         errors.broadcast_error(allow, f" {operation_name} we found {tensor1.shape} and {tensor2.shape}")
         
