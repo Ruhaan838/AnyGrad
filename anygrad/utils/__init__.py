@@ -1,8 +1,8 @@
 from .generator import Generator
 from .generator import rand, randint
 from . import utils_c as C
-from ..Th import ThHelper as Th
-from ..Th import Tensor
+from ..tensor import ThHelper as Th
+from ..tensor import Tensor
 
 from typing import Tuple, Optional
 import anygrad
