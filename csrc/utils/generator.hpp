@@ -6,8 +6,8 @@
 #include <string>
 #include <random>
 
-#include "../Tensor/ThTypes.hpp"
-#include "../Tensor/Th.hpp"
+#include "../Th/ThTypes.hpp"
+#include "../Th/Th.hpp"
 
 class Generator{
     public:

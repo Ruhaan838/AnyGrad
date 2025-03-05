@@ -1,8 +1,8 @@
-from .Tensor.tensor import Tensor
-from .Tensor.floattensor import FloatTensor
-from .Tensor.inttensor import IntTensor
-from .Tensor.booltensor import BoolTensor
-from .Tensor.ThHelper import (float32, float64, 
+from .tensor.tensor import Tensor
+from .tensor.floattensor import FloatTensor
+from .tensor.inttensor import IntTensor
+from .tensor.booltensor import BoolTensor
+from .tensor.ThHelper import (float32, float64, 
                               int32, int64, 
                               bool)
 from .AutoGrad import no_grad

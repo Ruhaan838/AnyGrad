@@ -192,7 +192,7 @@ class BaseTensor:
         return 0.0 - self
     
     def backward(self, custom_grad=None) -> None:
-        if not self.requires_grad:
+        if not self.requires_grad and self.requires_grad is None:
             raise ValueError("Backward pass only works if requires_grad is True")
         
         if self.shape == (1,):

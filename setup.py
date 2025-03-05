@@ -7,13 +7,13 @@ version = "0.0.2"
 
 ext_modules = [
     Pybind11Extension(
-        "anygrad.Tensor.tensor_c",
+        "anygrad.tensor.tensor_c",
         [
             "anygrad/Tensor/bind_tensor.cpp",
-            "csrc/Tensor/ThAllocate.cpp",
-            "csrc/Tensor/ThBaseops.cpp",
-            "csrc/Tensor/Thhelpers.cpp",
-            "csrc/Tensor/Thgemm.cpp"
+            "csrc/Th/ThAllocate.cpp",
+            "csrc/Th/ThBaseops.cpp",
+            "csrc/Th/Thhelpers.cpp",
+            "csrc/Th/Thgemm.cpp"
         ],
         language="c++",
         extra_compile_args=compile_args
@@ -23,7 +23,7 @@ ext_modules = [
         [
             "anygrad/utils/utils_bind.cpp",
             "csrc/utils/random_num.cpp",
-            "csrc/Tensor/Thhelpers.cpp",
+            "csrc/Th/Thhelpers.cpp",
             "csrc/utils/init_ops.cpp",
             "csrc/utils/log_arithmetic.cpp",
         ],

@@ -1,7 +1,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "../../csrc/Tensor/Th.hpp"
+#include "../../csrc/Th/Th.hpp"
 
 #include <vector>
 

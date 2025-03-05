@@ -1,6 +1,6 @@
 from . import utils_c as C
-from ..Tensor import ThHelper as Th
-from ..Tensor.tensor import Tensor
+from ..tensor import ThHelper as Th
+from ..tensor.tensor import Tensor
 import random
 
 class Generator(C.GeneratorBase):

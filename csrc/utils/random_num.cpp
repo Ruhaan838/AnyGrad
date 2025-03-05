@@ -3,8 +3,8 @@
 #include <string>
 #include <random>
 
-#include "../Tensor/ThTypes.hpp"
-#include "../Tensor/Th.hpp"
+#include "../Th/ThTypes.hpp"
+#include "../Th/Th.hpp"
 #include "generator.hpp"
 
 #define vector_f32 std::vector<float_t>

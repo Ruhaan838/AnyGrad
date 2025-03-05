@@ -65,11 +65,11 @@ class IntTensor(BaseTensor):
         
         if isinstance(data, (int, float)):
             data = [data]
-        list_data = Th.ToList()(data)
-        if isinstance(dtype, str): 
-            dtype = getattr(Th, dtype)
         convert_data = Th.TensorConvertInt()
         self.data = convert_data(data)
+        list_data = Th.ToList()(self.data)
+        if isinstance(dtype, str): 
+            dtype = getattr(Th, dtype)
         shape = Th.CalShape()(data)
         
         if dtype == Th.int32:
