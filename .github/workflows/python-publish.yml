@@ -2,14 +2,17 @@ name: Publish anygrad to PyPI
 
 on:
   release:
-    types: [created]  # Runs when a new GitHub Release is created
-  workflow_dispatch:  # Allows manual triggering from GitHub Actions UI
+    types: [created]  
+  workflow_dispatch:  
 
 jobs:
   build-and-publish:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     permissions:
-      id-token: write  # Needed for trusted publishing
+      id-token: write  
       contents: read
 
     steps:
@@ -19,7 +22,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.x"  # Change to required Python version if needed
+          python-version: "3.x" 
 
       - name: Install dependencies
         run: |
