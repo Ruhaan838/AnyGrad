@@ -9,27 +9,29 @@
 #include "../Th/ThTypes.hpp"
 #include "../Th/Th.hpp"
 
+using namespace std;
+
 class Generator{
     public:
         int32_t _state;
-        Generator(int32_t seed = std::random_device{}()) : engine(seed){}
+        Generator(int32_t seed = random_device{}()) : engine(seed){}
 
         void manual_seed(int32_t seed){
             engine.seed(seed);
         }
 
         int32_t randint(int32_t start, int32_t end){
-            std::uniform_int_distribution<int> dist(start, end);
+            uniform_int_distribution<int> dist(start, end);
             return dist(engine);
         }
 
-        double_t randfloat(double_t start = 0.0, double_t end = 1.0){
-            std::uniform_real_distribution<double_t> dist(start, end);
+        double randfloat(double start = 0.0, double end = 1.0){
+            uniform_real_distribution<double> dist(start, end);
             return dist(engine);
         }
 
     private:
-        std::mt19937 engine;
+        mt19937 engine;
 
 };
 
