@@ -7,6 +7,8 @@
 
 namespace py = pybind11;
 
+using namespace std;
+
 PYBIND11_MODULE(utils_c, msg){
     py::class_<Generator>(msg, "GeneratorBase")
         .def(py::init<int32_t>())
