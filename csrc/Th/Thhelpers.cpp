@@ -3,10 +3,12 @@
 
 #include "Th.hpp"
 
-#define vector_i32 std::vector<int32_t>
+#define vector_i16 vector<int16_t>
+using namespace std;
 
-vector_i32 calculate_stride(vector_i32 shape, int32_t ndim){
-    vector_i32 stride(ndim); 
+
+vector_i16 calculate_stride(vector_i16 shape, int32_t ndim){
+    vector_i16 stride(ndim); 
     stride[ndim - 1] = 1;
     for(int i = ndim - 2; i >= 0; i--){
         stride[i] = stride[i+1] * shape[i+1];
@@ -14,15 +16,15 @@ vector_i32 calculate_stride(vector_i32 shape, int32_t ndim){
     return stride;
 }
 
-int32_t calculate_size(vector_i32 shape, int32_t ndim){
+int32_t calculate_size(vector_i16 shape, int32_t ndim){
     int32_t size = 1;
     for(int32_t i = 0; i < ndim; i++)
         size *= shape[i];
     return size;
 }
 
-vector_i32 broadcast_stride(vector_i32 shape, vector_i32 stride, int32_t dim, int32_t max_dim){
-    vector_i32 result_stride(max_dim); 
+vector_i16 broadcast_stride(vector_i16 shape, vector_i16 stride, int32_t dim, int32_t max_dim){
+    vector_i16 result_stride(max_dim); 
     for(int i = 0; i < max_dim; i++){
         int dim_a = (i >= dim) ? 1 : shape[dim - 1 - i];
         result_stride[max_dim - 1 - i] = (dim_a == 1) ? 0 : stride[dim - 1 - i];
@@ -30,21 +32,18 @@ vector_i32 broadcast_stride(vector_i32 shape, vector_i32 stride, int32_t dim, in
     return result_stride;
 }
 
-int32_t broadcast_shape(vector_i32 shape1, vector_i32 shape2, vector_i32 &result_shape, int32_t dim1, int32_t dim2, int32_t max_dim){
-    result_shape.resize(max_dim);
+vector_i16 broadcast_shape(vector_i16 shape1, vector_i16 shape2, int32_t dim1, int32_t dim2, int32_t max_dim){
+    vector_i16 result_shape(max_dim, 0);
     for(int i = 0; i < max_dim; i++){
         int32_t dim_a = (i >= dim1) ? 1 : shape1[dim1 - 1 - i];
         int32_t dim_b = (i >= dim2) ? 1 : shape2[dim2 - 1 - i];
-        if (dim_a != 1 && dim_b != 1 && dim_a != dim_b)
-            return -1;
-        
         result_shape[max_dim - 1 - i] = (dim_a > dim_b) ? dim_a : dim_b;
     }
-    return max_dim;
+    return result_shape;
 }
 
-bool isbroadcast(vector_i32 shape1, vector_i32 shape2, int dim1, int dim2) {
-    int max_dim = std::max(dim1, dim2);
+bool isbroadcast(vector_i16 shape1, vector_i16 shape2, int dim1, int dim2) {
+    int max_dim = max(dim1, dim2);
     for (int i = 0; i < max_dim; i++) {
         int dim_a = (i >= dim1) ? 1 : shape1[dim1 - 1 - i];
         int dim_b = (i >= dim2) ? 1 : shape2[dim2 - 1 - i];
@@ -55,7 +54,7 @@ bool isbroadcast(vector_i32 shape1, vector_i32 shape2, int dim1, int dim2) {
     return true; 
 }
 
-void update_offset(int32_t *offset1, int32_t *offset2, int32_t *n_idx, int32_t max_dim, vector_i32 stride, vector_i32 resut_stride1, vector_i32 resut_stride2){
+void update_offset(int32_t *offset1, int32_t *offset2, int32_t *n_idx, int32_t max_dim, vector_i16 stride, vector_i16 resut_stride1, vector_i16 resut_stride2){
     for (int i = 0; i < max_dim; i++){
         int stride_idx = *n_idx / stride[i];
         *n_idx %= stride[i];
