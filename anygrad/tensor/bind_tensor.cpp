@@ -4,12 +4,13 @@
 #include "../../csrc/Th/Th.hpp"
 
 #include <vector>
+using namespace std;
 
 namespace py = pybind11;
 
 PYBIND11_MODULE(tensor_c, msg) {
     py::class_<FloatTensorBase>(msg, "float32")
-        .def(py::init<std::vector<float_t>, std::vector<int32_t>>())
+        .def(py::init<vector<float>, vector<int16_t>>())
         .def_readonly("data", &FloatTensorBase::data)
         .def_readonly("shape", &FloatTensorBase::shape)
         .def_readonly("ndim", &FloatTensorBase::ndim)
@@ -18,7 +19,7 @@ PYBIND11_MODULE(tensor_c, msg) {
         ;
         
     py::class_<DoubleTensorBase>(msg, "float64")
-        .def(py::init<std::vector<double_t>, std::vector<int32_t>>())
+        .def(py::init<vector<double>, vector<int16_t>>())
         .def_readonly("data", &DoubleTensorBase::data)
         .def_readonly("shape", &DoubleTensorBase::shape)
         .def_readonly("ndim", &DoubleTensorBase::ndim)
@@ -27,7 +28,7 @@ PYBIND11_MODULE(tensor_c, msg) {
         ;
 
     py::class_<Int32TensorBase>(msg, "int32")
-        .def(py::init<std::vector<int32_t>, std::vector<int32_t>>())
+        .def(py::init<vector<int32_t>, vector<int16_t>>())
         .def_readonly("data", &Int32TensorBase::data)
         .def_readonly("shape", &Int32TensorBase::shape)
         .def_readonly("ndim", &Int32TensorBase::ndim)
@@ -36,7 +37,7 @@ PYBIND11_MODULE(tensor_c, msg) {
         ;
 
     py::class_<Int64TensorBase>(msg, "int64")
-        .def(py::init<std::vector<int64_t>, std::vector<int32_t>>())
+        .def(py::init<vector<int64_t>, vector<int16_t>>())
         .def_readonly("data", &Int64TensorBase::data)
         .def_readonly("shape", &Int64TensorBase::shape)
         .def_readonly("ndim", &Int64TensorBase::ndim)
@@ -45,7 +46,7 @@ PYBIND11_MODULE(tensor_c, msg) {
         ;
 
     py::class_<BoolTensorBase>(msg, "bool")
-        .def(py::init<std::vector<bool>, std::vector<int32_t>>())
+        .def(py::init<vector<bool>, vector<int16_t>>())
         .def_readonly("data", &BoolTensorBase::data)
         .def_readonly("shape", &BoolTensorBase::shape)
         .def_readonly("ndim", &BoolTensorBase::ndim)
