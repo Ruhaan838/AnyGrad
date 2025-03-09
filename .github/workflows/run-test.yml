@@ -1,0 +1,42 @@
+name: Run Test Workflow
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  run-scripts-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set execution permission for scripts
+        run: chmod +x setup.sh test/run/backward.sh test/run/forward.sh
+
+      - name: Run setup.sh
+        run: ./setup.sh
+
+      - name: Run backward.sh
+        run: ./test/run/backward.sh
+
+      - name: Run forward.sh
+        run: ./test/run/forward.sh
+
+  run-scripts-ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set execution permission for scripts
+        run: chmod +x setup.sh test/run/backward.sh test/run/forward.sh
+
+      - name: Run setup.sh
+        run: ./setup.sh
+
+      - name: Run backward.sh
+        run: ./test/run/backward.sh
+
+      - name: Run forward.sh
+        run: ./test/run/forward.sh
