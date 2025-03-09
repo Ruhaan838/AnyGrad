@@ -35,7 +35,7 @@ ext_modules = [
 setup(
     name="anygrad",
     version=version,
-    description="A module that allow user to do the Tensor operation.",
+    description="A Tensor module that allows a deep learning framework to switch seamlessly between different computation engines.",
     long_description=open('README.md', encoding='utf-8').read(),
     long_description_content_type='text/markdown',
     author="Ruhaan",
