@@ -19,6 +19,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+          pip install numpy
           python -m pip install --upgrade pip setuptools wheel
 
       - name: Set execution permission for scripts
