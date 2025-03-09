@@ -31,14 +31,14 @@ class TestTemplate:
         RESET = '\033[0m'
         
         if passed:
-            return f"{GREEN}✅ {test_name} = Pass{RESET}"
-        return f"{RED}❌ {test_name} = Fail\nActual: {actual}\nExpected: {expected}{RESET}"
+            return f"{GREEN} {test_name} = Pass{RESET}"
+        return f"{RED} {test_name} = Fail\nActual: {actual}\nExpected: {expected}{RESET}"
 
     def test_console(self, ops_func: Callable, error_msg: AnyStr):
         print("\n" + "="*20 + f" Test - {self.test_name} " + "="*20)
         
         for test, dtype in enumerate(self.dtype_map.keys(), 1):
-            print(f"\n📋 Test {test}: {dtype}")
+            print(f"\n Test {test}: {dtype}")
             
             results = ops_func(dtype)
             
@@ -70,7 +70,7 @@ class TestTemplate:
                 
                 for op_name, (ag_result, np_result) in results.items():
                     passed = self._arrays_equal(ag_result, np_result)
-                    result = "PASS ✅" if passed else f"FAIL❌\nActual: {ag_result}\nExpected: {np_result}"
+                    result = "PASS " if passed else f"FAIL\nActual: {ag_result}\nExpected: {np_result}"
                     f.write(f"{op_name}: {result}\n")
                     if not passed:
                         raise WrongAnswerError(f"{error_msg}\nOperation: {op_name}")
