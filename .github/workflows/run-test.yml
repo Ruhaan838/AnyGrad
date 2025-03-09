@@ -11,6 +11,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"  
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          python -m pip install --upgrade pip setuptools wheel
+
       - name: Set execution permission for scripts
         run: chmod +x setup.sh test/run/backward.sh test/run/forward.sh
 
@@ -28,6 +38,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10" 
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          python -m pip install --upgrade pip setuptools wheel
 
       - name: Set execution permission for scripts
         run: chmod +x setup.sh test/run/backward.sh test/run/forward.sh
