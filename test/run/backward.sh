@@ -1,1 +1,1 @@
-python test/test_files/Test2ArithmeticB.py
+python /test/test_files/Test2ArithmeticB.py

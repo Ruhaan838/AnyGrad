@@ -9,7 +9,7 @@ ext_modules = [
     Pybind11Extension(
         "anygrad.tensor.tensor_c",
         [
-            "anygrad/Tensor/bind_tensor.cpp",
+            "anygrad/tensor/bind_tensor.cpp",
             "csrc/Th/ThAllocate.cpp",
             "csrc/Th/ThBaseops.cpp",
             "csrc/Th/Thhelpers.cpp",
