@@ -13,7 +13,8 @@ ext_modules = [
             "csrc/Th/ThAllocate.cpp",
             "csrc/Th/ThBaseops.cpp",
             "csrc/Th/Thhelpers.cpp",
-            "csrc/Th/Thgemm.cpp"
+            "csrc/Th/Thgemm.cpp",
+            "csrc/Th/Tharrange.cpp"
         ],
         language="c++",
         extra_compile_args=compile_args
@@ -35,7 +36,7 @@ ext_modules = [
 setup(
     name="anygrad",
     version=version,
-    description="A Tensor module that allows a deep learning framework to switch seamlessly between different computation engines.",
+    description="A Tensor module that allows a deep learning framework to switch seamlessly between different engines.",
     long_description=open('README.md', encoding='utf-8').read(),
     long_description_content_type='text/markdown',
     author="Ruhaan",

@@ -30,8 +30,7 @@ jobs:
 
       - name: Run test files
         run: |
-          ./test/run/backward.sh
-          ./test/run/forward.sh
+          ./test/run/tensor_test.sh
 
   run-scripts-windows:
       runs-on: windows-latest
@@ -61,5 +60,4 @@ jobs:
         - name: Run test files
           shell: bash
           run: |
-            bash test/run/backward.sh
-            bash test/run/forward.sh
+            bash test/run/tensor_test.sh
