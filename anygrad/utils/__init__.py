@@ -3,10 +3,15 @@ from .generator import rand, randint
 from . import utils_c as C
 from ..tensor import ThHelper as Th
 from ..tensor import Tensor
+from ..tensor.basetensor import BaseTensor
 
 from typing import Tuple, Optional
 import anygrad
 
+def _get_dtype_str(dtype):
+    for key, val in BaseTensor._dtype_map.items():
+        if val == dtype:
+            return key.capitalize()
 
 def __use_ops_zeros_ones(
     shape: tuple, requires_grad: bool, dtype: any, operation_name: str
@@ -14,10 +19,10 @@ def __use_ops_zeros_ones(
     try:
         operation_func = getattr(
             C,
-            f"{operation_name.capitalize()}{str(dtype).rsplit('.', 1)[-1].capitalize()}",
+            f"{operation_name.capitalize()}{_get_dtype_str(dtype)}"
         )
-    except Exception:
-        pass
+    except Exception as e:
+        raise NotImplementedError(f"{operation_name} is not Imlemented for {dtype}.") from e
 
     data, shape = operation_func(shape)
     ans = Th.reshape(data, shape)
@@ -28,13 +33,19 @@ def __use_ops_zeros_ones(
 def __use_ops_log(tensor1, requires_grad: bool, operation_name: str):
     try:
         op_func = getattr(
-            C, f"{operation_name.capitalize()}{str(tensor1.base.dtype).capitalize()}"
+            C, f"{operation_name.capitalize()}{tensor1.base.dtype.capitalize()}"
         )
     except Exception as e:
-        pass
+        raise NotImplementedError(f"{operation_name} is not Imlemented for {tensor1.base.dtype}.") from e
+
     data, shape = op_func(tensor1.base)
     ans = Th.reshape(data, shape)
-    ans = Tensor(ans, dtype=tensor1.base.dtype, requires_grad=requires_grad)
+    if tensor1.dtype == Th.int32:
+        ans = Tensor(ans, dtype=Th.float32, requires_grad=requires_grad)
+    elif tensor1.dtype == Th.int64:
+        ans = Tensor(ans, dtype=Th.float64, requires_grad=requires_grad)
+    else:
+        ans = Tensor(ans, dtype=tensor1.base.dtype, requires_grad=requires_grad)
     return ans
 
 

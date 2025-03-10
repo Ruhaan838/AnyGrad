@@ -37,17 +37,27 @@ PYBIND11_MODULE(utils_c, msg){
     //log arithmetic
     msg.def("LogFloat32", &LogFloat32);
     msg.def("LogFloat64", &LogFloat64);
+    msg.def("LogInt32", &LogInt32);
+    msg.def("LogInt64", &LogInt64);
 
     msg.def("Log10Float32", &Log10Float32);
     msg.def("Log10Float64", &Log10Float64);
+    msg.def("Log10Int32", &Log10Int32);
+    msg.def("Log10Int64", &Log10Int64);
 
     msg.def("Log2Float32", &Log2Float32);
     msg.def("Log2Float64", &Log2Float64);
+    msg.def("Log2Int32", &Log2Int32);
+    msg.def("Log2Int64", &Log2Int64);
 
     msg.def("ExpFloat32", &ExpFloat32);
     msg.def("ExpFloat64", &ExpFloat64);
+    msg.def("ExpInt32", &ExpInt32);
+    msg.def("ExpInt64", &ExpInt64);
 
     msg.def("Exp2Float32", &Exp2Float32);
     msg.def("Exp2Float64", &Exp2Float64);
+    msg.def("Exp2Int32", &Exp2Int32);
+    msg.def("Exp2Int64", &Exp2Int64);
 }
 
