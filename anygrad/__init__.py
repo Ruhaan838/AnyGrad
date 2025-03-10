@@ -1,3 +1,9 @@
+"""
+    AnyGrad (anygrad)
+    ----------
+    A Python module that use C++ for Tensor operations.
+
+"""
 from .tensor.tensor import Tensor
 from .tensor.floattensor import FloatTensor
 from .tensor.inttensor import IntTensor
