@@ -10,11 +10,11 @@ ext_modules = [
         "anygrad.tensor.tensor_c",
         [
             "anygrad/tensor/bind_tensor.cpp",
-            "csrc/Th/ThAllocate.cpp",
-            "csrc/Th/ThBaseops.cpp",
-            "csrc/Th/Thhelpers.cpp",
-            "csrc/Th/Thgemm.cpp",
-            "csrc/Th/Tharrange.cpp"
+            "backend/anygrad/Th/ThAllocate.cpp",
+            "backend/anygrad/Th/ThBaseops.cpp",
+            "backend/anygrad/Th/Thhelpers.cpp",
+            "backend/anygrad/Th/Thgemm.cpp",
+            "backend/anygrad/Th/Tharrange.cpp"
         ],
         language="c++",
         extra_compile_args=compile_args
@@ -23,10 +23,10 @@ ext_modules = [
         "anygrad.utils.utils_c",
         [
             "anygrad/utils/utils_bind.cpp",
-            "csrc/utils/random_num.cpp",
-            "csrc/Th/Thhelpers.cpp",
-            "csrc/utils/init_ops.cpp",
-            "csrc/utils/log_arithmetic.cpp",
+            "backend/anygrad/utils/random_num.cpp",
+            "backend/anygrad/Th/Thhelpers.cpp",
+            "backend/anygrad/utils/init_ops.cpp",
+            "backend/anygrad/utils/log_arithmetic.cpp",
         ],
         language="c++",
         extra_compile_args=compile_args
