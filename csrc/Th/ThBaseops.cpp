@@ -2,7 +2,6 @@
 #include <limits>
 #include <vector>
 #include <utility>
-#include <cassert>
 
 #include "ThTypes.hpp"
 #include "Th.hpp"
@@ -11,10 +10,10 @@ using namespace std;
 
 enum class Ops { SUM, MEAN, MEDIAN, MIN, MAX };
 template <typename U, typename V>
-pair<V, vector_i16> ReduceConfig(const U& tensor, Ops op, int32_t dim = -1, bool keepdims = false) {
+pair<V, vector_i16> ReduceConfig(U& tensor, Ops op, int32_t dim = -1, bool keepdims = false) {
     V result_data;
     vector_i16 result_shape;
-    const int32_t total_ele = tensor.size;
+    int32_t total_ele = tensor.size;
 
     using T = typename V::value_type;
     
@@ -71,8 +70,8 @@ pair<V, vector_i16> ReduceConfig(const U& tensor, Ops op, int32_t dim = -1, bool
         if (result_shape.empty()) result_shape.push_back(1);
     }
     
-    const int32_t result_size = calculate_size(result_shape, result_shape.size());
-    const int32_t reduce_dim_size = tensor.shape[dim];
+    int32_t result_size = calculate_size(result_shape, result_shape.size());
+    int32_t reduce_dim_size = tensor.shape[dim];
     result_data.resize(result_size);
     
     if (op != Ops::MEDIAN) {

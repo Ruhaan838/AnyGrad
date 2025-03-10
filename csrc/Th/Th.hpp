@@ -81,6 +81,7 @@ vector_i16 broadcast_shape(vector_i16 shape1, vector_i16 shape2, int32_t dim1, i
 void update_offset(int32_t *offset1, int32_t *offset2, int32_t *n_idx, int32_t max_dim, vector_i16 stride, vector_i16 resut_stride1, vector_i16 resut_stride2);
 bool isbroadcast(vector_i16 shape1, vector_i16 shape2, int dim1, int dim2);
 bool is_sum_allow(int32_t dim_to_sum, int32_t tensor_dim);
+bool is_view_allow(vector_i16 new_view, int32_t size);
 
 //gemm.cpp
 vector_i16 matmul_broadcast_shape(vector_i16 shape1, vector_i16 shape2, int32_t dim1, int32_t dim2);
@@ -95,6 +96,12 @@ pair<vector_i32, vector_i16> TransInt32(Int32TensorBase tensor, int32_t dim0, in
 pair<vector_i64, vector_i16> TransInt64(Int64TensorBase tenosr, int32_t dim0, int32_t dim1);
 pair<vector_bool, vector_i16> TransBool(BoolTensorBase tensor, int32_t dim0, int32_t dim1);
 
+//Tharrenge.cpp
+pair<vector_f32, vector_i16> ViewFloat32(FloatTensorBase tensor, vector_i16 rearrenge_view);
+pair<vector_f64, vector_i16> ViewFloat64(DoubleTensorBase tensor, vector_i16 rearrenge_view);
+pair<vector_i32, vector_i16> ViewInt32(Int32TensorBase tensor, vector_i16 rearrenge_view);
+pair<vector_i64, vector_i16> ViewInt64(Int64TensorBase tensor, vector_i16 rearrenge_view);
+pair<vector_bool, vector_i16> ViewBool(BoolTensorBase tensor, vector_i16 rearrenge_view);
 
 
 #endif

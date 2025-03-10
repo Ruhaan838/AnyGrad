@@ -70,3 +70,21 @@ bool is_sum_allow(int32_t dim_to_sum, int32_t tensor_dim){
         return false;
     return true;
 }
+
+
+bool is_view_allow(vector_i16 new_view, int32_t size){
+    int neg_indx = 0;
+    int64_t new_dim = 1;
+    for (auto d : new_view) {if (d == -1) neg_indx++; else new_dim *= d;}
+
+    if (neg_indx > 1)
+        return false;
+    if (neg_indx == 1) {
+        if (size % new_dim != 0)
+            return false;
+    } else {
+        if (new_dim != size)
+            return false;
+    }
+    return true;
+}
