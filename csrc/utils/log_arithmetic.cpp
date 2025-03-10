@@ -24,100 +24,100 @@ pair<U, vector_i16> LogConfig(T tensor1, Op op){
 
 pair<vector_f32, vector_i16> LogFloat32(FloatTensorBase tensor1){
     return LogConfig<FloatTensorBase, vector_f32, function<float(float)>> (tensor1, 
-                                                                                    [](float num) {return log(num);});
+    [](float num) {return log(num);});
 }
 
 pair<vector_f64, vector_i16> LogFloat64(DoubleTensorBase tensor1){
     return LogConfig<DoubleTensorBase, vector_f64, function<double(double)>> (tensor1, 
-                                                                                    [](double num) {return log(num);});
+    [](double num) {return log(num);});
 }
 
-pair<vector_i32, vector_i16> LogInt32(Int32TensorBase tensor1){
-    return LogConfig<Int32TensorBase, vector_i32, function<int32_t(int32_t)>> (tensor1, 
-                                                                                    [](int32_t num) {return log(num);});
+pair<vector_f32, vector_i16> LogInt32(Int32TensorBase tensor1){
+    return LogConfig<Int32TensorBase, vector_f32, function<float(float)>> (tensor1, 
+    [](float num) {return log(static_cast<float>(num));});
 }
 
-pair<vector_i64, vector_i16> LogInt64(Int64TensorBase tensor1){
-    return LogConfig<Int64TensorBase, vector_i64, function<int64_t(int64_t)>> (tensor1, 
-                                                                                    [](int64_t num) {return log(num);});
+pair<vector_f64, vector_i16> LogInt64(Int64TensorBase tensor1){
+    return LogConfig<Int64TensorBase, vector_f64, function<double(double)>> (tensor1, 
+    [](double num) {return log(static_cast<double>(num));});
 }
 
-pair<vector_f32, vector_i16> Log10Float32(FloatTensorBase tensor1){
-    return LogConfig<FloatTensorBase, vector_f32, function<float(float)>> (tensor1, 
-                                                                                    [](float num) {return log10(num);});
+pair<vector_f32, vector_i16> Log10Int32(Int32TensorBase tensor1){
+    return LogConfig<Int32TensorBase, vector_f32, function<float(float)>> (tensor1, 
+        [](float num) { return log10(static_cast<float>(num)); });
 }
 
-pair<vector_f64, vector_i16> Log10Float64(DoubleTensorBase tensor1){
-    return LogConfig<DoubleTensorBase, vector_f64, function<double(double)>> (tensor1, 
-                                                                                    [](double num) {return log10(num);});
+pair<vector_f64, vector_i16> Log10Int64(Int64TensorBase tensor1){
+    return LogConfig<Int64TensorBase, vector_f64, function<double(double)>> (tensor1, 
+        [](double num) { return log10(static_cast<double>(num)); });
 }
 
-pair<vector_i32, vector_i16> Log10Int32(Int32TensorBase tensor1){
-    return LogConfig<Int32TensorBase, vector_i32, function<int32_t(int32_t)>> (tensor1, 
-        [](int32_t num) { return static_cast<int32_t>(log10(static_cast<double>(num))); });
+pair<vector_f32, vector_i16> Log2Int32(Int32TensorBase tensor1){
+    return LogConfig<Int32TensorBase, vector_f32, function<float(float)>> (tensor1, 
+        [](float num) { return static_cast<float>(log2(static_cast<double>(num))); });
 }
 
-pair<vector_i64, vector_i16> Log10Int64(Int64TensorBase tensor1){
-    return LogConfig<Int64TensorBase, vector_i64, function<int64_t(int64_t)>> (tensor1, 
-        [](int64_t num) { return static_cast<int64_t>(log10(static_cast<double>(num))); });
-}
-
-pair<vector_f32, vector_i16> Log2Float32(FloatTensorBase tensor1){
-    return LogConfig<FloatTensorBase, vector_f32, function<float(float)>> (tensor1, 
-                                                                                    [](float num) {return log2(num);});
-}
-
-pair<vector_f64, vector_i16> Log2Float64(DoubleTensorBase tensor1){
-    return LogConfig<DoubleTensorBase, vector_f64, function<double(double)>> (tensor1, 
-                                                                                    [](double num) {return log2(num);});
-}
-
-pair<vector_i32, vector_i16> Log2Int32(Int32TensorBase tensor1){
-    return LogConfig<Int32TensorBase, vector_i32, function<int32_t(int32_t)>> (tensor1, 
-        [](int32_t num) { return static_cast<int32_t>(log2(static_cast<double>(num))); });
-}
-
-pair<vector_i64, vector_i16> Log2Int64(Int64TensorBase tensor1){
-    return LogConfig<Int64TensorBase, vector_i64, function<int64_t(int64_t)>> (tensor1, 
-        [](int64_t num) { return static_cast<int64_t>(log2(static_cast<double>(num))); });
+pair<vector_f64, vector_i16> Log2Int64(Int64TensorBase tensor1){
+    return LogConfig<Int64TensorBase, vector_f64, function<double(double)>> (tensor1, 
+        [](double num) { return static_cast<double>(log2(static_cast<double>(num))); });
 }
 
 pair<vector_f32, vector_i16> ExpFloat32(FloatTensorBase tensor1){
     return LogConfig<FloatTensorBase, vector_f32, function<float(float)>> (tensor1, 
-                                                                                    [](float num) {return exp(num);});
+    [](float num) {return exp(num);});
 }
 
 pair<vector_f64, vector_i16> ExpFloat64(DoubleTensorBase tensor1){
     return LogConfig<DoubleTensorBase, vector_f64, function<double(double)>> (tensor1, 
-                                                                                    [](double num) {return exp(num);});
+    [](double num) {return exp(num);});
 }
 
-pair<vector_i32, vector_i16> ExpInt32(Int32TensorBase tensor1){
-    return LogConfig<Int32TensorBase, vector_i32, function<int32_t(int32_t)>> (tensor1, 
-        [](int32_t num) { return static_cast<int32_t>(exp(static_cast<double>(num))); });
+pair<vector_f32, vector_i16> ExpInt32(Int32TensorBase tensor1){
+    return LogConfig<Int32TensorBase, vector_f32, function<float(float)>> (tensor1, 
+        [](float num) { return static_cast<float>(exp(static_cast<double>(num))); });
 }
 
-pair<vector_i64, vector_i16> ExpInt64(Int64TensorBase tensor1){
-    return LogConfig<Int64TensorBase, vector_i64, function<int64_t(int64_t)>> (tensor1, 
-        [](int64_t num) { return static_cast<int64_t>(exp(static_cast<double>(num))); });
+pair<vector_f64, vector_i16> ExpInt64(Int64TensorBase tensor1){
+    return LogConfig<Int64TensorBase, vector_f64, function<double(double)>> (tensor1, 
+        [](double num) { return static_cast<double>(exp(static_cast<double>(num))); });
 }
 
 pair<vector_f32, vector_i16> Exp2Float32(FloatTensorBase tensor1){
     return LogConfig<FloatTensorBase, vector_f32, function<float(float)>> (tensor1, 
-                                                                                    [](float num) {return exp2(num);});
+        [](float num) { return (exp2((num))); });
 }
 
 pair<vector_f64, vector_i16> Exp2Float64(DoubleTensorBase tensor1){
     return LogConfig<DoubleTensorBase, vector_f64, function<double(double)>> (tensor1, 
-                                                                                    [](double num) {return exp2(num);});
+        [](double num) { return (exp2((num))); });
 }
 
-pair<vector_i32, vector_i16> Exp2Int32(Int32TensorBase tensor1){
-    return LogConfig<Int32TensorBase, vector_i32, function<int32_t(int32_t)>> (tensor1, 
-        [](int32_t num) { return static_cast<int32_t>(exp2(static_cast<double>(num))); });
+pair<vector_f32, vector_i16> Exp2Int32(Int32TensorBase tensor1){
+    return LogConfig<Int32TensorBase, vector_f32, function<float(float)>> (tensor1, 
+        [](float num) { return static_cast<float>(exp2(static_cast<double>(num))); });
 }
 
-pair<vector_i64, vector_i16> Exp2Int64(Int64TensorBase tensor1){
-    return LogConfig<Int64TensorBase, vector_i64, function<int64_t(int64_t)>> (tensor1, 
-        [](int64_t num) { return static_cast<int64_t>(exp2(static_cast<double>(num))); });
+pair<vector_f64, vector_i16> Exp2Int64(Int64TensorBase tensor1){
+    return LogConfig<Int64TensorBase, vector_f64, function<double(double)>> (tensor1, 
+        [](double num) { return static_cast<double>(exp2(static_cast<double>(num))); });
+}
+
+pair<vector_f32, vector_i16> Log10Float32(FloatTensorBase tensor1){
+    return LogConfig<FloatTensorBase, vector_f32, function<float(float)>> (tensor1, 
+    [](float num) {return log10(num);});
+}
+
+pair<vector_f64, vector_i16> Log10Float64(DoubleTensorBase tensor1){
+    return LogConfig<DoubleTensorBase, vector_f64, function<double(double)>> (tensor1, 
+    [](double num) {return log10(num);});
+}
+
+pair<vector_f32, vector_i16> Log2Float32(FloatTensorBase tensor1){
+    return LogConfig<FloatTensorBase, vector_f32, function<float(float)>> (tensor1, 
+    [](float num) {return log2(num);});
+}
+
+pair<vector_f64, vector_i16> Log2Float64(DoubleTensorBase tensor1){
+    return LogConfig<DoubleTensorBase, vector_f64, function<double(double)>> (tensor1, 
+    [](double num) {return log2(num);});
 }

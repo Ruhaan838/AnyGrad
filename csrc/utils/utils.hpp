@@ -23,27 +23,27 @@ pair<vector_i64, vector_i16> onesInt64(vector_i16 shape);
 
 pair<vector_f32, vector_i16> LogFloat32(FloatTensorBase tensor1);
 pair<vector_f64, vector_i16> LogFloat64(DoubleTensorBase tensor1);
-pair<vector_i32, vector_i16> LogInt32(Int32TensorBase tensor1);
-pair<vector_i64, vector_i16> LogInt64(Int64TensorBase tensor1);
+pair<vector_f32, vector_i16> LogInt32(Int32TensorBase tensor1);
+pair<vector_f64, vector_i16> LogInt64(Int64TensorBase tensor1);
 
 pair<vector_f32, vector_i16> Log10Float32(FloatTensorBase tensor1);
 pair<vector_f64, vector_i16> Log10Float64(DoubleTensorBase tensor1);
-pair<vector_i32, vector_i16> Log10Int32(Int32TensorBase tensor1);
-pair<vector_i64, vector_i16> Log10Int64(Int64TensorBase tensor1);
+pair<vector_f32, vector_i16> Log10Int32(Int32TensorBase tensor1);
+pair<vector_f64, vector_i16> Log10Int64(Int64TensorBase tensor1);
 
 pair<vector_f32, vector_i16> Log2Float32(FloatTensorBase tensor1);
 pair<vector_f64, vector_i16> Log2Float64(DoubleTensorBase tensor1);
-pair<vector_i32, vector_i16> Log2Int32(Int32TensorBase tensor1);
-pair<vector_i64, vector_i16> Log2Int64(Int64TensorBase tensor1);
+pair<vector_f32, vector_i16> Log2Int32(Int32TensorBase tensor1);
+pair<vector_f64, vector_i16> Log2Int64(Int64TensorBase tensor1);
 
 pair<vector_f32, vector_i16> ExpFloat32(FloatTensorBase tensor1);
 pair<vector_f64, vector_i16> ExpFloat64(DoubleTensorBase tensor1);
-pair<vector_i32, vector_i16> ExpInt32(Int32TensorBase tensor1);
-pair<vector_i64, vector_i16> ExpInt64(Int64TensorBase tensor1);
+pair<vector_f32, vector_i16> ExpInt32(Int32TensorBase tensor1);
+pair<vector_f64, vector_i16> ExpInt64(Int64TensorBase tensor1);
 
 pair<vector_f32, vector_i16> Exp2Float32(FloatTensorBase tensor1);
 pair<vector_f64, vector_i16> Exp2Float64(DoubleTensorBase tensor1);
-pair<vector_i32, vector_i16> Exp2Int32(Int32TensorBase tensor1);
-pair<vector_i64, vector_i16> Exp2Int64(Int64TensorBase tensor1);
+pair<vector_f32, vector_i16> Exp2Int32(Int32TensorBase tensor1);
+pair<vector_f64, vector_i16> Exp2Int64(Int64TensorBase tensor1);
 
 #endif
