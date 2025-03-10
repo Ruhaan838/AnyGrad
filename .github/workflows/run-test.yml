@@ -23,7 +23,7 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
 
       - name: Set execution permission for scripts
-        run: chmod +x setup.sh test/run/backward.sh test/run/forward.sh
+        run: chmod +x setup.sh /test/run/tensor_test.sh
 
       - name: Run setup.sh
         run: ./setup.sh
