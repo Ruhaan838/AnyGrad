@@ -1,6 +1,7 @@
 from typing import NewType
 from . import tensor_c as C
-from collections.abc import Iterable, Sequence
+from collections.abc import Sequence
+from collections import Counter, deque
 
 float32 = NewType("float32", C.float32)
 float32.__module__ = "anygrad"
@@ -13,43 +14,28 @@ int64.__module__ = "anygrad"
 bool = NewType("bool", C.bool)
 bool.__module__ = "anygrad"
 
-# use the chatGPT to make the these functions fast
-
-
 def convert_tensor(data, conv_type):
-    if type(data) is not list:
+    if not isinstance(data, list):
         return conv_type(data)
     return [convert_tensor(ele, conv_type) for ele in data]
 
-
 def valid_data_type(data):
-    counts = {float: 0, int: 0, bool: 0}
-    stack = [data]
-
-    while stack:
-        current = stack.pop()
-        if type(current) is list:
-            stack.extend(current)
-        else:
-            t = type(current)
-            counts[t] = counts.get(t, 0) + 1
-
-    return max(counts, key=lambda x: str(x))
-
+    flat = flat_list(data) if isinstance(data, list) else [data]
+    counter = Counter(type(x) for x in flat)
+    return max(counter, key=counter.get)
 
 def flat_list(data):
-    if isinstance(data, Iterable) and not isinstance(data, (str, bytes)):
-        result = []
-        stack = [data]
-        while stack:
-            current = stack.pop()
-            if isinstance(current, list):
-                stack.extend(reversed(current))
-            else:
-                result.append(current)
-        return result
-    return data
-
+    if not isinstance(data, list):
+        return data
+    result = []
+    queue = deque([data])
+    while queue:
+        current = queue.popleft()
+        if isinstance(current, list):
+            queue.extend(current)
+        else:
+            result.append(current)
+    return result
 
 def cal_shape(data):
     shape = []
@@ -65,35 +51,20 @@ def cal_shape(data):
         data = data[0]
     return tuple(shape)
 
-
 def reshape(data, shape):
     total_elements = 1
     for dim in shape:
         total_elements *= dim
-
     if len(data) != total_elements:
         raise ValueError(
             f"List length '{len(data)}' does not match new shape '{shape}'"
         )
-
-    strides = [1] * len(shape)
-    for i in range(len(shape) - 2, -1, -1):
-        strides[i] = strides[i + 1] * shape[i + 1]
-
-    return _reshape_flat(data, shape, strides, 0)
-
-
-def _reshape_flat(data, shape, strides, offset):
-    if len(shape) == 1:
-        return data[offset: offset + shape[0]]
-    sublist = []
-    cur_stride = strides[0]
-    for i in range(shape[0]):
-        sublist.append(
-            _reshape_flat(data, shape[1:], strides[1:], offset + i * cur_stride)
-        )
-    return sublist
-
+    it = iter(data)
+    def build(s):
+        if len(s) == 1:
+            return [next(it) for _ in range(s[0])]
+        return [build(s[1:]) for _ in range(s[0])]
+    return build(shape)
 
 def round_list(data, round_factor=4):
     if isinstance(data, list):

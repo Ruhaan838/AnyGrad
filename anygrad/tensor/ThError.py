@@ -11,3 +11,7 @@ def sum_error(allow: bool, msg: str):
 def dim_error(allow: bool, msg: str):
     if not allow:
         raise ValueError("The Ndim is incopatable for" + msg)
+
+def view_error(allow: bool, msg: str):
+    if not allow:
+        raise ValueError("The size is incopetable for" + msg)

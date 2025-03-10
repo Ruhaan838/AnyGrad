@@ -248,5 +248,7 @@ class Tensor:
         return self._tensor.transpose(dim0, dim1)
 
     def zero_(self) -> "Tensor": return self._tensor.zero_()
+    
+    def view(self, *shape) -> "Tensor": return self._tensor.view(shape)
 
     __module__ = "anygrad"

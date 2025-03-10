@@ -72,79 +72,86 @@ class BaseTensor:
         operation: Callable,
         operation_name: str,
         broadcast_checker: Callable,
-        OtherClass:Any = None
+        OtherClass: Any = None 
     ):
+        """
+        Apply an element-wise operation on two tensors or a tensor and a scalar.
+        
+        Parameters:
+            tensor1: The first tensor operand.
+            tensor2: The second tensor operand or a scalar (if allowed).
+            TensorClass: The tensor class to use for the output.
+            has_scalar: Whether scalar values are allowed for tensor2.
+            operation: A function representing the element-wise operation.
+            operation_name: A string denoting the operation (e.g., "Add", "Mul").
+            broadcast_checker: A function to verify broadcasting compatibility.
+            OtherClass: An alternative output tensor class (optional).
 
+        Returns:
+            A new tensor resulting from applying the operation while preserving gradient info.
+        """
         if isinstance(tensor2, (int, float)) and has_scalar:
             data = [operation(i, tensor2) for i in tensor1.base.data]
-            if OtherClass is not None:
-                ans = BaseTensor._create_tensor(
-                    data, tensor1.shape, OtherClass, tensor1.requires_grad, tensor1.dtype
-                )
-            else:
-                ans = BaseTensor._create_tensor(
-                    data, tensor1.shape, TensorClass, tensor1.requires_grad, tensor1.dtype
-                )
-
+            selected_class = OtherClass if OtherClass is not None else TensorClass
+            ans = BaseTensor._create_tensor(
+                data, tensor1.shape, selected_class, tensor1.requires_grad, tensor1.dtype
+            )
             if ans.requires_grad:
                 ans._prev = {tensor1}
-                ans._backward = getattr(
-                    Ag.GradientCal, f"{operation_name.capitalize()}_grad"
-                )(tensor1, tensor2, ans)
-                ans.name_backward = f"<{operation_name}Backward1>"
+                grad_func = getattr(Ag.GradientCal, f"{operation_name.capitalize()}_grad", None)
+                if grad_func:
+                    ans._backward = grad_func(tensor1, tensor2, ans)
+                    ans.name_backward = f"<{operation_name}Backward1>"
+                else:
+                    ans._backward = lambda: None
                 ans.is_leaf = False
-
-            del data
             return ans
 
         allow = broadcast_checker(
             tensor1.shape, tensor2.shape, tensor1.base.ndim, tensor2.base.ndim
         )
         errors.broadcast_error(
-            allow, f" {operation_name} we found {tensor1.shape} and {tensor2.shape}"
+            allow, f"{operation_name} operation: incompatible shapes {tensor1.shape} and {tensor2.shape}"
         )
 
-        # Add dtype conversion before operation
         if tensor1.base.dtype != tensor2.base.dtype:
-            # Convert to higher precision
             sel_dtype = BaseTensor._sel_dtype(tensor1.base.dtype, tensor2.base.dtype)
             if tensor1.base.dtype != sel_dtype:
                 tensor1 = anygrad.cast(tensor1, BaseTensor._dtype_map[sel_dtype])
             if tensor2.base.dtype != sel_dtype:
                 tensor2 = anygrad.cast(tensor2, BaseTensor._dtype_map[sel_dtype])
 
+        op_func_name = f"{operation_name.capitalize()}{tensor1.base.dtype.capitalize()}"
         try:
-            operation_func = getattr(
-                C, f"{operation_name.capitalize()}{tensor1.base.dtype.capitalize()}"
-            )
-        except Exception:
-            pass
+            operation_func = getattr(C, op_func_name)
+        except AttributeError as e:
+            raise NotImplementedError(f"Operation {op_func_name} not implemented in C++") from e
 
         data, shape = operation_func(tensor1.base, tensor2.base)
         requires_grad = tensor1.requires_grad or tensor2.requires_grad
-        dtype = BaseTensor._dtype_map[
+        unified_dtype = BaseTensor._dtype_map[
             BaseTensor._sel_dtype(tensor1.base.dtype, tensor2.base.dtype)
         ]
         if OtherClass is not None:
-            dtype = anygrad.float32 if dtype == anygrad.int32 else anygrad.float64
+            unified_dtype = anygrad.float32 if unified_dtype == anygrad.int32 else anygrad.float64
             ans = BaseTensor._create_tensor(
-                data, shape, OtherClass, requires_grad=requires_grad, sel_dtype=dtype
+                data, shape, OtherClass, requires_grad=requires_grad, sel_dtype=unified_dtype
             )
         else:
             ans = BaseTensor._create_tensor(
-                data, shape, TensorClass, requires_grad=requires_grad, sel_dtype=dtype
+                data, shape, TensorClass, requires_grad=requires_grad, sel_dtype=unified_dtype
             )
-
 
         if ans.requires_grad:
             ans._prev = {tensor1, tensor2}
-            ans._backward = getattr(
-                Ag.GradientCal, f"{operation_name.capitalize()}_grad"
-            )(tensor1, tensor2, ans)
-            ans.name_backward = f"<{operation_name}Backward0>"
+            grad_func = getattr(Ag.GradientCal, f"{operation_name.capitalize()}_grad", None)
+            if grad_func:
+                ans._backward = grad_func(tensor1, tensor2, ans)
+                ans.name_backward = f"<{operation_name}Backward0>"
+            else:
+                ans._backward = lambda: None
             ans.is_leaf = False
 
-        del data, shape
         return ans
 
     @staticmethod
@@ -210,7 +217,30 @@ class BaseTensor:
             ans.is_leaf = False
 
         return ans
-
+    
+    @staticmethod
+    def _apply_view(tensor, shape, TensorClass):
+        allow = C.is_view_allow(tensor.base.shape, tensor.base.size)
+        errors.dim_error(allow, f" View we found {shape} invoke with {tensor.base.size}")
+        
+        try:
+            operation_func = getattr(C, f"View{tensor.base.dtype.capitalize()}")
+        except Exception:
+            pass
+        
+        data, shape = operation_func(tensor.base, shape)
+        ans = BaseTensor._create_tensor(
+            data=data, shape=shape, TensorClass=TensorClass, requires_grad=tensor.requires_grad, sel_dtype=tensor.dtype
+        )
+        
+        if ans.requires_grad:
+            ans._prev = {tensor}
+            ans.name_backward = "<ViewBackward0>"
+            ans._backward = getattr(Ag.GradientCal, "View_grad")(tensor, ans)
+            ans.is_leaf = False
+            
+        return ans
+        
     def __iter__(self):
         return iter(self.data)
 

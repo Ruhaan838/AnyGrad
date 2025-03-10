@@ -113,6 +113,7 @@ PYBIND11_MODULE(tensor_c, msg) {
     //rules
     msg.def("isbroadcast", &isbroadcast);
     msg.def("is_sum_allow", &is_sum_allow);
+    msg.def("is_view_allow", &is_view_allow);
 
     //gemm
     msg.def("MatmulFloat32", &MatmulFloat32);
@@ -127,4 +128,10 @@ PYBIND11_MODULE(tensor_c, msg) {
     msg.def("is_matmul_broadcast", &is_matmul_broadcast);
     
     // msg.def("DEBUG_64", &DEBUG_64);
+    //view
+    msg.def("ViewFloat32", &ViewFloat32);
+    msg.def("ViewFloat64", &ViewFloat64);
+    msg.def("ViewInt32", &ViewInt32);
+    msg.def("ViewInt64", &ViewInt64);
+    msg.def("ViewBool", &ViewBool);
 }
