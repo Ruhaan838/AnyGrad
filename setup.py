@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Extension
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 import sys
 
@@ -7,9 +7,9 @@ version = "0.0.2"
 
 ext_modules = [
     Pybind11Extension(
-        "anygrad.tensor.tensor_c",
+        "anygrad.tensor.base.tensor_c",
         [
-            "anygrad/tensor/bind_tensor.cpp",
+            "anygrad/core/bind_tensor.cpp",
             "backend/anygrad/Th/ThAllocate.cpp",
             "backend/anygrad/Th/ThBaseops.cpp",
             "backend/anygrad/Th/Thhelpers.cpp",
@@ -22,7 +22,7 @@ ext_modules = [
     Pybind11Extension(
         "anygrad.utils.utils_c",
         [
-            "anygrad/utils/utils_bind.cpp",
+            "anygrad/core/utils_bind.cpp",
             "backend/anygrad/utils/random_num.cpp",
             "backend/anygrad/Th/Thhelpers.cpp",
             "backend/anygrad/utils/init_ops.cpp",

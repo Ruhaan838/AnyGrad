@@ -1,9 +1,9 @@
 from typing import Optional, List, Union
 import pprint
 
-from . import tensor_c as C
-from . import ThHelper as Th
-from .basetensor import BaseTensor
+from anygrad.tensor.base import tensor_c as C
+from anygrad.tensor.base import ThHelper as Th
+from anygrad.tensor.base.basetensor import BaseTensor
 
 
 class BoolTensor(BaseTensor):

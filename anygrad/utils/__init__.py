@@ -1,9 +1,9 @@
-from .generator import Generator
-from .generator import rand, randint
-from . import utils_c as C
-from ..tensor import ThHelper as Th
-from ..tensor import Tensor
-from ..tensor.basetensor import BaseTensor
+from anygrad.utils.generator import Generator, rand, randint
+from anygrad.tensor.tensor import Tensor
+from anygrad.tensor.base.basetensor import BaseTensor
+from anygrad.tensor.base import ThHelper as Th
+from anygrad.tensor.tensor import Tensor
+from anygrad.utils import utils_c as C
 
 from typing import Tuple, Optional
 import anygrad
@@ -13,9 +13,7 @@ def _get_dtype_str(dtype):
         if val == dtype:
             return key.capitalize()
 
-def __use_ops_zeros_ones(
-    shape: tuple, requires_grad: bool, dtype: any, operation_name: str
-):
+def _use_ops_zeros_ones(shape: tuple, requires_grad: bool, dtype: any, operation_name: str):
     try:
         operation_func = getattr(
             C,
@@ -30,7 +28,7 @@ def __use_ops_zeros_ones(
     return ans
 
 
-def __use_ops_log(tensor1, requires_grad: bool, operation_name: str):
+def _use_ops_log(tensor1, requires_grad: bool, operation_name: str):
     try:
         op_func = getattr(
             C, f"{operation_name.capitalize()}{tensor1.base.dtype.capitalize()}"
@@ -48,13 +46,12 @@ def __use_ops_log(tensor1, requires_grad: bool, operation_name: str):
         ans = Tensor(ans, dtype=tensor1.base.dtype, requires_grad=requires_grad)
     return ans
 
-
 def zeros(
     *shape: Tuple[int],
     requires_grad: Optional[bool] = False,
     dtype: Optional[anygrad.float32 | anygrad.float64] = anygrad.float32,
 ) -> Tensor:
-    return __use_ops_zeros_ones(
+    return _use_ops_zeros_ones(
         shape=shape, requires_grad=requires_grad, dtype=dtype, operation_name="Zeros"
     )
 
@@ -64,7 +61,7 @@ def ones(
     requires_grad: Optional[bool] = False,
     dtype: Optional[anygrad.float32 | anygrad.float64] = anygrad.float32,
 ) -> Tensor:
-    return __use_ops_zeros_ones(
+    return _use_ops_zeros_ones(
         shape=shape, requires_grad=requires_grad, dtype=dtype, operation_name="Ones"
     )
 
@@ -92,23 +89,23 @@ def ones_like(
 
 
 def log(tensor: Tensor, requires_grad: Optional[bool] = False) -> Tensor:
-    return __use_ops_log(tensor, requires_grad=requires_grad, operation_name="Log")
+    return _use_ops_log(tensor, requires_grad=requires_grad, operation_name="Log")
 
 
 def log10(tensor: Tensor, requires_grad: Optional[bool] = False) -> Tensor:
-    return __use_ops_log(tensor, requires_grad=requires_grad, operation_name="Log10")
+    return _use_ops_log(tensor, requires_grad=requires_grad, operation_name="Log10")
 
 
 def log2(tensor: Tensor, requires_grad: Optional[bool] = False) -> Tensor:
-    return __use_ops_log(tensor, requires_grad=requires_grad, operation_name="Log2")
+    return _use_ops_log(tensor, requires_grad=requires_grad, operation_name="Log2")
 
 
 def exp(tensor: Tensor, requires_grad: Optional[bool] = False) -> Tensor:
-    return __use_ops_log(tensor, requires_grad=requires_grad, operation_name="Exp")
+    return _use_ops_log(tensor, requires_grad=requires_grad, operation_name="Exp")
 
 
 def exp2(tensor: Tensor, requires_grad: Optional[bool] = False) -> Tensor:
-    return __use_ops_log(tensor, requires_grad=requires_grad, operation_name="Exp2")
+    return _use_ops_log(tensor, requires_grad=requires_grad, operation_name="Exp2")
 
 
 zeros.__module__ = "anygrad"

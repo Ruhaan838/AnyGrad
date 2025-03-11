@@ -1,6 +1,6 @@
-from . import utils_c as C
-from ..tensor import ThHelper as Th
-from ..tensor.tensor import Tensor
+from anygrad.utils import utils_c as C
+from anygrad.tensor.base import ThHelper as Th
+from anygrad.tensor.tensor import Tensor
 import random
 
 
@@ -10,6 +10,8 @@ class Generator(C.GeneratorBase):
 
     def manual_seed(self, seed):
         return super().manual_seed(seed)
+    
+    __module__ = "anygrad"
 
 
 def _use_utils_ops(operation_name, dtype, **kwargs):

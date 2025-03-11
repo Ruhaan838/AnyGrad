@@ -1,8 +1,8 @@
 from typing import Optional, Tuple, Callable, Any
 
-from . import tensor_c as C
-from . import ThError as errors
-from . import ThHelper as Th
+from anygrad.tensor.base import tensor_c as C
+from anygrad.tensor.base import ThError as errors
+from anygrad.tensor.base import ThHelper as Th
 
 import anygrad
 import anygrad.AutoGrad as Ag

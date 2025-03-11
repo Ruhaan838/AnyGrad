@@ -1,22 +1,24 @@
 from typing import Optional, List, Union
 import pprint
 
-from . import tensor_c as C
-from . import ThHelper as Th
-from .basetensor import BaseTensor
-from .floattensor import FloatTensor
+from anygrad.tensor.base import tensor_c as C
+from anygrad.tensor.base import ThHelper as Th
+from anygrad.tensor.base.basetensor import BaseTensor
 
 
-class IntTensor(BaseTensor):
+class FloatTensor(BaseTensor):
     """
-    Class to repesent a IntTensor.
+    Class to repesent a FloatTensor.
 
     Attributes
     ----------
     data : List | Tuple
         Any Iterable
 
-    dtype: Optional[anygrad.int32 | anygrad.int64] = anygrad.int32
+    requires_grad: Optional[bool] = False
+        if `True` the gradient caculation is happend
+
+    dtype: Optional[anygrad.float32 | anygrad.float64] = anygrad.float32
 
     Methods
     ----------
@@ -64,83 +66,95 @@ class IntTensor(BaseTensor):
     """
 
     def __init__(
-        self, data: List[int], dtype: Optional[Th.int32 | Th.int64] = Th.int32
+        self,
+        data: List[int],
+        requires_grad=True,
+        dtype: Optional[Th.float32 | Th.float64] = Th.float32,
     ):
-        super().__init__()
+        super().__init__(requires_grad)
 
         if isinstance(data, (int, float)):
             data = [data]
 
-        self.data = Th.convert_tensor(data, int)
-        list_data = Th.flat_list(self.data)
+        list_data = Th.flat_list(data)
 
         if isinstance(dtype, str):
             dtype = getattr(Th, dtype)
 
+        self.data = Th.convert_tensor(data, float)
         shape = Th.cal_shape(data)
 
-        if dtype == Th.int32:
-            self.base = C.int32(list_data, shape)
-        elif dtype == Th.int64:
-            self.base = C.int64(list_data, shape)
+        if dtype == Th.float32:
+            self.base = C.float32(list_data, shape)
+        elif dtype == Th.float64:
+            self.base = C.float64(list_data, shape)
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         data = Th.round_list(self.data)
-        format_data = pprint.pformat(data, width=150, depth=50)
-        base_str = f"Tensor({format_data}"
-        return base_str + f", dtype={self.dtype})"
+        formate_data = pprint.pformat(data, width=150, depth=50)
+        base_str = f"Tensor({formate_data}"
 
-    def __getitem__(self, index: Union[int, slice]) -> "IntTensor":
+        if self.name_backward:
+            return base_str + f" name_backward = {self.name_backward})"
+
+        if self.requires_grad:
+            return base_str + f" requires_grad = {self.requires_grad})"
+
+        if self.base.dtype != "float32":
+            return base_str + f" dtype= {self.dtype})"
+        return base_str + ")"
+
+    def __getitem__(self, index: Union[int, slice]) -> "FloatTensor":
         new_data = self.data[index]
-        return IntTensor(new_data, dtype=self.dtype)
+        return FloatTensor(new_data, requires_grad=self.requires_grad, dtype=self.dtype)
 
-    def __add__(self, other) -> "IntTensor":
+    def __add__(self, other) -> "FloatTensor":
         return BaseTensor._apply_operation(
             self,
             other,
-            IntTensor,
+            FloatTensor,
             True,
             operation=lambda x, y: x + y,
             operation_name="Add",
             broadcast_checker=C.isbroadcast,
         )
 
-    def __radd__(self, other) -> "IntTensor":
+    def __radd__(self, other) -> "FloatTensor":
         return self._add__(other)
 
-    def __sub__(self, other) -> "IntTensor":
+    def __sub__(self, other) -> "FloatTensor":
         return BaseTensor._apply_operation(
             self,
             other,
-            IntTensor,
+            FloatTensor,
             True,
             operation=lambda x, y: x - y,
             operation_name="Sub",
             broadcast_checker=C.isbroadcast,
         )
 
-    def __rsub__(self, other) -> "IntTensor":
+    def __rsub__(self, other) -> "FloatTensor":
         return self.__sub__(other)
 
-    def __mul__(self, other) -> "IntTensor":
+    def __mul__(self, other) -> "FloatTensor":
         return BaseTensor._apply_operation(
             self,
             other,
-            IntTensor,
+            FloatTensor,
             True,
             operation=lambda x, y: x * y,
             operation_name="Mul",
             broadcast_checker=C.isbroadcast,
         )
 
-    def __rmul__(self, other) -> "IntTensor":
+    def __rmul__(self, other) -> "FloatTensor":
         return self.__mul__(other)
 
-    def __truediv__(self, other) -> "IntTensor":
+    def __truediv__(self, other) -> "FloatTensor":
         return BaseTensor._apply_operation(
             self,
             other,
-            IntTensor,
+            FloatTensor,
             True,
             operation=lambda x, y: x / y,
             operation_name="Div",
@@ -148,11 +162,11 @@ class IntTensor(BaseTensor):
             OtherClass=FloatTensor
         )
 
-    def __rtruediv__(self, other) -> "IntTensor":
+    def __rtruediv__(self, other) -> "FloatTensor":
         return BaseTensor._apply_operation(
             self,
             other,
-            IntTensor,
+            FloatTensor,
             True,
             operation=lambda x, y: y / x,
             operation_name="Div",
@@ -160,22 +174,22 @@ class IntTensor(BaseTensor):
             OtherClass=FloatTensor
         )
 
-    def __pow__(self, other) -> "IntTensor":
+    def __pow__(self, other) -> "FloatTensor":
         return BaseTensor._apply_operation(
             self,
             other,
-            IntTensor,
+            FloatTensor,
             True,
             operation=lambda x, y: x**y,
             operation_name="Pow",
             broadcast_checker=C.isbroadcast,
         )
 
-    def __matmul__(self, other) -> "IntTensor":
+    def __matmul__(self, other) -> "FloatTensor":
         return BaseTensor._apply_operation(
             self,
             other,
-            IntTensor,
+            FloatTensor,
             False,
             operation=lambda: None,
             operation_name="Matmul",
@@ -183,30 +197,29 @@ class IntTensor(BaseTensor):
         )
 
     def sum(self, axis: Optional[int] = -1, keepdims: Optional[bool] = False):
-        return BaseTensor._reduce_ops(self, IntTensor, axis, keepdims, "Sum")
+        return BaseTensor._reduce_ops(self, FloatTensor, axis, keepdims, "Sum")
 
     def mean(self, axis: Optional[int] = -1, keepdims: Optional[bool] = False):
-        return BaseTensor._reduce_ops(self, IntTensor, axis, keepdims, "Mean", OtherClass=FloatTensor)
+        return BaseTensor._reduce_ops(self, FloatTensor, axis, keepdims, "Mean")
 
     def min(self, axis: Optional[int] = -1, keepdims: Optional[bool] = False):
-        return BaseTensor._reduce_ops(self, IntTensor, axis, keepdims, "Min")
+        return BaseTensor._reduce_ops(self, FloatTensor, axis, keepdims, "Min")
 
     def max(self, axis: Optional[int] = -1, keepdims: Optional[bool] = False):
-        return BaseTensor._reduce_ops(self, IntTensor, axis, keepdims, "Max")
+        return BaseTensor._reduce_ops(self, FloatTensor, axis, keepdims, "Max")
 
     def median(self, axis: Optional[int] = -1, keepdims: Optional[bool] = False):
-        return BaseTensor._reduce_ops(self, IntTensor, axis, keepdims, "Median", OtherClass=FloatTensor)
+        return BaseTensor._reduce_ops(self, FloatTensor, axis, keepdims, "Median")
 
-    def transpose(self, dim0: int, dim1: int) -> "IntTensor":
-        return BaseTensor._trans_ops(self, dim0, dim1, IntTensor)
+    def transpose(self, dim0: int, dim1: int) -> "FloatTensor":
+        return BaseTensor._trans_ops(self, dim0, dim1, FloatTensor)
 
-    def zero_(self) -> "IntTensor":
-        """Zeros out the tensor in-place."""
-        self.data = [[0] * dim for dim in self.shape]
-        self.base = C.int32(Th.flat_list(self.data), self.shape) if self.dtype == "int32" else C.int64(Th.flat_list(self.data), self.shape)
+    def zero_(self) -> "FloatTensor":
+        self.data = [[0.0] * dim for dim in self.shape]
+        self.base = C.float32(Th.flat_list(self.data), self.shape) if self.dtype == "float32" else C.float64(Th.flat_list(self.data), self.shape)
         return self
 
-    def view(self, *shape) -> "IntTensor":
-        return BaseTensor._apply_view(self, shape, TensorClass=IntTensor)
+    def view(self, *shape) -> "FloatTensor":
+        return BaseTensor._apply_view(self, *shape, TensorClass=FloatTensor)
 
     __module__ = "anygrad"

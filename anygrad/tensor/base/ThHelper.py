@@ -1,7 +1,8 @@
 from typing import NewType
-from . import tensor_c as C
+from anygrad.tensor.base import tensor_c as C
 from collections.abc import Sequence
 from collections import Counter, deque
+
 
 float32 = NewType("float32", C.float32)
 float32.__module__ = "anygrad"
@@ -52,18 +53,20 @@ def cal_shape(data):
     return tuple(shape)
 
 def reshape(data, shape):
-    total_elements = 1
+    total_ele = 1
     for dim in shape:
-        total_elements *= dim
-    if len(data) != total_elements:
+        total_ele *= dim
+    if len(data) != total_ele:
         raise ValueError(
-            f"List length '{len(data)}' does not match new shape '{shape}'"
+            f"List length {len(data)} dose not match new shape {shape}"
         )
+        
     it = iter(data)
     def build(s):
         if len(s) == 1:
             return [next(it) for _ in range(s[0])]
         return [build(s[1:]) for _ in range(s[0])]
+    
     return build(shape)
 
 def round_list(data, round_factor=4):

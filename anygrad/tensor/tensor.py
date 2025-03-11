@@ -1,11 +1,11 @@
 from typing import Optional, List, Tuple, Union
 
-from . import ThHelper as Th
-from .booltensor import BoolTensor
-from .inttensor import IntTensor
-from .floattensor import FloatTensor
+from anygrad.tensor.base import ThHelper as Th
+from anygrad.tensor.base.booltensor import BoolTensor
+from anygrad.tensor.base.inttensor import IntTensor
+from anygrad.tensor.base.floattensor import FloatTensor
 
-from ..version import __version__
+from anygrad.version import __version__
 
 
 class Tensor:
@@ -250,5 +250,9 @@ class Tensor:
     def zero_(self) -> "Tensor": return self._tensor.zero_()
     
     def view(self, *shape) -> "Tensor": return self._tensor.view(shape)
+    
+    def reshape(self, *shape) -> "Tensor":
+        new_data = Th.reshape(self.data, shape)
+        return Tensor(new_data, self.requires_grad, self.dtype)
 
     __module__ = "anygrad"
