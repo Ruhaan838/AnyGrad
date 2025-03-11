@@ -1,6 +1,6 @@
 ## anygrad
 
-### [AutoGrad](anygrad\AutoGrad)
+### [autograd](anygrad\autograd)
 The current version of autograd is completely in `Python` including graph construction but a later version of `anygrad` change and uses the other engine's backward pass or the `C++`.
 ```text
     > clib

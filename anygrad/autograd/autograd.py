@@ -22,4 +22,4 @@ def no_grad():
         GradMode.set_enable(True)
 
 
-no_grad.__module__ = "anygrad.AutoGrad"
+no_grad.__module__ = "anygrad.autograd"

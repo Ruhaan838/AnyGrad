@@ -15,4 +15,4 @@ class BuildGraph:
                     queue.append(child)
         return topo
 
-    __module__ = "anygrad.AutoGrad"
+    __module__ = "anygrad.autograd"
