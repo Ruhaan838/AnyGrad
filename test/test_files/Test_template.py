@@ -31,7 +31,7 @@ class TestTemplate:
         RESET = '\033[0m'
         
         if passed:
-            return f"{GREEN} {test_name} = Pass{RESET}"
+            return f"{GREEN} {test_name} = Accepted{RESET}"
         return f"{RED} {test_name} = Fail\nActual: {actual}\nExpected: {expected}{RESET}"
 
     def test_console(self, ops_func: Callable, error_msg: AnyStr):
