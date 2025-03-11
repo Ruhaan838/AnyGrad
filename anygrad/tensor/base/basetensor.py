@@ -5,7 +5,7 @@ from anygrad.tensor.base import ThError as errors
 from anygrad.tensor.base import ThHelper as Th
 
 import anygrad
-import anygrad.AutoGrad as Ag
+import anygrad.autograd as Ag
 
 
 class BaseTensor:

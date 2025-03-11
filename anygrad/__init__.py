@@ -9,7 +9,7 @@ from anygrad.tensor.base.floattensor import FloatTensor
 from anygrad.tensor.base.inttensor import IntTensor
 from anygrad.tensor.base.booltensor import BoolTensor
 from anygrad.tensor.base.ThHelper import float32, float64, int32, int64, bool
-from anygrad.AutoGrad import no_grad
+from anygrad.autograd import no_grad
 from anygrad.utils import (Generator, rand, randint, ones, ones_like, zeros, zeros_like, 
                     log, exp, exp2, log10, log2)
 from anygrad.version import __version__
