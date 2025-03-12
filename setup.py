@@ -9,7 +9,7 @@ ext_modules = [
     Pybind11Extension(
         "anygrad.tensor.base.tensor_c",
         [
-            "anygrad/core/bind_tensor.cpp",
+            "backend/anygrad/bindings/bind_tensor.cpp",
             "backend/anygrad/Th/ThAllocate.cpp",
             "backend/anygrad/Th/ThBaseops.cpp",
             "backend/anygrad/Th/Thhelpers.cpp",
@@ -22,7 +22,7 @@ ext_modules = [
     Pybind11Extension(
         "anygrad.utils.utils_c",
         [
-            "anygrad/core/utils_bind.cpp",
+            "backend/anygrad/bindings/utils_bind.cpp",
             "backend/anygrad/utils/random_num.cpp",
             "backend/anygrad/Th/Thhelpers.cpp",
             "backend/anygrad/utils/init_ops.cpp",

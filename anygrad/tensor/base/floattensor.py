@@ -219,7 +219,7 @@ class FloatTensor(BaseTensor):
         self.base = C.float32(Th.flat_list(self.data), self.shape) if self.dtype == "float32" else C.float64(Th.flat_list(self.data), self.shape)
         return self
 
-    def view(self, *shape) -> "FloatTensor":
-        return BaseTensor._apply_view(self, *shape, TensorClass=FloatTensor)
+    def view(self, shape) -> "FloatTensor":
+        return BaseTensor._apply_view(self, shape, TensorClass=FloatTensor)
 
     __module__ = "anygrad"

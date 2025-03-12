@@ -1,6 +1,7 @@
 from typing import Optional, List, Tuple, Union
 
 from anygrad.tensor.base import ThHelper as Th
+from anygrad.tensor.base.ThHelper import float32
 from anygrad.tensor.base.booltensor import BoolTensor
 from anygrad.tensor.base.inttensor import IntTensor
 from anygrad.tensor.base.floattensor import FloatTensor
@@ -71,9 +72,7 @@ class Tensor:
         self,
         data: List[int | float] | Tuple[int | float],
         requires_grad: Optional[bool] = False,
-        dtype: Optional[
-            Th.float32 | Th.float64 | Th.int32 | Th.int64 | Th.bool
-        ] = Th.float32,
+        dtype:any = float32,
     ) -> None:
 
         # requires_grad type checking

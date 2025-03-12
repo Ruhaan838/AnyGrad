@@ -3,9 +3,9 @@
 #include <string>
 #include <random>
 
-#include "../Th/ThTypes.hpp"
-#include "../Th/Th.hpp"
-#include "generator.hpp"
+#include "../include/ThTypes.hpp"
+#include "../include/Th.hpp"
+#include "../include/generator.hpp"
 
 using namespace std;
 

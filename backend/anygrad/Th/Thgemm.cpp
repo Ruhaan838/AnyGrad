@@ -2,8 +2,8 @@
 #include <utility>
 #include <algorithm>
 
-#include "Th.hpp"
-#include "ThTypes.hpp"
+#include "../include/Th.hpp"
+#include "../include/ThTypes.hpp"
 
 using namespace std;
 

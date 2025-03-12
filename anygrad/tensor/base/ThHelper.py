@@ -2,6 +2,8 @@ from typing import NewType
 from anygrad.tensor.base import tensor_c as C
 from collections.abc import Sequence
 from collections import Counter, deque
+from functools import reduce
+from operator import mul
 
 
 float32 = NewType("float32", C.float32)
@@ -53,21 +55,16 @@ def cal_shape(data):
     return tuple(shape)
 
 def reshape(data, shape):
-    total_ele = 1
-    for dim in shape:
-        total_ele *= dim
-    if len(data) != total_ele:
-        raise ValueError(
-            f"List length {len(data)} dose not match new shape {shape}"
-        )
-        
-    it = iter(data)
-    def build(s):
-        if len(s) == 1:
-            return [next(it) for _ in range(s[0])]
-        return [build(s[1:]) for _ in range(s[0])]
     
-    return build(shape)
+    if reduce(mul, shape) != len(data):
+        raise ValueError(f"Given {shape} shape is not compatable with data")
+    
+    if len(shape) == 1:
+        return data
+
+    n = reduce(mul, shape[1:])
+    return [reshape(data[i*n: (i + 1)*n], shape[1:]) for i in range(len(data) // n)]
+
 
 def round_list(data, round_factor=4):
     if isinstance(data, list):

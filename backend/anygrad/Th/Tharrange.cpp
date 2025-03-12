@@ -3,8 +3,8 @@
 #include <limits>
 #include <algorithm>
 
-#include "ThTypes.hpp"
-#include "Th.hpp"
+#include "../include/ThTypes.hpp"
+#include "../include/Th.hpp"
 
 using namespace std;
 

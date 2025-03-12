@@ -172,7 +172,7 @@ class BoolTensor(BaseTensor):
     def transpose(self, dim0: int, dim1: int) -> "BoolTensor":
         return BaseTensor._trans_ops(self, dim0, dim1, BoolTensor)
 
-    def view(self, *shape) -> "BoolTensor":
+    def view(self, shape) -> "BoolTensor":
         return BaseTensor._apply_view(self, shape, TensorClass=BoolTensor)
 
     __module__ = "anygrad"

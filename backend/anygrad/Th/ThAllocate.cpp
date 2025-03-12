@@ -1,13 +1,7 @@
 #include <vector>
 
-#include "ThTypes.hpp"
-#include "Th.hpp"
-
-#define vector_f32 vector<float>
-#define vector_f64 vector<double>
-#define vector_i32 vector<int32_t>
-#define vector_i64 vector<int64_t>
-#define vector_bool vector<bool>
+#include "../include/Th.hpp"
+#include "../include/ThTypes.hpp"
 
 using namespace std;
 

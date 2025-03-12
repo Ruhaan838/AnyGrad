@@ -1,7 +1,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "../../backend/anygrad/Th/Th.hpp"
+#include "../include/Th.hpp"
 
 #include <vector>
 using namespace std;

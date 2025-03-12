@@ -6,8 +6,8 @@
 #include <string>
 #include <random>
 
-#include "../Th/ThTypes.hpp"
-#include "../Th/Th.hpp"
+#include "ThTypes.hpp"
+#include "Th.hpp"
 
 using namespace std;
 

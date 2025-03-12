@@ -186,3 +186,15 @@ class GradientCal:
         def _backward():
             if tensor.requires_grad:
                 GradientCal.accumulate_grad_(tensor, ans_tensor.grad)
+                
+        return _backward
+                
+    @staticmethod
+    def Reshape_grad(tensor, ans_tensor):
+        def _backward():
+            if tensor.requires_grad:
+                GradientCal.accumulate_grad_(tensor, ans_tensor.grad)
+                
+        return _backward
+                
+            

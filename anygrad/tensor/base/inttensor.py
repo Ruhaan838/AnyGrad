@@ -206,7 +206,7 @@ class IntTensor(BaseTensor):
         self.base = C.int32(Th.flat_list(self.data), self.shape) if self.dtype == "int32" else C.int64(Th.flat_list(self.data), self.shape)
         return self
 
-    def view(self, *shape) -> "IntTensor":
+    def view(self, shape) -> "IntTensor":
         return BaseTensor._apply_view(self, shape, TensorClass=IntTensor)
 
     __module__ = "anygrad"

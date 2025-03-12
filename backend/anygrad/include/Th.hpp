@@ -4,7 +4,7 @@
 #include <vector>
 #include <utility>
 
-#include "ThTypes.hpp"
+#include "../include/ThTypes.hpp"
 
 using namespace std;
 

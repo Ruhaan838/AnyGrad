@@ -1,8 +1,8 @@
 #include <vector>
 #include <utility>
 
-#include "../Th/ThTypes.hpp"
-#include "../Th/Th.hpp"
+#include "../include/ThTypes.hpp"
+#include "../include/Th.hpp"
 
 #define vector_f32 vector<float>
 #define vector_f64 vector<double>

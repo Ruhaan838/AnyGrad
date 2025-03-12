@@ -26,10 +26,6 @@ class BaseTensor:
         num2 = cls._prority_dtype[dtype2]
         return dtype1 if num1 > num2 else dtype2
 
-    @classmethod
-    def register_dtype(cls, key: str, value: Any):
-        cls._dtype_map[key] = value
-
     def __init__(self, requires_grad=False):
 
         self.requires_grad = requires_grad and Ag.GradMode.is_enabled()
@@ -56,9 +52,9 @@ class BaseTensor:
         return BaseTensor._dtype_map[self.base.dtype]
 
     @staticmethod
-    def _create_tensor(data, shape, TensorClass, requires_grad: bool, sel_dtype):
+    def _create_tensor(data, shape, TensorClass, requires_grad: bool, sel_dtype, dtype_set={Th.int32, Th.int64, Th.bool}):
         reshaped = Th.reshape(data, shape)
-        if sel_dtype in {Th.int32, Th.int64, Th.bool}:
+        if sel_dtype in dtype_set:
             return TensorClass(reshaped, dtype=sel_dtype)
         else:
             return TensorClass(reshaped, requires_grad=requires_grad, dtype=sel_dtype)
@@ -72,7 +68,8 @@ class BaseTensor:
         operation: Callable,
         operation_name: str,
         broadcast_checker: Callable,
-        OtherClass: Any = None 
+        OtherClass: Any = None,
+        dtype_set = {Th.int32, Th.int64, Th.bool}
     ):
         """
         Apply an element-wise operation on two tensors or a tensor and a scalar.
@@ -86,10 +83,12 @@ class BaseTensor:
             operation_name: A string denoting the operation (e.g., "Add", "Mul").
             broadcast_checker: A function to verify broadcasting compatibility.
             OtherClass: An alternative output tensor class (optional).
+            dtype_set: for other engines (numpy, torch).
 
         Returns:
             A new tensor resulting from applying the operation while preserving gradient info.
         """
+        # handle the integers.
         if isinstance(tensor2, (int, float)) and has_scalar:
             data = [operation(i, tensor2) for i in tensor1.base.data]
             selected_class = OtherClass if OtherClass is not None else TensorClass
@@ -99,11 +98,8 @@ class BaseTensor:
             if ans.requires_grad:
                 ans._prev = {tensor1}
                 grad_func = getattr(Ag.GradientCal, f"{operation_name.capitalize()}_grad", None)
-                if grad_func:
-                    ans._backward = grad_func(tensor1, tensor2, ans)
-                    ans.name_backward = f"<{operation_name}Backward1>"
-                else:
-                    ans._backward = lambda: None
+                ans._backward = grad_func(tensor1, tensor2, ans)
+                ans.name_backward = f"<{operation_name}Backward1>"
                 ans.is_leaf = False
             return ans
 
@@ -113,7 +109,7 @@ class BaseTensor:
         errors.broadcast_error(
             allow, f"{operation_name} operation: incompatible shapes {tensor1.shape} and {tensor2.shape}"
         )
-
+        # TODO: how i can remove this but still its works same
         if tensor1.base.dtype != tensor2.base.dtype:
             sel_dtype = BaseTensor._sel_dtype(tensor1.base.dtype, tensor2.base.dtype)
             if tensor1.base.dtype != sel_dtype:
@@ -135,21 +131,18 @@ class BaseTensor:
         if OtherClass is not None:
             unified_dtype = anygrad.float32 if unified_dtype == anygrad.int32 else anygrad.float64
             ans = BaseTensor._create_tensor(
-                data, shape, OtherClass, requires_grad=requires_grad, sel_dtype=unified_dtype
+                data, shape, OtherClass, requires_grad=requires_grad, sel_dtype=unified_dtype, dtype_set=dtype_set
             )
         else:
             ans = BaseTensor._create_tensor(
-                data, shape, TensorClass, requires_grad=requires_grad, sel_dtype=unified_dtype
+                data, shape, TensorClass, requires_grad=requires_grad, sel_dtype=unified_dtype, dtype_set=dtype_set
             )
 
         if ans.requires_grad:
             ans._prev = {tensor1, tensor2}
             grad_func = getattr(Ag.GradientCal, f"{operation_name.capitalize()}_grad", None)
-            if grad_func:
-                ans._backward = grad_func(tensor1, tensor2, ans)
-                ans.name_backward = f"<{operation_name}Backward0>"
-            else:
-                ans._backward = lambda: None
+            ans._backward = grad_func(tensor1, tensor2, ans)
+            ans.name_backward = f"<{operation_name}Backward0>"
             ans.is_leaf = False
 
         return ans
@@ -239,6 +232,18 @@ class BaseTensor:
             ans._backward = getattr(Ag.GradientCal, "View_grad")(tensor, ans)
             ans.is_leaf = False
             
+        return ans
+
+    @staticmethod
+    def _apply_reshape(tensor, shape, TensorClass):
+        ans = BaseTensor._create_tensor(tensor.data, shape=shape, TensorClass=TensorClass, requires_grad=tensor.requires_grad, sel_dtype=tensor.dtype)
+        
+        if ans.requires_grad:
+            ans._prev = {tensor}
+            ans.name_backward = "<ReshapeBackward0>"
+            ans._backward = getattr(Ag.GradientCal, "Reshape_grad")(tensor, ans)
+            ans.is_leaf = False
+        
         return ans
         
     def __iter__(self):

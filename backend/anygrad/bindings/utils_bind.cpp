@@ -1,9 +1,9 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "../../backend/anygrad/Th/Th.hpp"
-#include "../../backend/anygrad/utils/generator.hpp"
-#include "../../backend/anygrad/utils/utils.hpp"
+#include "../include/Th.hpp"
+#include "../include/generator.hpp"
+#include "../include/utils.hpp"
 
 namespace py = pybind11;
 

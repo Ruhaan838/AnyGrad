@@ -1,9 +1,8 @@
 #include <vector>
 #include <iostream>
 
-#include "Th.hpp"
+#include "../include/Th.hpp"
 
-#define vector_i16 vector<int16_t>
 using namespace std;
 
 
