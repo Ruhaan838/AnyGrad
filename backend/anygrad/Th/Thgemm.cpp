@@ -70,7 +70,9 @@ U matmul2d(U& data1, U& data2, int32_t I_shape, int32_t K_shape, int32_t J_shape
                 // so i, j, k is [0, 2)
                 for (int i = ii; i < min(ii + block_size, I_shape); ++i) { // go inside the first block also checking is that which one is bigger (I_shape or I_shape + block_size)
                     for (int j = jj; j < min(jj + block_size, J_shape); ++j) {
-                        float sum = 0.0f; //getting the reduce sum
+                        // Use the element type of U to avoid precision issues in accumulation
+                        using value_type = typename U::value_type;
+                        value_type sum = 0;
                         for (int k = kk; k < min(kk + block_size, K_shape); ++k) {
                             // i = 0 j = 0 k = 0 we get the index (0, 0) -> 2 and 3; sum = 6 sum += 6
                             // i = 0 j = 0 k = 1 we get the index (1, 2) -> 3 and 1; sum = 3 sum += 9
