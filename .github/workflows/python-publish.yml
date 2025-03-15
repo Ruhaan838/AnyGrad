@@ -10,63 +10,53 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        python-version: [3.8, 3.9, 3.10, 3.11, 3.12]
+        python-version: [3.8, 3.9, 3.10, 3.11, 3.12, 3.13]
+        architecture: [x86, x64]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python ${{ matrix.python-version }} on ${{ matrix.architecture }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Install Build Tools & Dependencies
+          architecture: ${{ matrix.architecture }}
+      - name: Upgrade pip, setuptools, wheel, and install build
         run: |
           python -m pip install --upgrade pip setuptools wheel build
-
       - name: Build distributions on Windows
         run: python -m build
-
       - name: List generated files on Windows
         run: dir dist
-
       - name: Upload Windows Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: windows-dist-${{ matrix.python-version }}
+          name: windows-dist-${{ matrix.python-version }}-${{ matrix.architecture }}
           path: dist/*
-
   build-macos:
     name: Build on macOS
     runs-on: macos-latest
     strategy:
       matrix:
-        python-version: [3.8, 3.9, 3.10, 3.11, 3.12]
+        python-version: [3.8, 3.9, 3.10, 3.11, 3.12, 3.13]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Install Build Tools & Dependencies
+      - name: Upgrade pip, setuptools, wheel, and install build
         run: |
           python -m pip install --upgrade pip setuptools wheel build
-
       - name: Build distributions on macOS
         run: python -m build
-
       - name: List generated files on macOS
         run: ls -lh dist/
-
       - name: Upload macOS Build Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: macos-dist-${{ matrix.python-version }}
           path: dist/*
-
   publish:
     name: Combine and Publish Distributions to PyPI
     runs-on: macos-latest
@@ -77,22 +67,17 @@ jobs:
         with:
           name: windows-dist-
           path: dist/
-
       - name: Download macOS Build Artifacts
         uses: actions/download-artifact@v4
         with:
           name: macos-dist-
           path: dist/
-
       - name: List combined distribution files
         run: ls -lh dist/
-
       - name: Upgrade pip, setuptools, wheel and install twine
         run: python -m pip install --upgrade pip setuptools wheel twine
-
       - name: Check distributions before upload
         run: python -m twine check dist/*
-
       - name: Publish to PyPI
         env:
           PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
