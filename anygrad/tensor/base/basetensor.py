@@ -1,7 +1,6 @@
 from typing import Optional, Tuple, Callable, Any
 
 from anygrad.tensor.base import tensor_c as C
-from anygrad.tensor.base import ThError as errors
 from anygrad.tensor.base import ThHelper as Th
 
 import anygrad
