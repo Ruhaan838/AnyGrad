@@ -42,6 +42,7 @@ setup(
     author="Ruhaan",
     author_email="ruhaan123dalal@gmail.com",
     license="MIT",
+    license_files=["LICENSE"],
     ext_modules=ext_modules,
     cmdclass={"build_ext": build_ext},
     zip_safe=False,
@@ -50,7 +51,7 @@ setup(
     package_data={
         "anygrad": ["Tensor/*.py", "__init__.py", "anygrad/*.py", "Tensor/utils/*.py"],
     },
-    classifiers = [
+    classifiers=[
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
     ],
