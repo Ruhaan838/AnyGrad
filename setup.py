@@ -3,7 +3,7 @@ from pybind11.setup_helpers import Pybind11Extension, build_ext
 import sys
 
 compile_args = ["-O2", "-std=c++20"] if sys.platform != "win32" else ["/O2", "/std:c++20"]
-version = "0.0.2"
+version = "0.0.1"
 
 ext_modules = [
     Pybind11Extension(
