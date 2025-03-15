@@ -65,12 +65,12 @@ jobs:
       - name: Download Windows Build Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: windows-dist-
+          name: windows-dist
           path: dist/
       - name: Download macOS Build Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: macos-dist-
+          name: macos-dist
           path: dist/
       - name: List combined distribution files
         run: ls -lh dist/
