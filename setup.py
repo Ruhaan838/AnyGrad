@@ -41,7 +41,7 @@ setup(
     long_description_content_type='text/markdown',
     author="Ruhaan",
     author_email="ruhaan123dalal@gmail.com",
-    license="Apache License",
+    license="Apache License, Version 2.0",
     ext_modules=ext_modules,
     cmdclass={"build_ext": build_ext},
     zip_safe=False,
