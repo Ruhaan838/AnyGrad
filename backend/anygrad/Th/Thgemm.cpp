@@ -7,12 +7,7 @@
 
 using namespace std;
 
-#define vector_f32 vector<float>
-#define vector_f64 vector<double>
-#define vector_i16 vector<int16_t>
-#define vector_i32 vector<int32_t>
-#define vector_i64 vector<int64_t>
-#define vector_bool vector<bool>
+
 
 //function that check two mat is able to multiply or not?
 bool is_matmul_broadcast(vector_i16 shape1, vector_i16 shape2, int32_t dim1, int32_t dim2) {
@@ -222,38 +217,38 @@ pair<U, vector_i16> transposeNd(T tensor1, int32_t dim0, int32_t dim1) {
     return {result_data, shape};
 }
 
-pair<vector_f32, vector_i16> MatmulFloat32(FloatTensorBase tensor1, FloatTensorBase tensor2){
+pair<vector_f32, vector_i16> Matmul(FloatTensorBase tensor1, FloatTensorBase tensor2){
     return matmulNd<FloatTensorBase, vector_f32>(tensor1, tensor2);
 }
 
-pair<vector_f64, vector_i16> MatmulFloat64(DoubleTensorBase tensor1, DoubleTensorBase tensor2){
+pair<vector_f64, vector_i16> Matmul(DoubleTensorBase tensor1, DoubleTensorBase tensor2){
     return matmulNd<DoubleTensorBase, vector_f64>(tensor1, tensor2);
 }
 
-pair<vector_i32, vector_i16> MatmulInt32(Int32TensorBase tensor1, Int32TensorBase tensor2){
+pair<vector_i32, vector_i16> Matmul(Int32TensorBase tensor1, Int32TensorBase tensor2){
     return matmulNd<Int32TensorBase, vector_i32>(tensor1, tensor2);
 }
 
-pair<vector_i64, vector_i16> MatmulInt64(Int64TensorBase tensor1, Int64TensorBase tensor2){
+pair<vector_i64, vector_i16> Matmul(Int64TensorBase tensor1, Int64TensorBase tensor2){
     return matmulNd<Int64TensorBase, vector_i64>(tensor1, tensor2);
 }
 
-pair<vector_f32, vector_i16> TransFloat32(FloatTensorBase tensor, int32_t dim0, int32_t dim1){
+pair<vector_f32, vector_i16> Trans(FloatTensorBase tensor, int32_t dim0, int32_t dim1){
     return transposeNd<FloatTensorBase, vector_f32>(tensor, dim0, dim1);
 }
 
-pair<vector_f64, vector_i16> TransFloat64(DoubleTensorBase tenosr, int32_t dim0, int32_t dim1){
+pair<vector_f64, vector_i16> Trans(DoubleTensorBase tenosr, int32_t dim0, int32_t dim1){
     return transposeNd<DoubleTensorBase, vector_f64>(tenosr, dim0, dim1);
 }
 
-pair<vector_i32, vector_i16> TransInt32(Int32TensorBase tensor, int32_t dim0, int32_t dim1){
+pair<vector_i32, vector_i16> Trans(Int32TensorBase tensor, int32_t dim0, int32_t dim1){
     return transposeNd<Int32TensorBase, vector_i32>(tensor, dim0, dim1);
 }
 
-pair<vector_i64, vector_i16> TransInt64(Int64TensorBase tensor, int32_t dim0, int32_t dim1){
+pair<vector_i64, vector_i16> Trans(Int64TensorBase tensor, int32_t dim0, int32_t dim1){
     return transposeNd<Int64TensorBase, vector_i64>(tensor, dim0, dim1);
 }
 
-pair<vector_bool, vector_i16> TransBool(BoolTensorBase tensor, int32_t dim0, int32_t dim1){
+pair<vector_bool, vector_i16> Trans(BoolTensorBase tensor, int32_t dim0, int32_t dim1){
     return transposeNd<BoolTensorBase, vector_bool>(tensor, dim0, dim1);
 }

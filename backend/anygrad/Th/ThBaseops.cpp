@@ -7,10 +7,10 @@
 #include "../include/Th.hpp"
 
 using namespace std;
-
 enum class Ops { SUM, MEAN, MEDIAN, MIN, MAX };
+
 template <typename U, typename V>
-pair<V, vector_i16> ReduceConfig(U& tensor, Ops op, int32_t dim = -1, bool keepdims = false) {
+pair<V, vector_i16> ReduceConfig(U& tensor, Ops op, int32_t dim, bool keepdims) {
     V result_data;
     vector_i16 result_shape;
     int32_t total_ele = tensor.size;
@@ -128,8 +128,8 @@ pair<V, vector_i16> ReduceConfig(U& tensor, Ops op, int32_t dim = -1, bool keepd
     return {result_data, result_shape};
 }
 
-template <typename T, typename U, typename Op>
-pair<U, vector_i16> BaseConfigOp(T tensor1, T tensor2, Op op){
+template <typename T1, typename T2, typename U, typename Op>
+pair<U, vector_i16> BaseConfigOp(T1 tensor1, T2 tensor2, Op op){
     // for scaler tensor
     if (tensor2.size == 1){
         U result_data(tensor1.size, 0);
@@ -166,213 +166,895 @@ pair<U, vector_i16> BaseConfigOp(T tensor1, T tensor2, Op op){
     return {result_data, result_shape};
 }
 
-//arithmetic ops
+// ---------------------------------------- Sorry, I could not find the other way to declare this :( ---------------------------------------- //
 
-//addition
-pair<vector_f32, vector_i16> AddFloat32(FloatTensorBase tensor1, FloatTensorBase tensor2){
-    return BaseConfigOp<FloatTensorBase, vector_f32, function<float(float, float)>>(tensor1,tensor2, 
+// -------------------Add---------------------
+pair<vector_f32, vector_i16> Add(FloatTensorBase tensor1, FloatTensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, FloatTensorBase, vector_f32, function<float(float, float)>>(tensor1,tensor2, 
     [](float num1, float num2) {return num1 + num2;});
 }
 
-pair<vector_f64, vector_i16> AddFloat64(DoubleTensorBase tensor1, DoubleTensorBase tensor2){
-    return BaseConfigOp<DoubleTensorBase, vector_f64, function<double(double, double)>>(tensor1,tensor2, 
+pair<vector_f64, vector_i16> Add(DoubleTensorBase tensor1, DoubleTensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, DoubleTensorBase, vector_f64, function<double(double, double)>>(tensor1,tensor2, 
     [](double num1, double num2) {return num1 + num2;});   
 }
 
-pair<vector_i32, vector_i16> AddInt32(Int32TensorBase tensor1, Int32TensorBase tensor2){
-    return BaseConfigOp<Int32TensorBase, vector_i32, function<int32_t(int32_t, int32_t)>>(tensor1,tensor2, 
+pair<vector_i32, vector_i16> Add(Int32TensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<Int32TensorBase, Int32TensorBase, vector_i32, function<int32_t(int32_t, int32_t)>>(tensor1,tensor2, 
     [](int32_t num1, int32_t num2) {return num1 + num2;});
 }
 
-pair<vector_i64, vector_i16> AddInt64(Int64TensorBase tensor1, Int64TensorBase tensor2){
-    return BaseConfigOp<Int64TensorBase, vector_i64, function<int64_t(int64_t, int64_t)>>(tensor1,tensor2, 
+pair<vector_i64, vector_i16> Add(Int64TensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<Int64TensorBase, Int64TensorBase, vector_i64, function<int64_t(int64_t, int64_t)>>(tensor1,tensor2, 
     [](int64_t num1, int64_t num2) {return num1 + num2;});
 }
 
-pair<vector_bool, vector_i16> AddBool(BoolTensorBase tensor1, BoolTensorBase tensor2){
-    return BaseConfigOp<BoolTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+pair<vector_bool, vector_i16> Add(BoolTensorBase tensor1, BoolTensorBase tensor2){
+    return BaseConfigOp<BoolTensorBase, BoolTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
     [](bool num1, bool num2) {return num1 + num2;});
 }
 
-
-//multiplication
-pair<vector_f32, vector_i16> MulFloat32(FloatTensorBase tensor1, FloatTensorBase tensor2){
-    return BaseConfigOp<FloatTensorBase, vector_f32, function<float(float, float)>>(tensor1,tensor2, 
-    [](float num1, float num2) {return num1 * num2;});
+pair<vector_f64, vector_i16> Add(FloatTensorBase tensor1, DoubleTensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, DoubleTensorBase, vector_f64, function<double(float, double)>>(tensor1, tensor2,
+    [](float num1, double num2) {return static_cast<double>(num1) + num2;});
 }
 
-pair<vector_f64, vector_i16> MulFloat64(DoubleTensorBase tensor1, DoubleTensorBase tensor2){
-    return BaseConfigOp<DoubleTensorBase, vector_f64, function<double(double, double)>>(tensor1, tensor2, 
-    [](double num1, double num2) {return num1 * num2;});   
-}
-    
-pair<vector_i32, vector_i16> MulInt32(Int32TensorBase tensor1, Int32TensorBase tensor2){
-    return BaseConfigOp<Int32TensorBase, vector_i32, function<int32_t(int32_t, int32_t)>>(tensor1, tensor2, 
-    [](int32_t num1, int32_t num2) {return num1 * num2;});
+pair<vector_i64, vector_i16> Add(Int32TensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<Int32TensorBase, Int64TensorBase, vector_i64, function<int64_t(float, double)>>(tensor1, tensor2,
+        [](float num1, int64_t num2) {return static_cast<int64_t>(num1) + num2;});
 }
 
-pair<vector_i64, vector_i16> MulInt64(Int64TensorBase tensor1, Int64TensorBase tensor2){
-    return BaseConfigOp<Int64TensorBase, vector_i64, function<int64_t(int64_t, int64_t)>>(tensor1, tensor2, 
-    [](int64_t num1, int64_t num2) {return num1 * num2;});
+pair<vector_f32, vector_i16> Add(FloatTensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, Int32TensorBase, vector_f32, function<float(float, int32_t)>>(tensor1, tensor2,
+        [](float num1, int32_t num2) {return num1 + static_cast<float>(num2);});
 }
 
-pair<vector_bool, vector_i16> MulBool(BoolTensorBase tensor1, BoolTensorBase tensor2){
-    return BaseConfigOp<BoolTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1, tensor2,
-    [](bool num1, bool num2) {return num1 * num2;});
+pair<vector_f64, vector_i16> Add(DoubleTensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, Int32TensorBase, vector_f64, function<double(double, int32_t)>>(tensor1, tensor2,
+        [](double num1, int32_t num2) {return static_cast<double>(num1) + num2;});
 }
 
+pair<vector_f32, vector_i16> Add(FloatTensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, Int64TensorBase, vector_f32, function<float(double, int64_t)>>(tensor1, tensor2,
+        [](double num1, int64_t num2) {return static_cast<double>(num1) + num2;});
+}
+pair<vector_f64, vector_i16> Add(DoubleTensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, Int64TensorBase, vector_f64, function<double(double, int64_t)>>(tensor1, tensor2,
+        [](double num1, int64_t num2) {return static_cast<double>(num1) + num2;});
+}
 
-pair<vector_f32, vector_i16> SubFloat32(FloatTensorBase tensor1, FloatTensorBase tensor2){
-    return BaseConfigOp<FloatTensorBase, vector_f32, function<float(float, float)>>(tensor1, tensor2, 
+pair<vector_f64, vector_i16> Add(DoubleTensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<DoubleTensorBase, FloatTensorBase, vector_f64, function<double(double, float)>>(tensor1, tensor2,
+        [](double num1, float num2) {return num1 + num2;});
+}
+
+pair<vector_f32, vector_i16> Add(Int32TensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<Int32TensorBase, FloatTensorBase, vector_f32, function<float(int32_t, float)>>(tensor1, tensor2,
+        [](int32_t num1, float num2) {return static_cast<float>(num1) + num2;});
+}
+
+pair<vector_f32, vector_i16> Add(Int64TensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<Int64TensorBase, FloatTensorBase, vector_f32, function<float(int64_t, float)>>(tensor1, tensor2,
+        [](int64_t num1, float num2) {return static_cast<float>(num1) + num2;});
+}
+
+pair<vector_f64, vector_i16> Add(Int32TensorBase tensor1, DoubleTensorBase tensor2) {
+    return BaseConfigOp<Int32TensorBase, DoubleTensorBase, vector_f64, function<double(int32_t, double)>>(tensor1, tensor2,
+        [](int32_t num1, double num2) {return static_cast<double>(num1) + num2;});
+}
+
+pair<vector_f64, vector_i16> Add(Int64TensorBase tensor1, DoubleTensorBase tensor2) {
+    return BaseConfigOp<Int64TensorBase, DoubleTensorBase, vector_f64, function<double(int64_t, double)>>(tensor1, tensor2,
+        [](int64_t num1, double num2) {return static_cast<double>(num1) + num2;});
+}
+
+// -------------------Sub---------------------
+pair<vector_f32, vector_i16> Sub(FloatTensorBase tensor1, FloatTensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, FloatTensorBase, vector_f32, function<float(float, float)>>(tensor1,tensor2, 
     [](float num1, float num2) {return num1 - num2;});
 }
 
-pair<vector_f64, vector_i16> SubFloat64(DoubleTensorBase tensor1, DoubleTensorBase tensor2){
-    return BaseConfigOp<DoubleTensorBase, vector_f64, function<double(double, double)>>(tensor1, tensor2, 
+pair<vector_f64, vector_i16> Sub(DoubleTensorBase tensor1, DoubleTensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, DoubleTensorBase, vector_f64, function<double(double, double)>>(tensor1,tensor2, 
     [](double num1, double num2) {return num1 - num2;});   
 }
 
-pair<vector_i32, vector_i16> SubInt32(Int32TensorBase tensor1, Int32TensorBase tensor2){
-    return BaseConfigOp<Int32TensorBase, vector_i32, function<int32_t(int32_t, int32_t)>>(tensor1, tensor2, 
+pair<vector_i32, vector_i16> Sub(Int32TensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<Int32TensorBase, Int32TensorBase, vector_i32, function<int32_t(int32_t, int32_t)>>(tensor1,tensor2, 
     [](int32_t num1, int32_t num2) {return num1 - num2;});
 }
 
-pair<vector_i64, vector_i16> SubInt64(Int64TensorBase tensor1, Int64TensorBase tensor2){
-    return BaseConfigOp<Int64TensorBase, vector_i64, function<int64_t(int64_t, int64_t)>>(tensor1, tensor2, 
+pair<vector_i64, vector_i16> Sub(Int64TensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<Int64TensorBase, Int64TensorBase, vector_i64, function<int64_t(int64_t, int64_t)>>(tensor1,tensor2, 
     [](int64_t num1, int64_t num2) {return num1 - num2;});
 }
 
-pair<vector_bool, vector_i16> SubBool(BoolTensorBase tensor1, BoolTensorBase tensor2){
-    return BaseConfigOp<BoolTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1, tensor2,
+pair<vector_bool, vector_i16> Sub(BoolTensorBase tensor1, BoolTensorBase tensor2){
+    return BaseConfigOp<BoolTensorBase, BoolTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
     [](bool num1, bool num2) {return num1 - num2;});
 }
 
+pair<vector_f64, vector_i16> Sub(FloatTensorBase tensor1, DoubleTensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, DoubleTensorBase, vector_f64, function<double(float, double)>>(tensor1, tensor2,
+    [](float num1, double num2) {return static_cast<double>(num1) - num2;});
+}
 
-pair<vector_f32, vector_i16> DivFloat32(FloatTensorBase tensor1, FloatTensorBase tensor2){
-    return BaseConfigOp<FloatTensorBase, vector_f32, function<float(float, float)>>(tensor1, tensor2, 
+pair<vector_i64, vector_i16> Sub(Int32TensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<Int32TensorBase, Int64TensorBase, vector_i64, function<int64_t(float, double)>>(tensor1, tensor2,
+        [](float num1, int64_t num2) {return static_cast<int64_t>(num1) - num2;});
+}
+
+pair<vector_f32, vector_i16> Sub(FloatTensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, Int32TensorBase, vector_f32, function<float(float, int32_t)>>(tensor1, tensor2,
+        [](float num1, int32_t num2) {return num1 - static_cast<float>(num2);});
+}
+
+pair<vector_f64, vector_i16> Sub(DoubleTensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, Int32TensorBase, vector_f64, function<double(double, int32_t)>>(tensor1, tensor2,
+        [](double num1, int32_t num2) {return static_cast<double>(num1) - num2;});
+}
+
+pair<vector_f32, vector_i16> Sub(FloatTensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, Int64TensorBase, vector_f32, function<float(double, int64_t)>>(tensor1, tensor2,
+        [](double num1, int64_t num2) {return static_cast<double>(num1) - num2;});
+}
+pair<vector_f64, vector_i16> Sub(DoubleTensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, Int64TensorBase, vector_f64, function<double(double, int64_t)>>(tensor1, tensor2,
+        [](double num1, int64_t num2) {return static_cast<double>(num1) - num2;});
+}
+
+pair<vector_f64, vector_i16> Sub(DoubleTensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<DoubleTensorBase, FloatTensorBase, vector_f64, function<double(double, float)>>(tensor1, tensor2,
+        [](double num1, float num2) {return num1 - num2;});
+}
+
+pair<vector_f32, vector_i16> Sub(Int32TensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<Int32TensorBase, FloatTensorBase, vector_f32, function<float(int32_t, float)>>(tensor1, tensor2,
+        [](int32_t num1, float num2) {return static_cast<float>(num1) - num2;});
+}
+
+pair<vector_f32, vector_i16> Sub(Int64TensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<Int64TensorBase, FloatTensorBase, vector_f32, function<float(int64_t, float)>>(tensor1, tensor2,
+        [](int64_t num1, float num2) {return static_cast<float>(num1) - num2;});
+}
+
+pair<vector_f64, vector_i16> Sub(Int32TensorBase tensor1, DoubleTensorBase tensor2) {
+    return BaseConfigOp<Int32TensorBase, DoubleTensorBase, vector_f64, function<double(int32_t, double)>>(tensor1, tensor2,
+        [](int32_t num1, double num2) {return static_cast<double>(num1) - num2;});
+}
+
+pair<vector_f64, vector_i16> Sub(Int64TensorBase tensor1, DoubleTensorBase tensor2) {
+    return BaseConfigOp<Int64TensorBase, DoubleTensorBase, vector_f64, function<double(int64_t, double)>>(tensor1, tensor2,
+        [](int64_t num1, double num2) {return static_cast<double>(num1) - num2;});
+}
+
+// -------------------Mul---------------------
+
+pair<vector_f32, vector_i16> Mul(FloatTensorBase tensor1, FloatTensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, FloatTensorBase, vector_f32, function<float(float, float)>>(tensor1,tensor2, 
+    [](float num1, float num2) {return num1 * num2;});
+}
+
+pair<vector_f64, vector_i16> Mul(DoubleTensorBase tensor1, DoubleTensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, DoubleTensorBase, vector_f64, function<double(double, double)>>(tensor1,tensor2, 
+    [](double num1, double num2) {return num1 * num2;});   
+}
+
+pair<vector_i32, vector_i16> Mul(Int32TensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<Int32TensorBase, Int32TensorBase, vector_i32, function<int32_t(int32_t, int32_t)>>(tensor1,tensor2, 
+    [](int32_t num1, int32_t num2) {return num1 * num2;});
+}
+
+pair<vector_i64, vector_i16> Mul(Int64TensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<Int64TensorBase, Int64TensorBase, vector_i64, function<int64_t(int64_t, int64_t)>>(tensor1,tensor2, 
+    [](int64_t num1, int64_t num2) {return num1 * num2;});
+}
+
+pair<vector_bool, vector_i16> Mul(BoolTensorBase tensor1, BoolTensorBase tensor2){
+    return BaseConfigOp<BoolTensorBase, BoolTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+    [](bool num1, bool num2) {return num1 * num2;});
+}
+
+pair<vector_f64, vector_i16> Mul(FloatTensorBase tensor1, DoubleTensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, DoubleTensorBase, vector_f64, function<double(float, double)>>(tensor1, tensor2,
+    [](float num1, double num2) {return static_cast<double>(num1) * num2;});
+}
+
+pair<vector_i64, vector_i16> Mul(Int32TensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<Int32TensorBase, Int64TensorBase, vector_i64, function<int64_t(float, double)>>(tensor1, tensor2,
+        [](float num1, int64_t num2) {return static_cast<int64_t>(num1) * num2;});
+}
+
+pair<vector_f32, vector_i16> Mul(FloatTensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, Int32TensorBase, vector_f32, function<float(float, int32_t)>>(tensor1, tensor2,
+        [](float num1, int32_t num2) {return num1 * static_cast<float>(num2);});
+}
+
+pair<vector_f64, vector_i16> Mul(DoubleTensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, Int32TensorBase, vector_f64, function<double(double, int32_t)>>(tensor1, tensor2,
+        [](double num1, int32_t num2) {return static_cast<double>(num1) * num2;});
+}
+
+pair<vector_f32, vector_i16> Mul(FloatTensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, Int64TensorBase, vector_f32, function<float(double, int64_t)>>(tensor1, tensor2,
+        [](double num1, int64_t num2) {return static_cast<double>(num1) * num2;});
+}
+pair<vector_f64, vector_i16> Mul(DoubleTensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, Int64TensorBase, vector_f64, function<double(double, int64_t)>>(tensor1, tensor2,
+        [](double num1, int64_t num2) {return static_cast<double>(num1) * num2;});
+}
+
+pair<vector_f64, vector_i16> Mul(DoubleTensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<DoubleTensorBase, FloatTensorBase, vector_f64, function<double(double, float)>>(tensor1, tensor2,
+        [](double num1, float num2) {return num1 * num2;});
+}
+
+pair<vector_f32, vector_i16> Mul(Int32TensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<Int32TensorBase, FloatTensorBase, vector_f32, function<float(int32_t, float)>>(tensor1, tensor2,
+        [](int32_t num1, float num2) {return static_cast<float>(num1) * num2;});
+}
+
+pair<vector_f32, vector_i16> Mul(Int64TensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<Int64TensorBase, FloatTensorBase, vector_f32, function<float(int64_t, float)>>(tensor1, tensor2,
+        [](int64_t num1, float num2) {return static_cast<float>(num1) * num2;});
+}
+
+pair<vector_f64, vector_i16> Mul(Int32TensorBase tensor1, DoubleTensorBase tensor2) {
+    return BaseConfigOp<Int32TensorBase, DoubleTensorBase, vector_f64, function<double(int32_t, double)>>(tensor1, tensor2,
+        [](int32_t num1, double num2) {return static_cast<double>(num1) * num2;});
+}
+
+pair<vector_f64, vector_i16> Mul(Int64TensorBase tensor1, DoubleTensorBase tensor2) {
+    return BaseConfigOp<Int64TensorBase, DoubleTensorBase, vector_f64, function<double(int64_t, double)>>(tensor1, tensor2,
+        [](int64_t num1, double num2) {return static_cast<double>(num1) * num2;});
+}
+
+// -------------------Div---------------------
+pair<vector_f32, vector_i16> Div(FloatTensorBase tensor1, FloatTensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, FloatTensorBase, vector_f32, function<float(float, float)>>(tensor1,tensor2, 
     [](float num1, float num2) {return num1 / num2;});
 }
 
-pair<vector_f64, vector_i16> DivFloat64(DoubleTensorBase tensor1, DoubleTensorBase tensor2){
-    return BaseConfigOp<DoubleTensorBase, vector_f64, function<double(double, double)>>(tensor1, tensor2, 
+pair<vector_f64, vector_i16> Div(DoubleTensorBase tensor1, DoubleTensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, DoubleTensorBase, vector_f64, function<double(double, double)>>(tensor1,tensor2, 
     [](double num1, double num2) {return num1 / num2;});   
 }
 
-pair<vector_f32, vector_i16> DivInt32(Int32TensorBase tensor1, Int32TensorBase tensor2){
-    return BaseConfigOp<Int32TensorBase, vector_f32, function<float(int32_t, int32_t)>>(tensor1, tensor2, 
+pair<vector_f32, vector_i16> Div(Int32TensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<Int32TensorBase, Int32TensorBase, vector_f32, function<float(int32_t, int32_t)>>(tensor1,tensor2, 
     [](int32_t num1, int32_t num2) {return static_cast<float>(num1) / static_cast<float>(num2);});
 }
 
-pair<vector_f64, vector_i16> DivInt64(Int64TensorBase tensor1, Int64TensorBase tensor2){
-    return BaseConfigOp<Int64TensorBase, vector_f64, function<double(int64_t, int64_t)>>(tensor1, tensor2, 
+pair<vector_f64, vector_i16> Div(Int64TensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<Int64TensorBase, Int64TensorBase, vector_f64, function<double(int64_t, int64_t)>>(tensor1,tensor2, 
     [](int64_t num1, int64_t num2) {return static_cast<double>(num1) / static_cast<double>(num2);});
 }
 
-pair<vector_bool, vector_i16> DivBool(BoolTensorBase tensor1, BoolTensorBase tensor2){
-    return BaseConfigOp<BoolTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1, tensor2,
+pair<vector_bool, vector_i16> Div(BoolTensorBase tensor1, BoolTensorBase tensor2){
+    return BaseConfigOp<BoolTensorBase, BoolTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
     [](bool num1, bool num2) {return num1 / num2;});
 }
 
-
-pair<vector_f32, vector_i16> PowFloat32(FloatTensorBase tensor1, FloatTensorBase tensor2){
-    return BaseConfigOp<FloatTensorBase, vector_f32, function<float(float, float)>>(tensor1, tensor2, 
-    [](float num1, float num2) {return pow(num1, num2);});
+pair<vector_f64, vector_i16> Div(FloatTensorBase tensor1, DoubleTensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, DoubleTensorBase, vector_f64, function<double(float, double)>>(tensor1, tensor2,
+    [](float num1, double num2) {return static_cast<double>(num1) / num2;});
 }
 
-pair<vector_f64, vector_i16> PowFloat64(DoubleTensorBase tensor1, DoubleTensorBase tensor2){
-    return BaseConfigOp<DoubleTensorBase, vector_f64, function<double(double, double)>>(tensor1, tensor2, 
-    [](double num1, double num2) {return pow(num1, num2);});   
+pair<vector_f64, vector_i16> Div(Int32TensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<Int32TensorBase, Int64TensorBase, vector_f64, function<float(int32_t, int64_t)>>(tensor1, tensor2,
+        [](int32_t num1, int64_t num2) {return static_cast<double>(num1) / static_cast<double>(num2);});
 }
 
-pair<vector_i32, vector_i16> PowInt32(Int32TensorBase tensor1, Int32TensorBase tensor2){
-    return BaseConfigOp<Int32TensorBase, vector_i32, function<int32_t(int32_t, int32_t)>>(tensor1, tensor2, 
-    [](int32_t num1, int32_t num2) {return pow(num1, num2);});
+pair<vector_f32, vector_i16> Div(FloatTensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, Int32TensorBase, vector_f32, function<float(float, int32_t)>>(tensor1, tensor2,
+        [](float num1, int32_t num2) {return num1 / static_cast<float>(num2);});
 }
 
-pair<vector_i64, vector_i16> PowInt64(Int64TensorBase tensor1, Int64TensorBase tensor2){
-    return BaseConfigOp<Int64TensorBase, vector_i64, function<int64_t(int64_t, int64_t)>>(tensor1, tensor2, 
-    [](int64_t num1, int64_t num2) {return pow(num1, num2);});
+pair<vector_f64, vector_i16> Div(DoubleTensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, Int32TensorBase, vector_f64, function<double(double, int32_t)>>(tensor1, tensor2,
+        [](double num1, int32_t num2) {return static_cast<double>(num1) / num2;});
+}
+
+pair<vector_f32, vector_i16> Div(FloatTensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, Int64TensorBase, vector_f32, function<float(double, int64_t)>>(tensor1, tensor2,
+        [](double num1, int64_t num2) {return static_cast<double>(num1) / num2;});
+}
+pair<vector_f64, vector_i16> Div(DoubleTensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, Int64TensorBase, vector_f64, function<double(double, int64_t)>>(tensor1, tensor2,
+        [](double num1, int64_t num2) {return static_cast<double>(num1) / num2;});
+}
+
+pair<vector_f64, vector_i16> Div(DoubleTensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<DoubleTensorBase, FloatTensorBase, vector_f64, function<double(double, float)>>(tensor1, tensor2,
+        [](double num1, float num2) {return num1 / num2;});
+}
+
+pair<vector_f32, vector_i16> Div(Int32TensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<Int32TensorBase, FloatTensorBase, vector_f32, function<float(int32_t, float)>>(tensor1, tensor2,
+        [](int32_t num1, float num2) {return static_cast<float>(num1) / num2;});
+}
+
+pair<vector_f32, vector_i16> Div(Int64TensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<Int64TensorBase, FloatTensorBase, vector_f32, function<float(int64_t, float)>>(tensor1, tensor2,
+        [](int64_t num1, float num2) {return static_cast<float>(num1) / num2;});
+}
+
+pair<vector_f64, vector_i16> Div(Int32TensorBase tensor1, DoubleTensorBase tensor2) {
+    return BaseConfigOp<Int32TensorBase, DoubleTensorBase, vector_f64, function<double(int32_t, double)>>(tensor1, tensor2,
+        [](int32_t num1, double num2) {return static_cast<double>(num1) / num2;});
+}
+
+pair<vector_f64, vector_i16> Div(Int64TensorBase tensor1, DoubleTensorBase tensor2) {
+    return BaseConfigOp<Int64TensorBase, DoubleTensorBase, vector_f64, function<double(int64_t, double)>>(tensor1, tensor2,
+        [](int64_t num1, double num2) {return static_cast<double>(num1) / num2;});
+}
+
+// -------------------Pow---------------------
+
+pair<vector_f32, vector_i16> Pow(FloatTensorBase tensor1, FloatTensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, FloatTensorBase, vector_f32, function<float(float, float)>>(tensor1,tensor2, 
+    [](float num1, float num2) { return pow(num1, num2); });
+}
+
+pair<vector_f64, vector_i16> Pow(DoubleTensorBase tensor1, DoubleTensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, DoubleTensorBase, vector_f64, function<double(double, double)>>(tensor1,tensor2, 
+    [](double num1, double num2) { return pow(num1, num2); });   
+}
+
+pair<vector_i32, vector_i16> Pow(Int32TensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<Int32TensorBase, Int32TensorBase, vector_i32, function<int32_t(int32_t, int32_t)>>(tensor1,tensor2, 
+    [](int32_t num1, int32_t num2) { return pow(num1, num2); });
+}
+
+pair<vector_i64, vector_i16> Pow(Int64TensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<Int64TensorBase, Int64TensorBase, vector_i64, function<int64_t(int64_t, int64_t)>>(tensor1,tensor2, 
+    [](int64_t num1, int64_t num2) { return pow(num1, num2); });
+}
+
+pair<vector_bool, vector_i16> Pow(BoolTensorBase tensor1, BoolTensorBase tensor2){
+    return BaseConfigOp<BoolTensorBase, BoolTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+    [](bool num1, bool num2) { return pow(num1, num2); });
+}
+
+pair<vector_f64, vector_i16> Pow(FloatTensorBase tensor1, DoubleTensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, DoubleTensorBase, vector_f64, function<double(float, double)>>(tensor1, tensor2,
+    [](float num1, double num2) { return static_cast<double>(pow(num1, num2)); });
+}
+
+pair<vector_i64, vector_i16> Pow(Int32TensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<Int32TensorBase, Int64TensorBase, vector_i64, function<int64_t(float, double)>>(tensor1, tensor2,
+        [](float num1, int64_t num2) { return static_cast<int64_t>(pow(num1, num2)); });
+}
+
+pair<vector_f32, vector_i16> Pow(FloatTensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, Int32TensorBase, vector_f32, function<float(float, int32_t)>>(tensor1, tensor2,
+        [](float num1, int32_t num2) { return pow(num1, static_cast<float>(num2)); });
+}
+
+pair<vector_f64, vector_i16> Pow(DoubleTensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, Int32TensorBase, vector_f64, function<double(double, int32_t)>>(tensor1, tensor2,
+        [](double num1, int32_t num2) { return static_cast<double>(pow(num1, num2)); });
+}
+
+pair<vector_f32, vector_i16> Pow(FloatTensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, Int64TensorBase, vector_f32, function<float(double, int64_t)>>(tensor1, tensor2,
+        [](double num1, int64_t num2) { return static_cast<double>(pow(num1, num2)); });
+}
+pair<vector_f64, vector_i16> Pow(DoubleTensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, Int64TensorBase, vector_f64, function<double(double, int64_t)>>(tensor1, tensor2,
+        [](double num1, int64_t num2) { return static_cast<double>(pow(num1, num2)); });
+}
+
+pair<vector_f64, vector_i16> Pow(DoubleTensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<DoubleTensorBase, FloatTensorBase, vector_f64, function<double(double, float)>>(tensor1, tensor2,
+        [](double num1, float num2) { return pow(num1, num2); });
+}
+
+pair<vector_f32, vector_i16> Pow(Int32TensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<Int32TensorBase, FloatTensorBase, vector_f32, function<float(int32_t, float)>>(tensor1, tensor2,
+        [](int32_t num1, float num2) { return static_cast<float>(pow(num1, num2)); });
+}
+
+pair<vector_f32, vector_i16> Pow(Int64TensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<Int64TensorBase, FloatTensorBase, vector_f32, function<float(int64_t, float)>>(tensor1, tensor2,
+        [](int64_t num1, float num2) { return static_cast<float>(pow(num1, num2)); });
+}
+
+pair<vector_f64, vector_i16> Pow(Int32TensorBase tensor1, DoubleTensorBase tensor2) {
+    return BaseConfigOp<Int32TensorBase, DoubleTensorBase, vector_f64, function<double(int32_t, double)>>(tensor1, tensor2,
+        [](int32_t num1, double num2) { return static_cast<double>(pow(num1, num2)); });
+}
+
+pair<vector_f64, vector_i16> Pow(Int64TensorBase tensor1, DoubleTensorBase tensor2) {
+    return BaseConfigOp<Int64TensorBase, DoubleTensorBase, vector_f64, function<double(int64_t, double)>>(tensor1, tensor2,
+        [](int64_t num1, double num2) { return static_cast<double>(pow(num1, num2)); });
 }
 
 
-// Reduction ops
-pair<vector_f32, vector_i16> SumFloat32(FloatTensorBase tensor, int32_t dim, bool keepdims) {
+// -------------------Eq---------------------
+
+pair<vector_bool, vector_i16> Eq(FloatTensorBase tensor1, FloatTensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, FloatTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+    [](bool num1, bool num2) { return num1 == num2; });
+}
+
+pair<vector_bool, vector_i16> Eq(DoubleTensorBase tensor1, DoubleTensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, DoubleTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+    [](bool num1, bool num2) { return num1 == num2; });   
+}
+
+pair<vector_bool, vector_i16> Eq(Int32TensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<Int32TensorBase, Int32TensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+    [](bool num1, bool num2) { return num1 == num2; });
+}
+
+pair<vector_bool, vector_i16> Eq(Int64TensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<Int64TensorBase, Int64TensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+    [](bool num1, bool num2) { return num1 == num2; });
+}
+
+pair<vector_bool, vector_i16> Eq(BoolTensorBase tensor1, BoolTensorBase tensor2){
+    return BaseConfigOp<BoolTensorBase, BoolTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+    [](bool num1, bool num2) { return num1 == num2; });
+}
+
+pair<vector_bool, vector_i16> Eq(FloatTensorBase tensor1, DoubleTensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, DoubleTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1, tensor2,
+    [](bool num1, bool num2) { return num1 == num2; });
+}
+
+pair<vector_bool, vector_i16> Eq(Int32TensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<Int32TensorBase, Int64TensorBase, vector_bool, function<bool(int32_t, int64_t)>>(tensor1, tensor2,
+        [](int32_t num1, int64_t num2) { return num1 == num2; });
+}
+
+pair<vector_bool, vector_i16> Eq(FloatTensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, Int32TensorBase, vector_bool, function<bool(float, int32_t)>>(tensor1, tensor2,
+        [](float num1, int32_t num2) { return num1 == num2; });
+}
+
+pair<vector_bool, vector_i16> Eq(DoubleTensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, Int32TensorBase, vector_bool, function<bool(double, int32_t)>>(tensor1, tensor2,
+        [](double num1, int32_t num2) { return num1 == num2; });
+}
+
+pair<vector_bool, vector_i16> Eq(FloatTensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, Int64TensorBase, vector_bool, function<bool(float, int64_t)>>(tensor1, tensor2,
+        [](float num1, int64_t num2) { return num1 == num2; });
+}
+
+pair<vector_bool, vector_i16> Eq(DoubleTensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, Int64TensorBase, vector_bool, function<bool(double, int64_t)>>(tensor1, tensor2,
+        [](double num1, int64_t num2) { return num1 == num2; });
+}
+
+pair<vector_bool, vector_i16> Eq(DoubleTensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<DoubleTensorBase, FloatTensorBase, vector_bool, function<bool(double, float)>>(tensor1, tensor2,
+        [](double num1, float num2) { return num1 == num2; });
+}
+
+pair<vector_bool, vector_i16> Eq(Int32TensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<Int32TensorBase, FloatTensorBase, vector_bool, function<bool(int32_t, float)>>(tensor1, tensor2,
+        [](int32_t num1, float num2) { return num1 == num2; });
+}
+
+pair<vector_bool, vector_i16> Eq(Int64TensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<Int64TensorBase, FloatTensorBase, vector_bool, function<bool(int64_t, float)>>(tensor1, tensor2,
+        [](int64_t num1, float num2) { return num1 == num2; });
+}
+
+pair<vector_bool, vector_i16> Eq(Int32TensorBase tensor1, DoubleTensorBase tensor2) {
+    return BaseConfigOp<Int32TensorBase, DoubleTensorBase, vector_bool, function<bool(int32_t, double)>>(tensor1, tensor2,
+        [](int32_t num1, double num2) { return num1 == num2; });
+}
+
+pair<vector_bool, vector_i16> Eq(Int64TensorBase tensor1, DoubleTensorBase tensor2) {
+    return BaseConfigOp<Int64TensorBase, DoubleTensorBase, vector_bool, function<bool(int64_t, double)>>(tensor1, tensor2,
+        [](int64_t num1, double num2) { return num1 == num2; });
+}
+
+// -------------------Gt---------------------
+pair<vector_bool, vector_i16> Gt(FloatTensorBase tensor1, FloatTensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, FloatTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+    [](bool num1, bool num2) { return num1 > num2; });
+}
+
+pair<vector_bool, vector_i16> Gt(DoubleTensorBase tensor1, DoubleTensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, DoubleTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+    [](bool num1, bool num2) { return num1 > num2; });   
+}
+
+pair<vector_bool, vector_i16> Gt(Int32TensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<Int32TensorBase, Int32TensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+    [](bool num1, bool num2) { return num1 > num2; });
+}
+
+pair<vector_bool, vector_i16> Gt(Int64TensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<Int64TensorBase, Int64TensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+    [](bool num1, bool num2) { return num1 > num2; });
+}
+
+pair<vector_bool, vector_i16> Gt(BoolTensorBase tensor1, BoolTensorBase tensor2){
+    return BaseConfigOp<BoolTensorBase, BoolTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+    [](bool num1, bool num2) { return num1 > num2; });
+}
+
+pair<vector_bool, vector_i16> Gt(FloatTensorBase tensor1, DoubleTensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, DoubleTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1, tensor2,
+    [](bool num1, bool num2) { return num1 > num2; });
+}
+
+pair<vector_bool, vector_i16> Gt(Int32TensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<Int32TensorBase, Int64TensorBase, vector_bool, function<bool(int32_t, int64_t)>>(tensor1, tensor2,
+        [](int32_t num1, int64_t num2) { return num1 > num2; });
+}
+
+pair<vector_bool, vector_i16> Gt(FloatTensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, Int32TensorBase, vector_bool, function<bool(float, int32_t)>>(tensor1, tensor2,
+        [](float num1, int32_t num2) { return num1 > num2; });
+}
+
+pair<vector_bool, vector_i16> Gt(DoubleTensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, Int32TensorBase, vector_bool, function<bool(double, int32_t)>>(tensor1, tensor2,
+        [](double num1, int32_t num2) { return num1 > num2; });
+}
+
+pair<vector_bool, vector_i16> Gt(FloatTensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, Int64TensorBase, vector_bool, function<bool(float, int64_t)>>(tensor1, tensor2,
+        [](float num1, int64_t num2) { return num1 > num2; });
+}
+
+pair<vector_bool, vector_i16> Gt(DoubleTensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, Int64TensorBase, vector_bool, function<bool(double, int64_t)>>(tensor1, tensor2,
+        [](double num1, int64_t num2) { return num1 > num2; });
+}
+
+pair<vector_bool, vector_i16> Gt(DoubleTensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<DoubleTensorBase, FloatTensorBase, vector_bool, function<bool(double, float)>>(tensor1, tensor2,
+        [](double num1, float num2) { return num1 > num2; });
+}
+
+pair<vector_bool, vector_i16> Gt(Int32TensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<Int32TensorBase, FloatTensorBase, vector_bool, function<bool(int32_t, float)>>(tensor1, tensor2,
+        [](int32_t num1, float num2) { return num1 > num2; });
+}
+
+pair<vector_bool, vector_i16> Gt(Int64TensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<Int64TensorBase, FloatTensorBase, vector_bool, function<bool(int64_t, float)>>(tensor1, tensor2,
+        [](int64_t num1, float num2) { return num1 > num2; });
+}
+
+pair<vector_bool, vector_i16> Gt(Int32TensorBase tensor1, DoubleTensorBase tensor2) {
+    return BaseConfigOp<Int32TensorBase, DoubleTensorBase, vector_bool, function<bool(int32_t, double)>>(tensor1, tensor2,
+        [](int32_t num1, double num2) { return num1 > num2; });
+}
+
+pair<vector_bool, vector_i16> Gt(Int64TensorBase tensor1, DoubleTensorBase tensor2) {
+    return BaseConfigOp<Int64TensorBase, DoubleTensorBase, vector_bool, function<bool(int64_t, double)>>(tensor1, tensor2,
+        [](int64_t num1, double num2) { return num1 > num2; });
+}
+
+// -------------------Lt---------------------
+pair<vector_bool, vector_i16> Lt(FloatTensorBase tensor1, FloatTensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, FloatTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+    [](bool num1, bool num2) { return num1 < num2; });
+}
+
+pair<vector_bool, vector_i16> Lt(DoubleTensorBase tensor1, DoubleTensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, DoubleTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+    [](bool num1, bool num2) { return num1 < num2; });   
+}
+
+pair<vector_bool, vector_i16> Lt(Int32TensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<Int32TensorBase, Int32TensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+    [](bool num1, bool num2) { return num1 < num2; });
+}
+
+pair<vector_bool, vector_i16> Lt(Int64TensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<Int64TensorBase, Int64TensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+    [](bool num1, bool num2) { return num1 < num2; });
+}
+
+pair<vector_bool, vector_i16> Lt(BoolTensorBase tensor1, BoolTensorBase tensor2){
+    return BaseConfigOp<BoolTensorBase, BoolTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+    [](bool num1, bool num2) { return num1 < num2; });
+}
+
+pair<vector_bool, vector_i16> Lt(FloatTensorBase tensor1, DoubleTensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, DoubleTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1, tensor2,
+    [](bool num1, bool num2) { return num1 < num2; });
+}
+
+pair<vector_bool, vector_i16> Lt(Int32TensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<Int32TensorBase, Int64TensorBase, vector_bool, function<bool(int32_t, int64_t)>>(tensor1, tensor2,
+        [](int32_t num1, int64_t num2) { return num1 < num2; });
+}
+
+pair<vector_bool, vector_i16> Lt(FloatTensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, Int32TensorBase, vector_bool, function<bool(float, int32_t)>>(tensor1, tensor2,
+        [](float num1, int32_t num2) { return num1 < num2; });
+}
+
+pair<vector_bool, vector_i16> Lt(DoubleTensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, Int32TensorBase, vector_bool, function<bool(double, int32_t)>>(tensor1, tensor2,
+        [](double num1, int32_t num2) { return num1 < num2; });
+}
+
+pair<vector_bool, vector_i16> Lt(FloatTensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, Int64TensorBase, vector_bool, function<bool(float, int64_t)>>(tensor1, tensor2,
+        [](float num1, int64_t num2) { return num1 < num2; });
+}
+
+pair<vector_bool, vector_i16> Lt(DoubleTensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, Int64TensorBase, vector_bool, function<bool(double, int64_t)>>(tensor1, tensor2,
+        [](double num1, int64_t num2) { return num1 < num2; });
+}
+
+pair<vector_bool, vector_i16> Lt(DoubleTensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<DoubleTensorBase, FloatTensorBase, vector_bool, function<bool(double, float)>>(tensor1, tensor2,
+        [](double num1, float num2) { return num1 < num2; });
+}
+
+pair<vector_bool, vector_i16> Lt(Int32TensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<Int32TensorBase, FloatTensorBase, vector_bool, function<bool(int32_t, float)>>(tensor1, tensor2,
+        [](int32_t num1, float num2) { return num1 < num2; });
+}
+
+pair<vector_bool, vector_i16> Lt(Int64TensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<Int64TensorBase, FloatTensorBase, vector_bool, function<bool(int64_t, float)>>(tensor1, tensor2,
+        [](int64_t num1, float num2) { return num1 < num2; });
+}
+
+pair<vector_bool, vector_i16> Lt(Int32TensorBase tensor1, DoubleTensorBase tensor2) {
+    return BaseConfigOp<Int32TensorBase, DoubleTensorBase, vector_bool, function<bool(int32_t, double)>>(tensor1, tensor2,
+        [](int32_t num1, double num2) { return num1 < num2; });
+}
+
+pair<vector_bool, vector_i16> Lt(Int64TensorBase tensor1, DoubleTensorBase tensor2) {
+    return BaseConfigOp<Int64TensorBase, DoubleTensorBase, vector_bool, function<bool(int64_t, double)>>(tensor1, tensor2,
+        [](int64_t num1, double num2) { return num1 < num2; });
+}
+
+// -------------------Ge---------------------
+pair<vector_bool, vector_i16> Ge(FloatTensorBase tensor1, FloatTensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, FloatTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+    [](bool num1, bool num2) { return num1 >= num2; });
+}
+
+pair<vector_bool, vector_i16> Ge(DoubleTensorBase tensor1, DoubleTensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, DoubleTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+    [](bool num1, bool num2) { return num1 >= num2; });   
+}
+
+pair<vector_bool, vector_i16> Ge(Int32TensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<Int32TensorBase, Int32TensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+    [](bool num1, bool num2) { return num1 >= num2; });
+}
+
+pair<vector_bool, vector_i16> Ge(Int64TensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<Int64TensorBase, Int64TensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+    [](bool num1, bool num2) { return num1 >= num2; });
+}
+
+pair<vector_bool, vector_i16> Ge(BoolTensorBase tensor1, BoolTensorBase tensor2){
+    return BaseConfigOp<BoolTensorBase, BoolTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+    [](bool num1, bool num2) { return num1 >= num2; });
+}
+
+pair<vector_bool, vector_i16> Ge(FloatTensorBase tensor1, DoubleTensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, DoubleTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1, tensor2,
+    [](bool num1, bool num2) { return num1 >= num2; });
+}
+
+pair<vector_bool, vector_i16> Ge(Int32TensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<Int32TensorBase, Int64TensorBase, vector_bool, function<bool(int32_t, int64_t)>>(tensor1, tensor2,
+        [](int32_t num1, int64_t num2) { return num1 >= num2; });
+}
+
+pair<vector_bool, vector_i16> Ge(FloatTensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, Int32TensorBase, vector_bool, function<bool(float, int32_t)>>(tensor1, tensor2,
+        [](float num1, int32_t num2) { return num1 >= num2; });
+}
+
+pair<vector_bool, vector_i16> Ge(DoubleTensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, Int32TensorBase, vector_bool, function<bool(double, int32_t)>>(tensor1, tensor2,
+        [](double num1, int32_t num2) { return num1 >= num2; });
+}
+
+pair<vector_bool, vector_i16> Ge(FloatTensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, Int64TensorBase, vector_bool, function<bool(float, int64_t)>>(tensor1, tensor2,
+        [](float num1, int64_t num2) { return num1 >= num2; });
+}
+
+pair<vector_bool, vector_i16> Ge(DoubleTensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, Int64TensorBase, vector_bool, function<bool(double, int64_t)>>(tensor1, tensor2,
+        [](double num1, int64_t num2) { return num1 >= num2; });
+}
+
+pair<vector_bool, vector_i16> Ge(DoubleTensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<DoubleTensorBase, FloatTensorBase, vector_bool, function<bool(double, float)>>(tensor1, tensor2,
+        [](double num1, float num2) { return num1 >= num2; });
+}
+
+pair<vector_bool, vector_i16> Ge(Int32TensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<Int32TensorBase, FloatTensorBase, vector_bool, function<bool(int32_t, float)>>(tensor1, tensor2,
+        [](int32_t num1, float num2) { return num1 >= num2; });
+}
+
+pair<vector_bool, vector_i16> Ge(Int64TensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<Int64TensorBase, FloatTensorBase, vector_bool, function<bool(int64_t, float)>>(tensor1, tensor2,
+        [](int64_t num1, float num2) { return num1 >= num2; });
+}
+
+pair<vector_bool, vector_i16> Ge(Int32TensorBase tensor1, DoubleTensorBase tensor2) {
+    return BaseConfigOp<Int32TensorBase, DoubleTensorBase, vector_bool, function<bool(int32_t, double)>>(tensor1, tensor2,
+        [](int32_t num1, double num2) { return num1 >= num2; });
+}
+
+pair<vector_bool, vector_i16> Ge(Int64TensorBase tensor1, DoubleTensorBase tensor2) {
+    return BaseConfigOp<Int64TensorBase, DoubleTensorBase, vector_bool, function<bool(int64_t, double)>>(tensor1, tensor2,
+        [](int64_t num1, double num2) { return num1 >= num2; });
+}
+
+// -------------------Le---------------------
+pair<vector_bool, vector_i16> Le(FloatTensorBase tensor1, FloatTensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, FloatTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+    [](bool num1, bool num2) { return num1 <= num2; });
+}
+
+pair<vector_bool, vector_i16> Le(DoubleTensorBase tensor1, DoubleTensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, DoubleTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+    [](bool num1, bool num2) { return num1 <= num2; });   
+}
+
+pair<vector_bool, vector_i16> Le(Int32TensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<Int32TensorBase, Int32TensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+    [](bool num1, bool num2) { return num1 <= num2; });
+}
+
+pair<vector_bool, vector_i16> Le(Int64TensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<Int64TensorBase, Int64TensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+    [](bool num1, bool num2) { return num1 <= num2; });
+}
+
+pair<vector_bool, vector_i16> Le(BoolTensorBase tensor1, BoolTensorBase tensor2){
+    return BaseConfigOp<BoolTensorBase, BoolTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1,tensor2, 
+    [](bool num1, bool num2) { return num1 <= num2; });
+}
+
+pair<vector_bool, vector_i16> Le(FloatTensorBase tensor1, DoubleTensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, DoubleTensorBase, vector_bool, function<bool(bool, bool)>>(tensor1, tensor2,
+    [](bool num1, bool num2) { return num1 <= num2; });
+}
+
+pair<vector_bool, vector_i16> Le(Int32TensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<Int32TensorBase, Int64TensorBase, vector_bool, function<bool(int32_t, int64_t)>>(tensor1, tensor2,
+        [](int32_t num1, int64_t num2) { return num1 <= num2; });
+}
+
+pair<vector_bool, vector_i16> Le(FloatTensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, Int32TensorBase, vector_bool, function<bool(float, int32_t)>>(tensor1, tensor2,
+        [](float num1, int32_t num2) { return num1 <= num2; });
+}
+
+pair<vector_bool, vector_i16> Le(DoubleTensorBase tensor1, Int32TensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, Int32TensorBase, vector_bool, function<bool(double, int32_t)>>(tensor1, tensor2,
+        [](double num1, int32_t num2) { return num1 <= num2; });
+}
+
+pair<vector_bool, vector_i16> Le(FloatTensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<FloatTensorBase, Int64TensorBase, vector_bool, function<bool(float, int64_t)>>(tensor1, tensor2,
+        [](float num1, int64_t num2) { return num1 <= num2; });
+}
+
+pair<vector_bool, vector_i16> Le(DoubleTensorBase tensor1, Int64TensorBase tensor2){
+    return BaseConfigOp<DoubleTensorBase, Int64TensorBase, vector_bool, function<bool(double, int64_t)>>(tensor1, tensor2,
+        [](double num1, int64_t num2) { return num1 <= num2; });
+}
+
+pair<vector_bool, vector_i16> Le(DoubleTensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<DoubleTensorBase, FloatTensorBase, vector_bool, function<bool(double, float)>>(tensor1, tensor2,
+        [](double num1, float num2) { return num1 <= num2; });
+}
+
+pair<vector_bool, vector_i16> Le(Int32TensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<Int32TensorBase, FloatTensorBase, vector_bool, function<bool(int32_t, float)>>(tensor1, tensor2,
+        [](int32_t num1, float num2) { return num1 <= num2; });
+}
+
+pair<vector_bool, vector_i16> Le(Int64TensorBase tensor1, FloatTensorBase tensor2) {
+    return BaseConfigOp<Int64TensorBase, FloatTensorBase, vector_bool, function<bool(int64_t, float)>>(tensor1, tensor2,
+        [](int64_t num1, float num2) { return num1 <= num2; });
+}
+
+pair<vector_bool, vector_i16> Le(Int32TensorBase tensor1, DoubleTensorBase tensor2) {
+    return BaseConfigOp<Int32TensorBase, DoubleTensorBase, vector_bool, function<bool(int32_t, double)>>(tensor1, tensor2,
+        [](int32_t num1, double num2) { return num1 <= num2; });
+}
+
+pair<vector_bool, vector_i16> Le(Int64TensorBase tensor1, DoubleTensorBase tensor2) {
+    return BaseConfigOp<Int64TensorBase, DoubleTensorBase, vector_bool, function<bool(int64_t, double)>>(tensor1, tensor2,
+        [](int64_t num1, double num2) { return num1 <= num2; });
+}
+
+// -------------------Sum---------------------
+
+pair<vector_f32, vector_i16> Sum(FloatTensorBase tensor, int32_t dim, bool keepdims) {
     return ReduceConfig<FloatTensorBase, vector_f32>(tensor, Ops::SUM, dim, keepdims);
 }
 
-pair<vector_f64, vector_i16> SumFloat64(DoubleTensorBase tensor, int32_t dim, bool keepdims) {
+pair<vector_f64, vector_i16> Sum(DoubleTensorBase tensor, int32_t dim, bool keepdims) {
     return ReduceConfig<DoubleTensorBase, vector_f64>(tensor, Ops::SUM, dim, keepdims);
 }
 
-pair<vector_f32, vector_i16> SumInt32(Int32TensorBase tensor, int32_t dim, bool keepdims) {
+pair<vector_f32, vector_i16> Sum(Int32TensorBase tensor, int32_t dim, bool keepdims) {
     return ReduceConfig<Int32TensorBase, vector_f32>(tensor, Ops::SUM, dim, keepdims);
 }
 
-pair<vector_f64, vector_i16> SumInt64(Int64TensorBase tensor, int32_t dim, bool keepdims) {
+pair<vector_f64, vector_i16> Sum(Int64TensorBase tensor, int32_t dim, bool keepdims) {
     return ReduceConfig<Int64TensorBase, vector_f64>(tensor, Ops::SUM, dim, keepdims);
 }
 
 
-pair<vector_f32, vector_i16> MeanFloat32(FloatTensorBase tensor, int32_t dim, bool keepdims) {
+// -------------------Mean---------------------
+
+pair<vector_f32, vector_i16> Mean(FloatTensorBase tensor, int32_t dim, bool keepdims){
     return ReduceConfig<FloatTensorBase, vector_f32>(tensor, Ops::MEAN, dim, keepdims);
 }
-
-pair<vector_f64, vector_i16> MeanFloat64(DoubleTensorBase tensor, int32_t dim, bool keepdims) {
+pair<vector_f64, vector_i16> Mean(DoubleTensorBase tensor, int32_t dim, bool keepdims) {
     return ReduceConfig<DoubleTensorBase, vector_f64>(tensor, Ops::MEAN, dim, keepdims);
 }
-
-pair<vector_f32, vector_i16> MeanInt32(Int32TensorBase tensor, int32_t dim, bool keepdims) {
+pair<vector_f32, vector_i16> Mean(Int32TensorBase tensor, int32_t dim, bool keepdims){
     return ReduceConfig<Int32TensorBase, vector_f32>(tensor, Ops::MEAN, dim, keepdims);
 }
-
-pair<vector_f64, vector_i16> MeanInt64(Int64TensorBase tensor, int32_t dim, bool keepdims) {
+pair<vector_f64, vector_i16> Mean(Int64TensorBase tensor, int32_t dim, bool keepdims){
     return ReduceConfig<Int64TensorBase, vector_f64>(tensor, Ops::MEAN, dim, keepdims);
 }
 
-pair<vector_f32, vector_i16> MedianFloat32(FloatTensorBase tensor, int32_t dim, bool keepdims) {
+
+// -------------------Median---------------------
+
+pair<vector_f32, vector_i16> Median(FloatTensorBase tensor, int32_t dim, bool keepdims){
     return ReduceConfig<FloatTensorBase, vector_f32>(tensor, Ops::MEDIAN, dim, keepdims);
 }
-
-pair<vector_f64, vector_i16> MedianFloat64(DoubleTensorBase tensor, int32_t dim, bool keepdims) {
+pair<vector_f64, vector_i16> Median(DoubleTensorBase tensor, int32_t dim, bool keepdims) {
     return ReduceConfig<DoubleTensorBase, vector_f64>(tensor, Ops::MEDIAN, dim, keepdims);
 }
-
-pair<vector_f32, vector_i16> MedianInt32(Int32TensorBase tensor, int32_t dim, bool keepdims) {
+pair<vector_f32, vector_i16> Median(Int32TensorBase tensor, int32_t dim, bool keepdims){
     return ReduceConfig<Int32TensorBase, vector_f32>(tensor, Ops::MEDIAN, dim, keepdims);
-}  
-
-pair<vector_f64, vector_i16> MedianInt64(Int64TensorBase tensor, int32_t dim, bool keepdims) {
+}
+pair<vector_f64, vector_i16> Median(Int64TensorBase tensor, int32_t dim, bool keepdims){
     return ReduceConfig<Int64TensorBase, vector_f64>(tensor, Ops::MEDIAN, dim, keepdims);
 }
 
-pair<vector_f32, vector_i16> MinFloat32(FloatTensorBase tensor, int32_t dim, bool keepdims) {
+
+// -------------------Min---------------------
+
+pair<vector_f32, vector_i16> Min(FloatTensorBase tensor, int32_t dim, bool keepdims){
     return ReduceConfig<FloatTensorBase, vector_f32>(tensor, Ops::MIN, dim, keepdims);
 }
-
-pair<vector_f64, vector_i16> MinFloat64(DoubleTensorBase tensor, int32_t dim, bool keepdims) {
+pair<vector_f64, vector_i16> Min(DoubleTensorBase tensor, int32_t dim, bool keepdims) {
     return ReduceConfig<DoubleTensorBase, vector_f64>(tensor, Ops::MIN, dim, keepdims);
 }
-
-pair<vector_f32, vector_i16> MinInt32(Int32TensorBase tensor, int32_t dim, bool keepdims) {
+pair<vector_f32, vector_i16> Min(Int32TensorBase tensor, int32_t dim, bool keepdims){
     return ReduceConfig<Int32TensorBase, vector_f32>(tensor, Ops::MIN, dim, keepdims);
 }
-
-pair<vector_f64, vector_i16> MinInt64(Int64TensorBase tensor, int32_t dim, bool keepdims) {
+pair<vector_f64, vector_i16> Min(Int64TensorBase tensor, int32_t dim, bool keepdims){
     return ReduceConfig<Int64TensorBase, vector_f64>(tensor, Ops::MIN, dim, keepdims);
 }
 
-pair<vector_f32, vector_i16> MaxFloat32(FloatTensorBase tensor, int32_t dim, bool keepdims) {
+
+// -------------------Max---------------------
+
+pair<vector_f32, vector_i16> Max(FloatTensorBase tensor, int32_t dim, bool keepdims){
     return ReduceConfig<FloatTensorBase, vector_f32>(tensor, Ops::MAX, dim, keepdims);
 }
-
-pair<vector_f64, vector_i16> MaxFloat64(DoubleTensorBase tensor, int32_t dim, bool keepdims) {
+pair<vector_f64, vector_i16> Max(DoubleTensorBase tensor, int32_t dim, bool keepdims) {
     return ReduceConfig<DoubleTensorBase, vector_f64>(tensor, Ops::MAX, dim, keepdims);
 }
-
-pair<vector_f32, vector_i16> MaxInt32(Int32TensorBase tensor, int32_t dim, bool keepdims) {
+pair<vector_f32, vector_i16> Max(Int32TensorBase tensor, int32_t dim, bool keepdims){
     return ReduceConfig<Int32TensorBase, vector_f32>(tensor, Ops::MAX, dim, keepdims);
 }
-
-pair<vector_f64, vector_i16> MaxInt64(Int64TensorBase tensor, int32_t dim, bool keepdims) {
+pair<vector_f64, vector_i16> Max(Int64TensorBase tensor, int32_t dim, bool keepdims){
     return ReduceConfig<Int64TensorBase, vector_f64>(tensor, Ops::MAX, dim, keepdims);
 }

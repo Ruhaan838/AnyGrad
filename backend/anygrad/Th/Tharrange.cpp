@@ -28,22 +28,22 @@ pair<V, vector_i16> ViewConfig(U tensor, vector_i16 new_shape_input){
     return {tensor.data, new_shape};
 }
 
-pair<vector_f32, vector_i16> ViewFloat32(FloatTensorBase tensor, vector_i16 rearrenge_view){
+pair<vector_f32, vector_i16> View(FloatTensorBase tensor, vector_i16 rearrenge_view){
     return ViewConfig<FloatTensorBase, vector_f32>(tensor, rearrenge_view);
 }
 
-pair<vector_f64, vector_i16> ViewFloat64(DoubleTensorBase tensor, vector_i16 rearrenge_view){
+pair<vector_f64, vector_i16> View(DoubleTensorBase tensor, vector_i16 rearrenge_view){
     return ViewConfig<DoubleTensorBase, vector_f64>(tensor, rearrenge_view);
 }
 
-pair<vector_i32, vector_i16> ViewInt32(Int32TensorBase tensor, vector_i16 rearrenge_view){
+pair<vector_i32, vector_i16> View(Int32TensorBase tensor, vector_i16 rearrenge_view){
     return ViewConfig<Int32TensorBase, vector_i32>(tensor, rearrenge_view);
 }
 
-pair<vector_i64, vector_i16> ViewInt64(Int64TensorBase tensor, vector_i16 rearrenge_view){
+pair<vector_i64, vector_i16> View(Int64TensorBase tensor, vector_i16 rearrenge_view){
     return ViewConfig<Int64TensorBase, vector_i64>(tensor, rearrenge_view);
 }
 
-pair<vector_bool, vector_i16> ViewBool(BoolTensorBase tensor, vector_i16 rearrenge_view){
+pair<vector_bool, vector_i16> View(BoolTensorBase tensor, vector_i16 rearrenge_view){
     return ViewConfig<BoolTensorBase, vector_bool>(tensor, rearrenge_view);
 }
