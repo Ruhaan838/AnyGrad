@@ -4,12 +4,7 @@
 #include "../include/ThTypes.hpp"
 #include "../include/Th.hpp"
 
-#define vector_f32 vector<float>
-#define vector_f64 vector<double>
-#define vector_i16 vector<int16_t>
-#define vector_i32 vector<int32_t>
-#define vector_i64 vector<int64_t>
-#define vector_bool vector<bool>
+
 
 template <typename T>
 pair<T, vector_i16> ZerosOrOnesConfig(vector_i16 shape, int32_t num){

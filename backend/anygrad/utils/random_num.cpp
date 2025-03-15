@@ -9,12 +9,7 @@
 
 using namespace std;
 
-#define vector_f32 vector<float>
-#define vector_f64 vector<double>
-#define vector_i16 vector<int16_t>
-#define vector_i32 vector<int32_t>
-#define vector_i64 vector<int64_t>
-#define vector_bool vector<bool>
+
 
 template <typename U, typename T>
 pair<U, vector_i16> randConfig(vector_i16 shape, Generator* generator){
