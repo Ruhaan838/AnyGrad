@@ -8,4 +8,4 @@ class Version(str):
     __module__ = "anygrad"
 
 
-__version__ = Version("0.0.2")
+__version__ = Version("0.0.3")
