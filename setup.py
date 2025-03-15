@@ -47,9 +47,6 @@ setup(
     zip_safe=False,
     packages=find_packages(),
     package_dir={"": "."},
-    package_data={
-        "anygrad": ["tensor/*.py", "__init__.py", "anygrad/*.py", "tensor/utils/*.py"],
-    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
