@@ -10,7 +10,7 @@
 ## Overview
 AnyGrad is a simple tensor library that makes it easy to perform forward and backward passes. It uses a high-performance C++ backend together with a user-friendly Python frontend. You can change the backend easily and simply.
 
-> Note: currently version `0.0.2` does not support any engine. 
+> Note: currently version `0.0.1` does not support any engine. 
 But in the future, the integrations of engines like `numpy`, `pytorch` etc. will come and you can use them for anything from Tensor operation to high-level transformer training. 
 
 ## Installation

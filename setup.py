@@ -1,9 +1,9 @@
-from setuptools import setup, find_packages, Extension
+from setuptools import setup, find_packages
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 import sys
 
 compile_args = ["-O2", "-std=c++20"] if sys.platform != "win32" else ["/O2", "/std:c++20"]
-version = "0.0.2"
+version = "0.0.1"
 
 ext_modules = [
     Pybind11Extension(
@@ -50,8 +50,12 @@ setup(
     package_data={
         "anygrad": ["Tensor/*.py", "__init__.py", "anygrad/*.py", "Tensor/utils/*.py"],
     },
+    classifiers = [
+        "Programming Language :: Python :: 3",
+        "Operating System :: OS Independent",
+    ],
     include_package_data=True,
     install_requires=[
-        "pybind11"
+        "pybind11", "numpy"
     ]
 )
