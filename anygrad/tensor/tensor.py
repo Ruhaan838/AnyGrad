@@ -214,6 +214,21 @@ class Tensor:
 
     def __rtruediv__(self, other: Union["Tensor", int, float]) -> "Tensor":
         return self._tensor.__rtruediv__(other)
+    
+    def __eq__(self, other:Union["Tensor", int, float]) -> "Tensor":
+        return self._tensor.__eq__(other)
+    
+    def __gt__(self, other:Union["Tensor", int, float]) -> "Tensor":
+        return self._tensor.__gt__(other)
+    
+    def __lt__(self, other:Union["Tensor", int, float]) -> "Tensor":
+        return self._tensor.__lt__(other)
+    
+    def __ge__(self, other:Union["Tensor", int, float]) -> "Tensor":
+        return self._tensor.__ge__(other)
+    
+    def __le__(self, other:Union["Tensor", int, float]) -> "Tensor":
+        return self._tensor.__le__(other)
 
     def sum(
         self, axis: Optional[int] = -1, keepdims: Optional[bool] = False
@@ -254,4 +269,7 @@ class Tensor:
         new_data = Th.reshape(self.data, shape)
         return Tensor(new_data, self.requires_grad, self.dtype)
 
+    def __hash__(self):
+        return id(self)
+    
     __module__ = "anygrad"

@@ -89,13 +89,14 @@ class BoolTensor(BaseTensor):
 
     def __add__(self, other) -> "BoolTensor":
         return BaseTensor._apply_operation(
-            self,
-            other,
-            BoolTensor,
-            True,
-            operation=lambda x, y: x + y,
+            tensor1=self,
+            tensor2=other,
+            ResultClass=BoolTensor,
+            OtherClass=BoolTensor,
+            has_scaler=False,
+            operation=None,
             operation_name="Add",
-            broadcast_checker=C.isbroadcast,
+            allow_other_class=False
         )
 
     def __radd__(self, other) -> "BoolTensor":
@@ -103,13 +104,14 @@ class BoolTensor(BaseTensor):
 
     def __sub__(self, other) -> "BoolTensor":
         return BaseTensor._apply_operation(
-            self,
-            other,
-            BoolTensor,
-            True,
-            operation=lambda x, y: x - y,
+            tensor1=self,
+            tensor2=other,
+            ResultClass=BoolTensor,
+            OtherClass=BoolTensor,
+            has_scaler=False,
+            operation=None,
             operation_name="Sub",
-            broadcast_checker=C.isbroadcast,
+            allow_other_class=False
         )
 
     def __rsub__(self, other) -> "BoolTensor":
@@ -117,13 +119,14 @@ class BoolTensor(BaseTensor):
 
     def __mul__(self, other) -> "BoolTensor":
         return BaseTensor._apply_operation(
-            self,
-            other,
-            BoolTensor,
-            True,
-            operation=lambda x, y: x * y,
+            tensor1=self,
+            tensor2=other,
+            ResultClass=BoolTensor,
+            OtherClass=BoolTensor,
+            has_scaler=False,
+            operation=None,
             operation_name="Mul",
-            broadcast_checker=C.isbroadcast,
+            allow_other_class=False
         )
 
     def __rmul__(self, other) -> "BoolTensor":
@@ -131,13 +134,14 @@ class BoolTensor(BaseTensor):
 
     def __rtruediv__(self, other) -> "BoolTensor":
         return BaseTensor._apply_operation(
-            self,
-            other,
-            BoolTensor,
-            True,
-            operation=lambda x, y: y / x,
+            tensor1=self,
+            tensor2=other,
+            ResultClass=BoolTensor,
+            OtherClass=BoolTensor,
+            has_scaler=False,
+            operation=None,
             operation_name="Div",
-            broadcast_checker=C.isbroadcast,
+            allow_other_class=False
         )
 
     def __rtruediv__(self, other) -> "BoolTensor":
@@ -150,29 +154,79 @@ class BoolTensor(BaseTensor):
         raise NotImplementedError(
             "Matrix multiplication is not implemented for BoolTensor"
         )
+        
+    def __eq__(self, other):
+        return BaseTensor._apply_compare(
+            self,
+            other,
+            BoolTensor,
+            operation = lambda x, y: x == y,
+            operation_name = "Eq",
+            has_scaler=True
+        )
+    
+    def __gt__(self, other):
+        return BaseTensor._apply_compare(
+            self,
+            other,
+            BoolTensor,
+            operation = lambda x, y: x > y,
+            operation_name = "Gt",
+            has_scaler=True
+        )
+        
+    def __lt__(self, other):
+        return BaseTensor._apply_compare(
+            self,
+            other,
+            BoolTensor,
+            operation = lambda x, y: x < y,
+            operation_name = "Lt",
+            has_scaler=True
+        )
+    
+    def __ge__(self, other):
+        return BaseTensor._apply_compare(
+            self,
+            other,
+            BoolTensor,
+            operation = lambda x, y: x >= y,
+            operation_name = "Ge",
+            has_scaler=True
+        )
+    
+    def __le__(self, other):
+        return BaseTensor._apply_compare(
+            self,
+            other,
+            BoolTensor,
+            operation = lambda x, y: x <= y,
+            operation_name = "Le",
+            has_scaler=True
+        )
 
     def backward(self, custom_grad=None):
         raise NotImplementedError("Backward pass is not implemented for BoolTensor")
 
     def sum(self, axis: Optional[int] = -1, keepdims: Optional[bool] = False):
-        raise NotImplementedError("sum is not implemented for BoolTensor")
+        return BaseTensor._reduce_ops(self, BoolTensor, BoolTensor, axis, keepdims, "Sum", allow_other_class=False)
 
     def mean(self, axis: Optional[int] = -1, keepdims: Optional[bool] = False):
-        raise NotImplementedError("mean is not implemented for BoolTensor")
+        return BaseTensor._reduce_ops(self, BoolTensor, BoolTensor, axis, keepdims, "Mean", allow_other_class=False)
 
     def min(self, axis: Optional[int] = -1, keepdims: Optional[bool] = False):
-        raise NotImplementedError("min is not implemented for BoolTensor")
+        return BaseTensor._reduce_ops(self, BoolTensor, BoolTensor, axis, keepdims, "Min", allow_other_class=False)
 
     def max(self, axis: Optional[int] = -1, keepdims: Optional[bool] = False):
-        raise NotImplementedError("max is not implemented for BoolTensor")
+        return BaseTensor._reduce_ops(self, BoolTensor, BoolTensor, axis, keepdims, "Max", allow_other_class=False)
 
     def median(self, axis: Optional[int] = -1, keepdims: Optional[bool] = False):
-        raise NotImplementedError("median is not implemented for BoolTensor")
+        return BaseTensor._reduce_ops(self, BoolTensor, BoolTensor, axis, keepdims, "Median", allow_other_class=False)
 
     def transpose(self, dim0: int, dim1: int) -> "BoolTensor":
-        return BaseTensor._trans_ops(self, dim0, dim1, BoolTensor)
+        return BaseTensor._trans_ops(self, BoolTensor, BoolTensor, dim0, dim1, allow_other_class=False)
 
     def view(self, shape) -> "BoolTensor":
-        return BaseTensor._apply_view(self, shape, TensorClass=BoolTensor)
+        return BaseTensor._apply_view(self, BoolTensor, BoolTensor, shape, allow_other_class=False)
 
     __module__ = "anygrad"

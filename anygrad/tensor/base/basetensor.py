@@ -18,13 +18,27 @@ class BaseTensor:
         "bool": Th.bool,
     }
 
-    _prority_dtype = {"bool": 0, "int32": 1, "int64": 2, "float32": 3, "float64": 4}
-
+    promotion_table = {
+        (Th.bool, Th.bool) : Th.bool,
+        
+        (Th.int32, Th.int32): Th.int32,
+        (Th.int32, Th.int64):Th.int64,
+        (Th.int32, Th.float32):Th.float32,
+        (Th.int32, Th.float64):Th.float64,
+        
+        (Th.int64, Th.int64): Th.int64,
+        (Th.int64, Th.float32):Th.float32,
+        (Th.int64, Th.float64):Th.float64,
+        
+        (Th.float32, Th.float32):Th.float32,
+        (Th.float32, Th.float64):Th.float64,
+        
+        (Th.float64, Th.float64):Th.float64
+    }
+    
     @classmethod
-    def _sel_dtype(cls, dtype1: str, dtype2: str):
-        num1 = cls._prority_dtype[dtype1]
-        num2 = cls._prority_dtype[dtype2]
-        return dtype1 if num1 > num2 else dtype2
+    def promote_type(cls, type1, type2):
+        return cls.promotion_table.get((type1, type2)) or cls.promotion_table.get((type2, type1))
 
     def __init__(self, requires_grad=False):
 
@@ -50,158 +64,103 @@ class BaseTensor:
     @property
     def dtype(self) -> str:
         return BaseTensor._dtype_map[self.base.dtype]
-
+    
     @staticmethod
-    def _create_tensor(data, shape, TensorClass, requires_grad: bool, sel_dtype, dtype_set={Th.int32, Th.int64, Th.bool}):
-        reshaped = Th.reshape(data, shape)
-        if sel_dtype in dtype_set:
-            return TensorClass(reshaped, dtype=sel_dtype)
-        else:
-            return TensorClass(reshaped, requires_grad=requires_grad, dtype=sel_dtype)
-
-    @staticmethod
-    def _apply_operation(
-        tensor1,
-        tensor2,
-        TensorClass: Any,
-        has_scalar: bool,
-        operation: Callable,
-        operation_name: str,
-        broadcast_checker: Callable,
-        OtherClass: Any = None,
-        dtype_set = {Th.int32, Th.int64, Th.bool}
-    ):
-        """
-        Apply an element-wise operation on two tensors or a tensor and a scalar.
+    def _create_tensor(ResultClass, OtherClass, allow_other_class, data, shape, dtype, req_grad):
+        reshape = Th.reshape(data, shape)
         
-        Parameters:
-            tensor1: The first tensor operand.
-            tensor2: The second tensor operand or a scalar (if allowed).
-            TensorClass: The tensor class to use for the output.
-            has_scalar: Whether scalar values are allowed for tensor2.
-            operation: A function representing the element-wise operation.
-            operation_name: A string denoting the operation (e.g., "Add", "Mul").
-            broadcast_checker: A function to verify broadcasting compatibility.
-            OtherClass: An alternative output tensor class (optional).
-            dtype_set: for other engines (numpy, torch).
+        if allow_other_class:
+            ans = OtherClass(reshape, requires_grad=req_grad, dtype=dtype)
+        elif dtype in {Th.float32, Th.float64}:
+            ans = OtherClass(reshape, requires_grad=req_grad, dtype=dtype)
+        elif dtype in {Th.int32, Th.int64, Th.bool}:
+            ans = ResultClass(reshape, dtype=dtype)
+        return ans
 
-        Returns:
-            A new tensor resulting from applying the operation while preserving gradient info.
-        """
-        # handle the integers.
-        if isinstance(tensor2, (int, float)) and has_scalar:
+    @staticmethod
+    def _apply_operation(tensor1, 
+                         tensor2, 
+                         ResultClass, 
+                         OtherClass, 
+                         has_scaler:bool, 
+                         operation:Callable, 
+                         operation_name:str,
+                         allow_other_class:bool, 
+                         broadcast_check:Callable = C.isbroadcast):
+        
+        if isinstance(tensor2, (int, float)) and has_scaler:
             data = [operation(i, tensor2) for i in tensor1.base.data]
-            selected_class = OtherClass if OtherClass is not None else TensorClass
-            ans = BaseTensor._create_tensor(
-                data, tensor1.shape, selected_class, tensor1.requires_grad, tensor1.dtype
-            )
+            ans = BaseTensor._create_tensor(ResultClass, OtherClass, allow_other_class, data, tensor1.base.shape, tensor1.dtype, tensor1.requires_grad)
+            
             if ans.requires_grad:
                 ans._prev = {tensor1}
-                grad_func = getattr(Ag.GradientCal, f"{operation_name.capitalize()}_grad", None)
-                ans._backward = grad_func(tensor1, tensor2, ans)
+                ans._backward = getattr(Ag.GradientCal, f"{operation_name.capitalize()}_grad")(tensor1, tensor2, ans)
                 ans.name_backward = f"<{operation_name}Backward1>"
                 ans.is_leaf = False
             return ans
-
-        allow = broadcast_checker(
-            tensor1.shape, tensor2.shape, tensor1.base.ndim, tensor2.base.ndim
-        )
-        errors.broadcast_error(
-            allow, f"{operation_name} operation: incompatible shapes {tensor1.shape} and {tensor2.shape}"
-        )
-        # TODO: how i can remove this but still its works same
-        if tensor1.base.dtype != tensor2.base.dtype:
-            sel_dtype = BaseTensor._sel_dtype(tensor1.base.dtype, tensor2.base.dtype)
-            if tensor1.base.dtype != sel_dtype:
-                tensor1 = anygrad.cast(tensor1, BaseTensor._dtype_map[sel_dtype])
-            if tensor2.base.dtype != sel_dtype:
-                tensor2 = anygrad.cast(tensor2, BaseTensor._dtype_map[sel_dtype])
-
-        op_func_name = f"{operation_name.capitalize()}{tensor1.base.dtype.capitalize()}"
-        try:
-            operation_func = getattr(C, op_func_name)
-        except AttributeError as e:
-            raise NotImplementedError(f"Operation {op_func_name} not implemented in C++") from e
-
-        data, shape = operation_func(tensor1.base, tensor2.base)
-        requires_grad = tensor1.requires_grad or tensor2.requires_grad
-        unified_dtype = BaseTensor._dtype_map[
-            BaseTensor._sel_dtype(tensor1.base.dtype, tensor2.base.dtype)
-        ]
-        if OtherClass is not None:
-            unified_dtype = anygrad.float32 if unified_dtype == anygrad.int32 else anygrad.float64
-            ans = BaseTensor._create_tensor(
-                data, shape, OtherClass, requires_grad=requires_grad, sel_dtype=unified_dtype, dtype_set=dtype_set
-            )
-        else:
-            ans = BaseTensor._create_tensor(
-                data, shape, TensorClass, requires_grad=requires_grad, sel_dtype=unified_dtype, dtype_set=dtype_set
-            )
-
+        
+        allow = broadcast_check(tensor1.base.shape, tensor2.base.shape, tensor1.base.ndim, tensor2.base.ndim)
+        if not allow:
+            raise RuntimeError(f"The size of the tensors are must broadcast current shapes are :{tensor1.base.shape} and {tensor2.base.shape}")
+        
+        func = getattr(C, f"{operation_name.capitalize()}", None)
+        if func is None:
+            raise NotImplementedError(f"""
+                                      {operation_name} is not implemented in C++
+                                      """)
+        
+        data, shape = func(tensor1.base, tensor2.base)
+        dtype = BaseTensor.promote_type(tensor1.dtype, tensor2.dtype)
+        req_grad = tensor1.requires_grad or tensor2.requires_grad
+        ans = BaseTensor._create_tensor(ResultClass, OtherClass, allow_other_class, data, shape, dtype, req_grad)
         if ans.requires_grad:
             ans._prev = {tensor1, tensor2}
-            grad_func = getattr(Ag.GradientCal, f"{operation_name.capitalize()}_grad", None)
-            ans._backward = grad_func(tensor1, tensor2, ans)
-            ans.name_backward = f"<{operation_name}Backward0>"
+            ans._backward = getattr(Ag.GradientCal, f"{operation_name.capitalize()}_grad")(tensor1, tensor2, ans)
+            ans.name_backward = f"<{operation_name}Bacward0>"
             ans.is_leaf = False
-
+            
         return ans
 
     @staticmethod
-    def _reduce_ops(
-        tensor1, TensorClass, axis: Optional[int], keepdims: bool, operation_name: str, OtherClass:Any=None
-    ):
+    def _reduce_ops(tensor1, ResultClass, OtherClass, axis: Optional[int], keepdims: bool, operation_name: str, allow_other_class: bool = False):
         allow = C.is_sum_allow(axis, tensor1.base.ndim)
-        errors.sum_error(
-            allow, f" {operation_name} we found {axis} and {tensor1.base.ndim}"
-        )
+        if not allow:
+            raise RuntimeError(f"Invalid reduction operation: axis {axis} is not compatible with tensor of dimension {tensor1.base.ndim}")
 
-        try:
-            operation_func = getattr(
-                C, f"{operation_name.capitalize()}{tensor1.base.dtype.capitalize()}"
-            )
-        except Exception:
-            pass
+        func = getattr(C, f"{operation_name.capitalize()}", None)
+        if func is None:
+            raise NotImplementedError(f"{operation_name} is not implemented in C++")
 
-        data, shape = operation_func(tensor1.base, axis, keepdims)
-        
-        if OtherClass is not None:
-            ans = BaseTensor._create_tensor(
-                data, shape, OtherClass, tensor1.requires_grad, tensor1.shape
-            )
-        else:
-            ans = BaseTensor._create_tensor(
-                data, shape, TensorClass, tensor1.requires_grad, tensor1.dtype
-            )
+        data, shape = func(tensor1.base, axis, keepdims)
+        ans = BaseTensor._create_tensor(ResultClass, OtherClass, allow_other_class, 
+                                      data, shape, tensor1.dtype, tensor1.requires_grad)
 
         if ans.requires_grad:
             ans._prev = {tensor1}
-            ans._backward = getattr(
-                Ag.GradientCal, f"{operation_name.capitalize()}_grad"
-            )(tensor1, ans)
+            ans._backward = getattr(Ag.GradientCal, f"{operation_name.capitalize()}_grad")(
+                tensor1, ans
+            )
             ans.name_backward = f"<{operation_name}Backward0>"
             ans.is_leaf = False
 
-        del data, shape
         return ans
 
     @staticmethod
-    def _trans_ops(tensor1, dim0: int, dim1: int, TensorClass: Any):
-
+    def _trans_ops(tensor1, ResultClass, OtherClass, dim0: int, dim1: int, allow_other_class: bool = False):
         if dim0 < 0 and dim1 < 0:
             dim0 = tensor1.ndim + dim0
             dim1 = tensor1.ndim + dim1
 
-        allow = False if tensor1.ndim < 2 else True
-        errors.dim_error(allow, f" Transpose we found {tensor1.ndim}")
-        try:
-            opration_func = getattr(C, f"Trans{tensor1.base.dtype.capitalize()}")
-        except Exception:
-            pass
-        data, shape = opration_func(tensor1.base, dim0, dim1)
-        ans = BaseTensor._create_tensor(
-            data, shape, TensorClass, tensor1.requires_grad, tensor1.dtype
-        )
+        if tensor1.ndim < 2:
+            raise RuntimeError(f"Transpose requires at least 2D tensor, got {tensor1.ndim}D")
+        
+        func = getattr(C, f"Trans", None)
+        if func is None:
+            raise NotImplementedError("Transpose is not implemented in C++")
+            
+        data, shape = func(tensor1.base, dim0, dim1)
+        ans = BaseTensor._create_tensor(ResultClass, OtherClass, allow_other_class,
+                                      data, shape, tensor1.dtype, tensor1.requires_grad)
 
         if ans.requires_grad:
             ans._prev = {tensor1}
@@ -212,31 +171,31 @@ class BaseTensor:
         return ans
     
     @staticmethod
-    def _apply_view(tensor, shape, TensorClass):
-        allow = C.is_view_allow(tensor.base.shape, tensor.base.size)
-        errors.dim_error(allow, f" View we found {shape} invoke with {tensor.base.size}")
+    def _apply_view(tensor1, ResultClass, OtherClass, shape, allow_other_class: bool = False):
+        allow = C.is_view_allow(tensor1.base.shape, tensor1.base.size)
+        if not allow:
+            raise RuntimeError(f"Invalid view operation: shape {shape} is not compatible with tensor of size {tensor1.base.size}")
         
-        try:
-            operation_func = getattr(C, f"View{tensor.base.dtype.capitalize()}")
-        except Exception:
-            pass
+        func = getattr(C, f"View", None)
+        if func is None:
+            raise NotImplementedError("View is not implemented in C++")
         
-        data, shape = operation_func(tensor.base, shape)
-        ans = BaseTensor._create_tensor(
-            data=data, shape=shape, TensorClass=TensorClass, requires_grad=tensor.requires_grad, sel_dtype=tensor.dtype
-        )
+        data, shape = func(tensor1.base, shape)
+        ans = BaseTensor._create_tensor(ResultClass, OtherClass, allow_other_class,
+                                      data, shape, tensor1.dtype, tensor1.requires_grad)
         
         if ans.requires_grad:
-            ans._prev = {tensor}
+            ans._prev = {tensor1}
             ans.name_backward = "<ViewBackward0>"
-            ans._backward = getattr(Ag.GradientCal, "View_grad")(tensor, ans)
+            ans._backward = getattr(Ag.GradientCal, "View_grad")(tensor1, ans)
             ans.is_leaf = False
             
         return ans
 
     @staticmethod
     def _apply_reshape(tensor, shape, TensorClass):
-        ans = BaseTensor._create_tensor(tensor.data, shape=shape, TensorClass=TensorClass, requires_grad=tensor.requires_grad, sel_dtype=tensor.dtype)
+        ans = BaseTensor._create_tensor(TensorClass, TensorClass, False,
+                                      tensor.data, shape, tensor.dtype, tensor.requires_grad)
         
         if ans.requires_grad:
             ans._prev = {tensor}
@@ -245,6 +204,33 @@ class BaseTensor:
             ans.is_leaf = False
         
         return ans
+    
+    @staticmethod
+    def _apply_compare(tensor1, tensor2, ResultClass, operation, operation_name:str, has_scaler:bool, broadcast_check = C.isbroadcast):
+        
+        if isinstance(tensor2, (int, float)) and has_scaler:
+            data, shape = [operation(tensor1.data[i], tensor2) for i in range(tensor1.size)]
+            reshape = Th.reshape(data, shape)
+            ans = ResultClass(reshape, dtype=Th.bool)
+            return ans
+        
+        allow = broadcast_check(tensor1.base.shape, tensor2.base.shape, tensor1.base.ndim, tensor2.base.ndim)
+        if not allow:
+            raise RuntimeError(f"The size of the tensors are must broadcast current shapes are :{tensor1.base.shape} and {tensor2.base.shape}")
+        
+        func = getattr(C, f"{operation_name.capitalize()}", None)
+        if func is None:
+            raise NotImplementedError(f"""
+                                      {operation_name} is not implemented in C++
+                                      """)
+        
+        data, shape = func(tensor1.base, tensor2.base)
+        reshape = Th.reshape(data, shape)
+        ans = ResultClass(reshape, dtype=Th.bool)
+        return ans
+        
+        
+        
         
     def __iter__(self):
         return iter(self.data)

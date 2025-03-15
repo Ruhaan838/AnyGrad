@@ -5,6 +5,7 @@ from anygrad.tensor.base import tensor_c as C
 from anygrad.tensor.base import ThHelper as Th
 from anygrad.tensor.base.basetensor import BaseTensor
 from anygrad.tensor.base.floattensor import FloatTensor
+from anygrad.tensor.base.booltensor import BoolTensor
 
 
 class IntTensor(BaseTensor):
@@ -96,13 +97,14 @@ class IntTensor(BaseTensor):
 
     def __add__(self, other) -> "IntTensor":
         return BaseTensor._apply_operation(
-            self,
-            other,
-            IntTensor,
-            True,
+            tensor1=self,
+            tensor2=other,
+            ResultClass=IntTensor,
+            OtherClass=FloatTensor,
+            has_scaler=True,
             operation=lambda x, y: x + y,
             operation_name="Add",
-            broadcast_checker=C.isbroadcast,
+            allow_other_class=False
         )
 
     def __radd__(self, other) -> "IntTensor":
@@ -110,27 +112,38 @@ class IntTensor(BaseTensor):
 
     def __sub__(self, other) -> "IntTensor":
         return BaseTensor._apply_operation(
-            self,
-            other,
-            IntTensor,
-            True,
+            tensor1=self,
+            tensor2=other,
+            ResultClass=IntTensor,
+            OtherClass=FloatTensor,
+            has_scaler=True,
             operation=lambda x, y: x - y,
             operation_name="Sub",
-            broadcast_checker=C.isbroadcast,
+            allow_other_class=False
         )
 
     def __rsub__(self, other) -> "IntTensor":
-        return self.__sub__(other)
+        return BaseTensor._apply_operation(
+            tensor1=self,
+            tensor2=other,
+            ResultClass=IntTensor,
+            OtherClass=FloatTensor,
+            has_scaler=True,
+            operation=lambda x, y: y + x,
+            operation_name="Sub",
+            allow_other_class=False
+        )
 
     def __mul__(self, other) -> "IntTensor":
         return BaseTensor._apply_operation(
-            self,
-            other,
-            IntTensor,
-            True,
+            tensor1=self,
+            tensor2=other,
+            ResultClass=IntTensor,
+            OtherClass=FloatTensor,
+            has_scaler=True,
             operation=lambda x, y: x * y,
             operation_name="Mul",
-            broadcast_checker=C.isbroadcast,
+            allow_other_class=False
         )
 
     def __rmul__(self, other) -> "IntTensor":
@@ -138,67 +151,120 @@ class IntTensor(BaseTensor):
 
     def __truediv__(self, other) -> "IntTensor":
         return BaseTensor._apply_operation(
-            self,
-            other,
-            IntTensor,
-            True,
+            tensor1=self,
+            tensor2=other,
+            ResultClass=IntTensor,
+            OtherClass=FloatTensor,
+            has_scaler=True,
             operation=lambda x, y: x / y,
             operation_name="Div",
-            broadcast_checker=C.isbroadcast,
-            OtherClass=FloatTensor
+            allow_other_class=True
         )
 
     def __rtruediv__(self, other) -> "IntTensor":
         return BaseTensor._apply_operation(
-            self,
-            other,
-            IntTensor,
-            True,
+            tensor1=self,
+            tensor2=other,
+            ResultClass=IntTensor,
+            OtherClass=FloatTensor,
+            has_scaler=True,
             operation=lambda x, y: y / x,
             operation_name="Div",
-            broadcast_checker=C.isbroadcast,
-            OtherClass=FloatTensor
+            allow_other_class=True
         )
 
     def __pow__(self, other) -> "IntTensor":
         return BaseTensor._apply_operation(
-            self,
-            other,
-            IntTensor,
-            True,
-            operation=lambda x, y: x**y,
+            tensor1=self,
+            tensor2=other,
+            ResultClass=IntTensor,
+            OtherClass=FloatTensor,
+            has_scaler=True,
+            operation=lambda x, y: x ** y,
             operation_name="Pow",
-            broadcast_checker=C.isbroadcast,
+            allow_other_class=False
         )
 
     def __matmul__(self, other) -> "IntTensor":
         return BaseTensor._apply_operation(
+            tensor1=self,
+            tensor2=other,
+            ResultClass=IntTensor,
+            OtherClass=FloatTensor,
+            has_scaler=False,
+            operation=None,
+            operation_name="Matmul",
+            allow_other_class=False,
+            broadcast_check=C.is_matmul_broadcast
+        )
+        
+    def __eq__(self, other):
+        return BaseTensor._apply_compare(
             self,
             other,
-            IntTensor,
-            False,
-            operation=lambda: None,
-            operation_name="Matmul",
-            broadcast_checker=C.is_matmul_broadcast,
+            BoolTensor,
+            operation = lambda x, y: x == y,
+            operation_name = "Eq",
+            has_scaler=True
+        )
+    
+    def __gt__(self, other):
+        return BaseTensor._apply_compare(
+            self,
+            other,
+            BoolTensor,
+            operation = lambda x, y: x > y,
+            operation_name = "Gt",
+            has_scaler=True
+        )
+        
+    def __lt__(self, other):
+        return BaseTensor._apply_compare(
+            self,
+            other,
+            BoolTensor,
+            operation = lambda x, y: x < y,
+            operation_name = "Lt",
+            has_scaler=True
+        )
+    
+    def __ge__(self, other):
+        return BaseTensor._apply_compare(
+            self,
+            other,
+            BoolTensor,
+            operation = lambda x, y: x >= y,
+            operation_name = "Ge",
+            has_scaler=True
+        )
+    
+    def __le__(self, other):
+        return BaseTensor._apply_compare(
+            self,
+            other,
+            BoolTensor,
+            operation = lambda x, y: x <= y,
+            operation_name = "Le",
+            has_scaler=True
         )
 
     def sum(self, axis: Optional[int] = -1, keepdims: Optional[bool] = False):
-        return BaseTensor._reduce_ops(self, IntTensor, axis, keepdims, "Sum")
+        return BaseTensor._reduce_ops(self, IntTensor, IntTensor, axis, keepdims, "Sum", allow_other_class=False)
 
     def mean(self, axis: Optional[int] = -1, keepdims: Optional[bool] = False):
-        return BaseTensor._reduce_ops(self, IntTensor, axis, keepdims, "Mean", OtherClass=FloatTensor)
+        return BaseTensor._reduce_ops(self, IntTensor, FloatTensor, axis, keepdims, "Mean", allow_other_class=True)
 
     def min(self, axis: Optional[int] = -1, keepdims: Optional[bool] = False):
-        return BaseTensor._reduce_ops(self, IntTensor, axis, keepdims, "Min")
+        return BaseTensor._reduce_ops(self, IntTensor, IntTensor, axis, keepdims, "Min", allow_other_class=False)
 
     def max(self, axis: Optional[int] = -1, keepdims: Optional[bool] = False):
-        return BaseTensor._reduce_ops(self, IntTensor, axis, keepdims, "Max")
+        return BaseTensor._reduce_ops(self, IntTensor, IntTensor, axis, keepdims, "Max", allow_other_class=False)
 
     def median(self, axis: Optional[int] = -1, keepdims: Optional[bool] = False):
-        return BaseTensor._reduce_ops(self, IntTensor, axis, keepdims, "Median", OtherClass=FloatTensor)
+        return BaseTensor._reduce_ops(self, IntTensor, FloatTensor, axis, keepdims, "Median", allow_other_class=True)
 
     def transpose(self, dim0: int, dim1: int) -> "IntTensor":
-        return BaseTensor._trans_ops(self, dim0, dim1, IntTensor)
+        return BaseTensor._trans_ops(self, IntTensor, FloatTensor, dim0, dim1, allow_other_class=False)
 
     def zero_(self) -> "IntTensor":
         """Zeros out the tensor in-place."""
@@ -207,6 +273,6 @@ class IntTensor(BaseTensor):
         return self
 
     def view(self, shape) -> "IntTensor":
-        return BaseTensor._apply_view(self, shape, TensorClass=IntTensor)
+        return BaseTensor._apply_view(self, IntTensor, FloatTensor, shape, allow_other_class=False)
 
     __module__ = "anygrad"
