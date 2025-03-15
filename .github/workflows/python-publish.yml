@@ -32,6 +32,7 @@ jobs:
         with:
           name: windows-dist-${{ matrix.python-version }}-${{ matrix.architecture }}
           path: dist/*
+
   build-macos:
     name: Build on macOS
     runs-on: macos-latest
@@ -57,6 +58,7 @@ jobs:
         with:
           name: macos-dist-${{ matrix.python-version }}
           path: dist/*
+
   publish:
     name: Combine and Publish Distributions to PyPI
     runs-on: macos-latest
@@ -65,12 +67,12 @@ jobs:
       - name: Download Windows Build Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: windows-dist
+          name: windows-dist-${{ matrix.python-version }}-${{ matrix.architecture }}
           path: dist/
       - name: Download macOS Build Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: macos-dist
+          name: macos-dist-${{ matrix.python-version }}
           path: dist/
       - name: List combined distribution files
         run: ls -lh dist/
