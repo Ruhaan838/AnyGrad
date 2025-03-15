@@ -7,6 +7,7 @@ from anygrad.tensor.base.inttensor import IntTensor
 from anygrad.tensor.base.floattensor import FloatTensor
 
 from anygrad.version import __version__
+from numpy import array
 
 
 class Tensor:
@@ -271,5 +272,11 @@ class Tensor:
 
     def __hash__(self):
         return id(self)
+    
+    def tolist(self):
+        return self._tensor.data
+    
+    def tonumpy(self):
+        return array(self._tensor.data)
     
     __module__ = "anygrad"
